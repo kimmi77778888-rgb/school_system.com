@@ -1,4 +1,4 @@
-{% extends 'school/base.html' %}
+﻿{% extends 'school/base.html' %}
 {% block title %}ប្រវត្តិរូបខ្ញុំ{% endblock %}
 {% block page_title %}ប្រវត្តិរូបខ្ញុំ{% endblock %}
 {% block content %}
@@ -10,7 +10,7 @@
     <div class="card-body p-4 d-flex align-items-center gap-4">
       <div style="position:relative;">
         {% if profile.photo %}
-          <img src="{{ profile.photo.url }}" alt="Profile"
+          <img src="{{ profile.photo|safe_url }}" alt="Profile"
                style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);">
         {% else %}
           <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#4f46e5);
@@ -71,7 +71,7 @@
             {{ form.photo }}
             {% if profile.photo %}
             <div class="mt-2">
-              <img src="{{ profile.photo.url }}" style="height:50px;border-radius:8px;border:1px solid #e2e8f0;">
+              <img src="{{ profile.photo|safe_url }}" style="height:50px;border-radius:8px;border:1px solid #e2e8f0;">
               <span class="text-muted ms-2" style="font-size:.78rem;">រូបភាពបច្ចុប្បន្ន</span>
             </div>
             {% endif %}

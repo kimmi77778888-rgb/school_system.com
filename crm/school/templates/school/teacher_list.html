@@ -1,4 +1,4 @@
-{% extends 'school/base.html' %}
+﻿{% extends 'school/base.html' %}
 {% block title %}បញ្ជីគ្រូ{% endblock %}
 {% block page_title %}គ្រប់គ្រងគ្រូបង្រៀន{% endblock %}
 {% block content %}
@@ -22,7 +22,7 @@
       <td><span class="badge bg-light text-dark fw-bold">{{ t.teacher_id }}</span></td>
       <td>
         <div class="d-flex align-items-center gap-2">
-          {% if t.photo %}<img src="{{ t.photo.url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
+          {% if t.photo %}<img src="{{ t.photo|safe_url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
           {% else %}<div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white" style="width:32px;height:32px;font-size:.75rem;font-weight:700;">{{ t.first_name|first }}</div>{% endif %}
           <a href="{% url 'school:teacher_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.first_name }} {{ t.last_name }}</a>
         </div>

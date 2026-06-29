@@ -1,4 +1,5 @@
 from django import template
+from django.utils.html import format_html
 
 register = template.Library()
 
@@ -7,6 +8,24 @@ register = template.Library()
 def get_item(dictionary, key):
     """Usage: {{ mydict|get_item:key }}"""
     return dictionary.get(key, '')
+
+
+@register.filter
+def safe_url(image_field):
+    """
+    Safely return the URL of an image field.
+    Returns empty string if the field is empty or the URL cannot be generated.
+    Usage: {{ obj.photo|safe_url }}
+    """
+    if not image_field:
+        return ''
+    try:
+        name = getattr(image_field, 'name', None)
+        if not name:
+            return ''
+        return image_field.url
+    except Exception:
+        return ''
 
 
 @register.simple_tag(takes_context=True)
@@ -39,5 +58,4 @@ def user_role_badge(context):
     }
     color = colors.get(role, 'secondary')
     label = role.capitalize() if role else 'User'
-    from django.utils.html import format_html
     return format_html('<span class="badge bg-{}">{}</span>', color, label)
