@@ -371,7 +371,7 @@ a{text-decoration:none;color:inherit;}
       <i class="bi bi-grid-fill"></i><span class="t">ផ្ទាំងគ្រប់គ្រង</span>
     </a>
 
-    {% with role=request.user.profile.role %}
+    {% with role=request.user.profile.role|default:"" %}
 
     {% if role == 'admin' or role == 'teacher' %}
       {% if role == 'admin' %}
@@ -487,7 +487,7 @@ a{text-decoration:none;color:inherit;}
         <div class="sb-prole">{% user_role_badge %}</div>
       </div>
     </a>
-    {% if request.user.profile.role == 'admin' %}
+    {% if request.user.profile.role|default:"" == 'admin' %}
     <a href="{% url 'school:school_settings' %}" class="sb-fl">
       <i class="bi bi-gear-fill"></i><span class="t">ការកំណត់</span>
     </a>
@@ -552,7 +552,7 @@ a{text-decoration:none;color:inherit;}
 </main>
 
 <!-- ═══ BOTTOM NAV (mobile) ═══ -->
-{% with role=request.user.profile.role %}
+{% with role=request.user.profile.role|default:"" %}
 <nav class="bot-nav no-print">
   <a href="{% url 'school:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}on{% endif %}">
     <i class="bi bi-grid-fill"></i><span>ទំព័រ</span>
