@@ -9,35 +9,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-xh0+*f#rw+je!r5@@06agyl0#=!8-v*m5oq5gdjh3oo*dg6mr%')
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver', '.onrender.com']
-
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = ['*']  # Render handles host validation via its proxy
 
 # ──────────────────────────────────────────────────────
 #  JAZZMIN — Modern Admin UI
 # ──────────────────────────────────────────────────────
 JAZZMIN_SETTINGS = {
-    # Title
     "site_title": "BELTEI School",
     "site_header": "BELTEI International University",
     "site_brand": "School MS",
     "welcome_sign": "Welcome to BELTEI School Management",
     "copyright": "BELTEI International University",
-
-    # Top menu
     "topmenu_links": [
         {"name": "School Dashboard", "url": "/school/", "new_window": False},
         {"name": "Home", "url": "admin:index"},
     ],
-
-    # Hide models we don't need
     "hide_apps": ["auth"],
-
-    # Sidebar nav icons per model
     "icons": {
         "school.student":      "fas fa-user-graduate",
         "school.teacher":      "fas fa-chalkboard-teacher",
@@ -51,8 +40,6 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
-
-    # UI tweaks
     "show_sidebar": True,
     "navigation_expanded": True,
     "changeform_format": "horizontal_tabs",
@@ -109,7 +96,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # serve static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,7 +110,7 @@ ROOT_URLCONF = 'crm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'school' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,7 +126,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'crm.wsgi.application'
 
 # ──────────────────────────────────────────────────────
-#  DATABASE — PostgreSQL on Render, SQLite locally
+#  DATABASE
 # ──────────────────────────────────────────────────────
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
@@ -167,12 +154,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Phnom_Penh'
 USE_I18N = True
 USE_TZ = True
 
 # ──────────────────────────────────────────────────────
-#  STATIC & MEDIA FILES
+#  STATIC FILES — whitenoise serves them, no manifest needed
 # ──────────────────────────────────────────────────────
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -180,7 +167,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Cloudinary for media files (uploaded images)
+# Django 6 STORAGES dict — use StaticFilesStorage (simplest, no manifest crash)
 _CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
 
 CLOUDINARY_STORAGE = {
@@ -189,50 +176,37 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
 }
 
-if _CLOUDINARY_CLOUD_NAME:
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            # CompressedStaticFilesStorage compresses files without requiring
-            # a manifest file, avoiding the "Missing staticfiles.json" 500 error.
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-        },
-    }
-else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        # Use Cloudinary for media if configured, else local filesystem
+        "BACKEND": (
+            "cloudinary_storage.storage.MediaCloudinaryStorage"
+            if _CLOUDINARY_CLOUD_NAME
+            else "django.core.files.storage.FileSystemStorage"
+        ),
+    },
+    "staticfiles": {
+        # Simple compressed storage — no manifest.json required
+        # Works even after Render container restarts (no persistent disk)
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Auth redirects
-LOGIN_URL          = '/school/login/'
-LOGIN_REDIRECT_URL = '/school/'
+LOGIN_URL           = '/school/login/'
+LOGIN_REDIRECT_URL  = '/school/'
 LOGOUT_REDIRECT_URL = '/school/login/'
 
 # ──────────────────────────────────────────────────────
-#  LOGGING — always print errors to console (visible in Render logs)
+#  LOGGING — errors visible in Render log panel
 # ──────────────────────────────────────────────────────
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[{levelname}] {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
         },
     },
     'root': {
@@ -241,11 +215,6 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.request': {
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': False,
