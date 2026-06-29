@@ -20,13 +20,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.http import JsonResponse
-import sys, os
+import sys, os, traceback
 
 def health_check(request):
-    """Diagnostic endpoint — shows what's working on Render."""
+    """Diagnostic endpoint."""
     info = {
         'status': 'ok',
-        'commit': '65521a3',
+        'commit': '6e3a78e',
         'python': sys.version,
         'django': __import__('django').get_version(),
         'debug': settings.DEBUG,
@@ -39,7 +39,6 @@ def health_check(request):
         from django.contrib.auth.models import User
         info['db_users'] = User.objects.count()
         info['db_ok'] = True
-        # Check if all users have profiles
         users_without_profile = []
         for u in User.objects.all():
             try:
@@ -60,9 +59,74 @@ def health_check(request):
         info['school_settings_error'] = str(e)
     return JsonResponse(info)
 
+
+def debug_view(request):
+    """Try to simulate the failing page and capture the exact error."""
+    result = {}
+    # Test 1: school settings context processor
+    try:
+        from school.context_processors import school_settings
+        ctx = school_settings(request)
+        result['school_settings_cp'] = 'ok'
+        school = ctx.get('school')
+        result['school_name'] = str(school.school_name) if school else None
+        if school and school.logo:
+            try:
+                result['logo_url'] = school.logo.url
+            except Exception as e:
+                result['logo_url_error'] = f"{type(e).__name__}: {e}"
+    except Exception as e:
+        result['school_settings_cp'] = f"ERROR: {traceback.format_exc()}"
+
+    # Test 2: user profile access
+    if request.user.is_authenticated:
+        try:
+            role = request.user.profile.role
+            result['user_profile_role'] = role
+        except Exception as e:
+            result['user_profile_error'] = f"{type(e).__name__}: {e}"
+
+    # Test 3: user list query
+    try:
+        from django.contrib.auth.models import User
+        users = list(User.objects.select_related('profile').order_by('username'))
+        result['user_list_count'] = len(users)
+        for u in users:
+            try:
+                p = u.profile
+                if p.photo and p.photo.name:
+                    try:
+                        _ = p.photo.url
+                    except Exception as e:
+                        result[f'user_{u.username}_photo_error'] = f"{type(e).__name__}: {e}"
+            except Exception as e:
+                result[f'user_{u.username}_profile_error'] = f"{type(e).__name__}: {e}"
+    except Exception as e:
+        result['user_list_error'] = f"{type(e).__name__}: {e}"
+
+    # Test 4: student list query
+    try:
+        from school.models import Student
+        students = list(Student.objects.filter(is_active=True).select_related('classroom__grade')[:5])
+        result['student_list_count'] = len(students)
+    except Exception as e:
+        result['student_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
+
+    # Test 5: teacher list query
+    try:
+        from school.models import Teacher
+        teachers = list(Teacher.objects.filter(is_active=True)[:5])
+        result['teacher_list_count'] = len(teachers)
+    except Exception as e:
+        result['teacher_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
+
+    return JsonResponse(result, json_dumps_params={'indent': 2})
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health'),
+    path('debug/', debug_view, name='debug'),
     path('', lambda request: redirect('school:dashboard'), name='root'),
     path('school/', include('school.urls')),
 ]
