@@ -1,0 +1,47 @@
+{% extends 'school/base.html' %}
+{% block title %}Report Cards{% endblock %}
+{% block page_title %}Report Cards{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-journal-text me-2 text-primary"></i>Report Cards</h2>
+  <div class="actions">
+    <a href="{% url 'school:report_card_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Generate Report Card
+    </a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>Student</th><th>Classroom</th><th>Year</th><th>Term</th><th>Status</th><th>Generated</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for card in cards %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>
+        <strong>{{ card.student.first_name }} {{ card.student.last_name }}</strong>
+        <div class="text-muted" style="font-size:.75rem;">{{ card.student.student_id }}</div>
+      </td>
+      <td>{{ card.student.classroom|default:"—" }}</td>
+      <td>{{ card.academic_year }}</td>
+      <td>{{ card.term }}</td>
+      <td>
+        {% if card.status == 'published' %}<span class="badge bg-success">Published</span>
+        {% else %}<span class="badge bg-warning text-dark">Draft</span>{% endif %}
+      </td>
+      <td>{{ card.generated_at|date:"d M Y" }}</td>
+      <td>
+        <a href="{% url 'school:report_card_view' card.pk %}" class="btn btn-outline-primary btn-sm" target="_blank">
+          <i class="bi bi-printer"></i>
+        </a>
+        <a href="{% url 'school:report_card_delete' card.pk %}" class="btn btn-outline-danger btn-sm">
+          <i class="bi bi-trash"></i>
+        </a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" class="text-center text-muted py-4">No report cards generated yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

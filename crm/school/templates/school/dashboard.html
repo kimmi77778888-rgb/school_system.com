@@ -1,0 +1,173 @@
+{% extends 'school/base.html' %}
+{% block title %}ផ្ទាំងគ្រប់គ្រង{% endblock %}
+{% block page_title %}ផ្ទាំងគ្រប់គ្រង{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-blue">
+      <div class="lbl">សិស្សទាំងអស់</div>
+      <div class="val">{{ total_students }}</div>
+      <i class="bi bi-people-fill bg-icon"></i>
+      <a href="{% url 'school:student_list' %}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-green">
+      <div class="lbl">គ្រូបង្រៀន</div>
+      <div class="val">{{ total_teachers }}</div>
+      <i class="bi bi-person-badge-fill bg-icon"></i>
+      <a href="{% url 'school:teacher_list' %}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-amber">
+      <div class="lbl">ថ្នាក់រៀន</div>
+      <div class="val">{{ total_classrooms }}</div>
+      <i class="bi bi-building bg-icon"></i>
+      <a href="{% url 'school:classroom_list' %}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-purple">
+      <div class="lbl">មុខវិជ្ជា</div>
+      <div class="val">{{ total_subjects }}</div>
+      <i class="bi bi-journal-bookmark-fill bg-icon"></i>
+      <a href="{% url 'school:subject_list' %}" class="stretched-link"></a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card p-3 h-100">
+      <div class="fw-bold mb-3" style="font-size:.95rem;">
+        <i class="bi bi-calendar-check text-success me-1"></i>វត្តមានថ្ងៃនេះ
+        <span class="text-muted fw-normal" style="font-size:.8rem;"> ({{ today }})</span>
+      </div>
+      <div class="d-flex gap-3 mb-3">
+        <div class="text-center px-3 py-2 rounded-3" style="background:#dcfce7;">
+          <div style="font-size:2rem;font-weight:900;color:#16a34a;">{{ today_present }}</div>
+          <div style="font-size:.75rem;color:#15803d;">មានវត្តមាន</div>
+        </div>
+        <div class="text-center px-3 py-2 rounded-3" style="background:#fee2e2;">
+          <div style="font-size:2rem;font-weight:900;color:#dc2626;">{{ today_absent }}</div>
+          <div style="font-size:.75rem;color:#b91c1c;">អវត្តមាន</div>
+        </div>
+        <div class="text-center px-3 py-2 rounded-3" style="background:#fef9c3;">
+          <div style="font-size:2rem;font-weight:900;color:#ca8a04;">{{ today_late }}</div>
+          <div style="font-size:.75rem;color:#a16207;">យឺត</div>
+        </div>
+      </div>
+      <a href="{% url 'school:attendance_bulk' %}" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-list-check me-1"></i>កត់ត្រាវត្តមាន
+      </a>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3 h-100">
+      <div class="fw-bold mb-3" style="font-size:.95rem;">
+        <i class="bi bi-lightning-charge-fill text-warning me-1"></i>សកម្មភាពរហ័ស
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'school:student_add' %}" class="btn btn-sm btn-primary"><i class="bi bi-person-plus me-1"></i>បន្ថែមសិស្ស</a>
+        <a href="{% url 'school:teacher_add' %}" class="btn btn-sm btn-success"><i class="bi bi-person-plus me-1"></i>បន្ថែមគ្រូ</a>
+        <a href="{% url 'school:score_add' %}" class="btn btn-sm btn-warning text-white"><i class="bi bi-plus me-1"></i>ពិន្ទុ</a>
+        <a href="{% url 'school:attendance_bulk' %}" class="btn btn-sm btn-info text-white"><i class="bi bi-list-check me-1"></i>វត្តមាន</a>
+        <a href="{% url 'school:notification_add' %}" class="btn btn-sm btn-dark"><i class="bi bi-bell me-1"></i>ជូនដំណឹង</a>
+        <a href="{% url 'school:report_card_add' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-journal-text me-1"></i>ប័ណ្ណ</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-people-fill text-primary me-2"></i>សិស្សចុះឈ្មោះថ្មី</span>
+        <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary btn-sm">មើលទាំងអស់</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead><tr><th>លេខ</th><th>ឈ្មោះ</th><th>ថ្នាក់</th></tr></thead>
+        <tbody>
+        {% for s in recent_students %}
+        <tr>
+          <td><span class="badge bg-light text-dark">{{ s.student_id }}</span></td>
+          <td><a href="{% url 'school:student_detail' s.pk %}">{{ s.first_name }} {{ s.last_name }}</a></td>
+          <td>{{ s.classroom|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-bar-chart-fill text-success me-2"></i>ពិន្ទុចុងក្រោយ</span>
+        <a href="{% url 'school:score_list' %}" class="btn btn-outline-secondary btn-sm">មើលទាំងអស់</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead><tr><th>សិស្ស</th><th>មុខវិជ្ជា</th><th>ពិន្ទុ</th><th>ថ្នាក់</th></tr></thead>
+        <tbody>
+        {% for sc in recent_scores %}
+        <tr>
+          <td>{{ sc.student.first_name }} {{ sc.student.last_name }}</td>
+          <td>{{ sc.subject.name }}</td>
+          <td>{{ sc.score }}/{{ sc.max_score }}</td>
+          <td><span class="badge bg-secondary">{{ sc.grade_letter }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-bell-fill text-warning me-2"></i>សេចក្ដីជូនដំណឹង</span>
+        <a href="{% url 'school:notification_list' %}" class="btn btn-outline-secondary btn-sm">មើលទាំងអស់</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for n in notifications %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between">
+            <strong style="font-size:.88rem;">{{ n.title }}</strong>
+            <span class="badge bg-light text-dark" style="font-size:.7rem;">{{ n.get_audience_display }}</span>
+          </div>
+          <div class="text-muted" style="font-size:.78rem;">{{ n.message|truncatechars:60 }}</div>
+          <div class="text-muted" style="font-size:.72rem;">{{ n.created_at|date:"d M Y" }}</div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center text-muted py-3">មិនមានសេចក្ដីជូនដំណឹង</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-calendar-event-fill text-primary me-2"></i>ព្រឹត្តិការណ៍ខាងមុខ</span>
+        <a href="{% url 'school:event_list' %}" class="btn btn-outline-secondary btn-sm">មើលទាំងអស់</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for ev in upcoming_events %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <strong style="font-size:.88rem;">{{ ev.title }}</strong>
+            <div><span class="badge bg-secondary" style="font-size:.7rem;">{{ ev.get_event_type_display }}</span></div>
+          </div>
+          <span class="text-muted" style="font-size:.8rem;">{{ ev.start_date }}</span>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center text-muted py-3">មិនមានព្រឹត្តិការណ៍</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

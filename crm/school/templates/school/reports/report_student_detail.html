@@ -1,0 +1,112 @@
+{% extends 'school/reports/report_base.html' %}
+{% block title %}ប័ណ្ណព័ត៌មានសិស្ស — {{ student.first_name }} {{ student.last_name }}{% endblock %}
+{% block report_title %}ប័ណ្ណព័ត៌មានសិស្ស{% endblock %}
+{% block report_meta %}
+  <div>លេខ: <strong>{{ student.student_id }}</strong> &nbsp;|&nbsp; ថ្ងៃទី: {{ today }}</div>
+{% endblock %}
+
+{% block content %}
+<!-- Student Info -->
+<div class="s-info">
+  <table>
+    <tr>
+      <td>លេខសិស្ស</td><td><strong>{{ student.student_id }}</strong></td>
+      <td>ឈ្មោះ</td><td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
+    </tr>
+    <tr>
+      <td>ភេទ</td><td>{{ student.get_gender_display|default:"—" }}</td>
+      <td>ថ្ងៃខែឆ្នាំ</td><td>{{ student.date_of_birth|default:"—" }}</td>
+    </tr>
+    <tr>
+      <td>ថ្នាក់</td><td>{{ student.classroom|default:"—" }}</td>
+      <td>ថ្ងៃចូលរៀន</td><td>{{ student.enrolled_date }}</td>
+    </tr>
+    <tr>
+      <td>ឈ្មោះមាតាបិតា</td><td>{{ student.parent_name|default:"—" }}</td>
+      <td>ទូរស័ព្ទ(មាតាបិតា)</td><td>{{ student.parent_phone|default:"—" }}</td>
+    </tr>
+    <tr>
+      <td>ទូរស័ព្ទ</td><td>{{ student.phone|default:"—" }}</td>
+      <td>អាសយដ្ឋាន</td><td>{{ student.address|default:"—" }}</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Attendance summary -->
+<div class="sum">
+  <div class="sum-box bl"><div class="v">{{ attendances|length }}</div><div class="l">សរុបកំណត់ត្រា</div></div>
+  <div class="sum-box gr"><div class="v">{{ present_count }}</div><div class="l">មានវត្តមាន</div></div>
+  <div class="sum-box rd"><div class="v">{{ absent_count }}</div><div class="l">អវត្តមាន</div></div>
+</div>
+
+<!-- Scores -->
+<div class="sec-title">លទ្ធផលប្រឡង</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>មុខវិជ្ជា</th>
+      <th>ប្រភេទ</th>
+      <th>ពិន្ទុ</th>
+      <th>អតិបរមា</th>
+      <th>ភាគរយ</th>
+      <th>ថ្នាក់</th>
+      <th>ឆ្នាំ</th>
+      <th>ថ្ងៃ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sc in scores %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ sc.subject.name }}</td>
+      <td>{{ sc.exam_type.name }}</td>
+      <td style="font-weight:700;text-align:center;">{{ sc.score }}</td>
+      <td style="text-align:center;">{{ sc.max_score }}</td>
+      <td style="text-align:center;">{{ sc.percentage }}%</td>
+      <td style="text-align:center;"><span class="b b-G{{ sc.grade_letter }}">{{ sc.grade_letter }}</span></td>
+      <td>{{ sc.academic_year }}</td>
+      <td>{{ sc.date_recorded }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:12px;">គ្មានលទ្ធផល</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Attendance history -->
+<div class="sec-title">ប្រវត្តិវត្តមាន</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>ថ្ងៃ</th>
+      <th>ស្ថានភាព</th>
+      <th>កំណត់ចំណាំ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in attendances %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ a.date }}</td>
+      <td>
+        {% if a.status == 'P' %}<span class="b b-P">មានវត្តមាន</span>
+        {% elif a.status == 'A' %}<span class="b b-A">អវត្តមាន</span>
+        {% elif a.status == 'L' %}<span class="b b-L">យឺត</span>
+        {% else %}<span class="b b-E">មានច្បាប់</span>{% endif %}
+      </td>
+      <td>{{ a.note|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:12px;">គ្មានទិន្នន័យ</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="sigs">
+  <div class="sig"><div class="line"></div><div class="lbl">គ្រូប្រចាំថ្នាក់</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">មាតាបិតា/អាណាព្យាបាល</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">នាយក/នាយិកាសាលា</div></div>
+</div>
+{% endblock %}

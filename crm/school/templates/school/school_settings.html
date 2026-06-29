@@ -1,0 +1,154 @@
+{% extends 'school/base.html' %}
+{% block title %}ការកំណត់សាលា{% endblock %}
+{% block page_title %}ការកំណត់សាលា{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+
+  <!-- Preview Card -->
+  <div class="card mb-4 border-0" style="background:{{ settings.sidebar_bg }};border-radius:18px;overflow:hidden;">
+    <div class="card-body p-4 d-flex align-items-center gap-4">
+      {% if settings.logo %}
+        <img src="{{ settings.logo.url }}" alt="logo"
+             style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff;padding:4px;">
+      {% else %}
+        <div style="width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,{{ settings.primary_color }},{{ settings.secondary_color }});display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+      {% endif %}
+      <div>
+        <h3 style="color:#fff;font-weight:900;margin:0;font-size:1.3rem;">{{ settings.school_name }}</h3>
+        <div style="color:rgba(255,255,255,.5);font-size:.82rem;margin-top:3px;">{{ settings.school_slogan }}</div>
+        <div class="mt-2 d-flex gap-2">
+          <span style="width:20px;height:20px;border-radius:50%;background:{{ settings.primary_color }};display:inline-block;border:2px solid rgba(255,255,255,.3);"></span>
+          <span style="width:20px;height:20px;border-radius:50%;background:{{ settings.secondary_color }};display:inline-block;border:2px solid rgba(255,255,255,.3);"></span>
+          <span style="width:20px;height:20px;border-radius:50%;background:{{ settings.sidebar_bg }};display:inline-block;border:2px solid rgba(255,255,255,.3);"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0" style="border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,.07);">
+    <div class="card-body p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h6 class="fw-bold mb-3" style="color:#0f172a;">
+          <i class="bi bi-building-fill me-2 text-primary"></i>អត្តសញ្ញាណសាលា
+        </h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">ឈ្មោះសាលា (ខ្មែរ)</label>
+            {{ form.school_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">School Name (English)</label>
+            {{ form.school_name_en }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">សុចនាពាក្យ / Slogan</label>
+            {{ form.school_slogan }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">
+              <i class="bi bi-image me-1"></i>Logo
+              {% if settings.logo %}
+                <a href="{{ settings.logo.url }}" target="_blank" class="text-primary ms-2" style="font-size:.75rem;">(មើល)</a>
+              {% endif %}
+            </label>
+            {{ form.logo }}
+            {% if settings.logo %}
+            <div class="mt-2">
+              <img src="{{ settings.logo.url }}" style="height:48px;border-radius:8px;border:1px solid #e2e8f0;">
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Favicon</label>
+            {{ form.favicon }}
+            {% if settings.favicon %}
+            <div class="mt-2">
+              <img src="{{ settings.favicon.url }}" style="height:32px;border-radius:4px;border:1px solid #e2e8f0;">
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <h6 class="fw-bold mb-3" style="color:#0f172a;">
+          <i class="bi bi-telephone-fill me-2 text-success"></i>ព័ត៌មានទំនាក់ទំនង
+        </h6>
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <label class="form-label">អាសយដ្ឋាន</label>
+            {{ form.address }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">ទូរស័ព្ទ</label>
+            {{ form.phone }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">អ៊ីម៉ែល</label>
+            {{ form.email }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Website</label>
+            {{ form.website }}
+          </div>
+        </div>
+
+        <h6 class="fw-bold mb-3" style="color:#0f172a;">
+          <i class="bi bi-palette-fill me-2 text-purple" style="color:#7c3aed;"></i>ពណ៌ប្រព័ន្ធ
+        </h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label">ពណ៌ចម្បង</label>
+            <div class="d-flex align-items-center gap-2">
+              {{ form.primary_color }}
+              <input type="text" id="pc-txt" class="form-control" value="{{ settings.primary_color }}" style="width:100px;font-family:monospace;">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">ពណ៌រង</label>
+            <div class="d-flex align-items-center gap-2">
+              {{ form.secondary_color }}
+              <input type="text" id="sc-txt" class="form-control" value="{{ settings.secondary_color }}" style="width:100px;font-family:monospace;">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">ពណ៌ Sidebar</label>
+            <div class="d-flex align-items-center gap-2">
+              {{ form.sidebar_bg }}
+              <input type="text" id="sb-txt" class="form-control" value="{{ settings.sidebar_bg }}" style="width:100px;font-family:monospace;">
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg me-2"></i>រក្សាទុក
+          </button>
+          <a href="{% url 'school:dashboard' %}" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-arrow-left me-2"></i>ត្រឡប់ក្រោយ
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// Sync color pickers with text inputs
+function syncColor(pickerId, textId){
+  const p=document.getElementById(pickerId), t=document.getElementById(textId);
+  if(!p||!t) return;
+  p.addEventListener('input',()=>t.value=p.value);
+  t.addEventListener('input',()=>{ if(/^#[0-9a-f]{6}$/i.test(t.value)) p.value=t.value; });
+}
+// The color inputs rendered by Django have id based on field name
+syncColor('id_primary_color','pc-txt');
+syncColor('id_secondary_color','sc-txt');
+syncColor('id_sidebar_bg','sb-txt');
+</script>
+{% endblock %}

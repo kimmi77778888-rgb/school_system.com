@@ -1,0 +1,28 @@
+{% extends 'school/base.html' %}
+{% block title %}វត្តមានកូន{% endblock %}
+{% block page_title %}វត្តមានកូន{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-calendar-check-fill me-2 text-success"></i>វត្តមានរបស់ {{ student.first_name }} {{ student.last_name }}</h2>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">{{ present }}</div><div class="small text-muted">មានវត្តមាន</div></div></div>
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">{{ absent }}</div><div class="small text-muted">អវត្តមាន</div></div></div>
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold">{{ attendances|length }}</div><div class="small text-muted">សរុប</div></div></div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>កាលបរិច្ឆេទ</th><th>ស្ថានភាព</th><th>កំណត់ចំណាំ</th></tr></thead>
+    <tbody>
+    {% for a in attendances %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ a.date }}</td>
+      <td>{% if a.status == 'P' %}<span class="badge-P">មានវត្តមាន</span>{% elif a.status == 'A' %}<span class="badge-A">អវត្តមាន</span>{% elif a.status == 'L' %}<span class="badge-L">យឺត</span>{% else %}<span class="badge-E">មានច្បាប់</span>{% endif %}</td>
+      <td>{{ a.note|default:"—" }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="4" class="text-center text-muted py-4">មិនមានទិន្នន័យ</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

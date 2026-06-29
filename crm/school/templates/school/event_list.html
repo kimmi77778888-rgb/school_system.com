@@ -1,0 +1,42 @@
+{% extends 'school/base.html' %}
+{% block title %}Events{% endblock %}
+{% block page_title %}School Events{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-calendar-event-fill me-2 text-primary"></i>School Events</h2>
+  <div class="actions">
+    <a href="{% url 'school:event_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Add Event
+    </a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>Title</th><th>Type</th><th>Start Date</th><th>End Date</th><th>Description</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for ev in events %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ ev.title }}</strong></td>
+      <td>
+        {% if ev.event_type == 'holiday' %}<span class="badge bg-success">Holiday</span>
+        {% elif ev.event_type == 'exam' %}<span class="badge bg-danger">Exam</span>
+        {% elif ev.event_type == 'sport' %}<span class="badge bg-warning text-dark">Sport</span>
+        {% elif ev.event_type == 'meeting' %}<span class="badge bg-primary">Meeting</span>
+        {% else %}<span class="badge bg-secondary">{{ ev.get_event_type_display }}</span>{% endif %}
+      </td>
+      <td>{{ ev.start_date }}</td>
+      <td>{{ ev.end_date|default:"—" }}</td>
+      <td>{{ ev.description|truncatechars:50|default:"—" }}</td>
+      <td>
+        <a href="{% url 'school:event_edit' ev.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:event_delete' ev.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No events scheduled.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% load school_tags %}
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>{% block title %}របាយការណ៍{% endblock %} — {{ school.school_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+{% if school.favicon %}<link rel="icon" href="{{ school.favicon.url }}">{% endif %}
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans Khmer','Inter',sans-serif;font-size:11.5px;color:#1e293b;background:#fff;padding:22px 28px;}
+a{text-decoration:none;color:inherit;}
+
+/* ── HEADER ── */
+.rh{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:4px;border-bottom:3px solid #0f172a;}
+.rh-logo{width:52px;height:52px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,{{ school.primary_color }},{{ school.secondary_color }});display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0;}
+.rh-logo img{width:100%;height:100%;object-fit:contain;}
+.rh-info{}
+.rh-name{font-size:16px;font-weight:900;color:#0f172a;line-height:1.3;}
+.rh-sub{font-size:9.5px;color:#64748b;margin-top:2px;}
+.rh-right{text-align:right;font-size:9.5px;color:#64748b;line-height:1.7;}
+.rh-right strong{display:block;font-size:11px;color:#0f172a;}
+
+/* thin color bar below header */
+.rh-bar{height:4px;background:linear-gradient(90deg,{{ school.primary_color }},{{ school.secondary_color }});margin-bottom:12px;border-radius:0 0 4px 4px;}
+
+/* ── REPORT TITLE BLOCK ── */
+.rt{text-align:center;margin-bottom:14px;padding:10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;}
+.rt h2{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#0f172a;}
+.rt-meta{font-size:10px;color:#64748b;margin-top:4px;}
+
+/* ── SUMMARY BOXES ── */
+.sum{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.sum-box{flex:1;min-width:80px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;text-align:center;}
+.sum-box .v{font-size:20px;font-weight:900;color:#0f172a;line-height:1.1;}
+.sum-box .l{font-size:9.5px;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.sum-box.bl .v{color:#2563eb;}
+.sum-box.gr .v{color:#16a34a;}
+.sum-box.rd .v{color:#dc2626;}
+.sum-box.am .v{color:#d97706;}
+.sum-box.pu .v{color:#7c3aed;}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px;}
+thead th{background:#0f172a;color:#fff;padding:7px 9px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+tbody tr:nth-child(even){background:#f8fafc;}
+tbody td{padding:6px 9px;border-bottom:1px solid #e9edf2;vertical-align:middle;line-height:1.4;}
+tfoot td{padding:6px 9px;font-weight:700;border-top:2px solid #0f172a;background:#f1f5f9;font-size:10.5px;}
+
+/* ── STATUS BADGES ── */
+.b{display:inline-block;padding:1px 7px;border-radius:12px;font-size:9.5px;font-weight:700;}
+.b-P{background:#dcfce7;color:#166534;}
+.b-A{background:#fee2e2;color:#991b1b;}
+.b-L{background:#fef9c3;color:#854d0e;}
+.b-E{background:#dbeafe;color:#1e40af;}
+.b-GA{background:#dcfce7;color:#166534;}
+.b-GB{background:#dbeafe;color:#1e40af;}
+.b-GC{background:#fef9c3;color:#854d0e;}
+.b-GD{background:#ffedd5;color:#9a3412;}
+.b-GF{background:#fee2e2;color:#991b1b;}
+
+/* ── STUDENT INFO BLOCK ── */
+.s-info{border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:14px;background:#fafbfc;}
+.s-info table{margin:0;}
+.s-info td{padding:3px 8px;border:none;background:transparent;font-size:11px;}
+.s-info td:first-child,.s-info td:nth-child(3){color:#64748b;width:110px;white-space:nowrap;}
+.s-info td:nth-child(2),.s-info td:nth-child(4){font-weight:700;}
+
+/* ── SIGNATURES ── */
+.sigs{display:flex;justify-content:space-around;margin-top:40px;gap:20px;}
+.sig{text-align:center;flex:1;}
+.sig .line{border-top:1px solid #1e293b;margin:0 16px 5px;}
+.sig .lbl{font-size:9.5px;color:#64748b;}
+
+/* ── FOOTER ── */
+.rf{border-top:1px solid #e2e8f0;padding-top:8px;margin-top:16px;display:flex;justify-content:space-between;color:#94a3b8;font-size:9.5px;}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#0f172a;margin:14px 0 6px;padding-bottom:4px;border-bottom:2px solid #0f172a;}
+
+/* ── PRINT CONTROLS (hidden on print) ── */
+.no-print{position:fixed;top:14px;right:14px;display:flex;gap:8px;z-index:999;}
+.btn-print{background:#0f172a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:background .15s;}
+.btn-print:hover{background:#1e293b;}
+.btn-back{background:#fff;color:#0f172a;border:2px solid #0f172a;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;}
+.btn-back:hover{background:#f1f5f9;}
+
+@media print{
+  .no-print{display:none!important;}
+  body{padding:10px 16px;}
+  thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sum-box,.rh-logo,.rh-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+
+<!-- Print Controls -->
+<div class="no-print">
+  <a href="javascript:history.back()" class="btn-back">← ត្រឡប់</a>
+  <button class="btn-print" onclick="window.print()">🖨 បោះពុម្ព</button>
+</div>
+
+<!-- Header -->
+<div class="rh">
+  <div class="rh-logo">
+    {% if school.logo %}<img src="{{ school.logo.url }}" alt="">{% else %}🎓{% endif %}
+  </div>
+  <div class="rh-info" style="margin-left:14px;flex:1;">
+    <div class="rh-name">{{ school.school_name }}</div>
+    <div class="rh-sub">{{ school.school_slogan }}{% if school.address %} &nbsp;|&nbsp; {{ school.address }}{% endif %}</div>
+    {% if school.phone or school.email %}
+    <div class="rh-sub">{% if school.phone %}☎ {{ school.phone }}{% endif %}{% if school.email %} &nbsp;|&nbsp; ✉ {{ school.email }}{% endif %}</div>
+    {% endif %}
+  </div>
+  <div class="rh-right">
+    <strong>{% block report_title %}របាយការណ៍{% endblock %}</strong>
+    {% block report_meta %}{% endblock %}
+  </div>
+</div>
+<div class="rh-bar"></div>
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<div class="rf">
+  <span>{{ school.school_name }}</span>
+  <span>បោះពុម្ព: {{ today }}</span>
+</div>
+
+<script>
+if(window.location.search.includes('autoprint=1')){
+  window.onload=()=>setTimeout(()=>window.print(),400);
+}
+</script>
+</body>
+</html>

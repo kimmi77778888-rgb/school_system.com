@@ -1,0 +1,54 @@
+{% extends 'school/reports/report_base.html' %}
+{% block title %}បញ្ជីគ្រូ{% endblock %}
+{% block report_title %}បញ្ជីគ្រូបង្រៀន{% endblock %}
+{% block report_meta %}
+  <div>ចំនួនគ្រូ: <strong>{{ teachers|length }}</strong> នាក់ &nbsp;|&nbsp; ថ្ងៃទី: {{ today }}</div>
+{% endblock %}
+
+{% block content %}
+<div class="sum">
+  <div class="sum-box bl"><div class="v">{{ teachers|length }}</div><div class="l">គ្រូសរុប</div></div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>លេខ</th>
+      <th>ឈ្មោះ</th>
+      <th>ភេទ</th>
+      <th>ជំនាញ</th>
+      <th>ទូរស័ព្ទ</th>
+      <th>អ៊ីម៉ែល</th>
+      <th>ថ្ងៃចូលបម្រើ</th>
+      <th>អាសយដ្ឋាន</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in teachers %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ t.teacher_id }}</strong></td>
+      <td>{{ t.first_name }} {{ t.last_name }}</td>
+      <td>{{ t.get_gender_display|default:"—" }}</td>
+      <td>{{ t.subject_specialty|default:"—" }}</td>
+      <td>{{ t.phone|default:"—" }}</td>
+      <td>{{ t.email|default:"—" }}</td>
+      <td>{{ t.hire_date|default:"—" }}</td>
+      <td>{{ t.address|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:16px;">មិនមានគ្រូ</td></tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="9">សរុប: {{ teachers|length }} នាក់</td></tr>
+  </tfoot>
+</table>
+
+<div class="sigs">
+  <div class="sig"><div class="line"></div><div class="lbl">រៀបចំដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">ត្រួតពិនិត្យដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">នាយក/នាយិកាសាលា</div></div>
+</div>
+{% endblock %}

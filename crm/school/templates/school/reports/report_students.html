@@ -1,0 +1,60 @@
+{% extends 'school/reports/report_base.html' %}
+{% block title %}បញ្ជីសិស្ស{% endblock %}
+{% block report_title %}បញ្ជីសិស្សសកម្ម{% endblock %}
+{% block report_meta %}
+  <div>ចំនួនសិស្ស: <strong>{{ students|length }}</strong> នាក់ &nbsp;|&nbsp; ថ្ងៃទី: {{ today }}</div>
+{% endblock %}
+
+{% block content %}
+<div class="sum">
+  <div class="sum-box bl"><div class="v">{{ students|length }}</div><div class="l">សិស្សសរុប</div></div>
+  {% regroup students by classroom as by_class %}
+  {% for grp in by_class %}
+  <div class="sum-box"><div class="v">{{ grp.list|length }}</div><div class="l">{{ grp.grouper|default:"គ្មានថ្នាក់" }}</div></div>
+  {% endfor %}
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>លេខ</th>
+      <th>ឈ្មោះ</th>
+      <th>ភេទ</th>
+      <th>ថ្ងៃខែឆ្នាំកំណើត</th>
+      <th>ថ្នាក់</th>
+      <th>ឈ្មោះមាតាបិតា</th>
+      <th>ទូរស័ព្ទ</th>
+      <th>ទូរស័ព្ទ(មាតាបិតា)</th>
+      <th>ចូលរៀន</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in students %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ s.student_id }}</strong></td>
+      <td>{{ s.first_name }} {{ s.last_name }}</td>
+      <td>{{ s.get_gender_display|default:"—" }}</td>
+      <td>{{ s.date_of_birth|default:"—" }}</td>
+      <td>{{ s.classroom|default:"—" }}</td>
+      <td>{{ s.parent_name|default:"—" }}</td>
+      <td>{{ s.phone|default:"—" }}</td>
+      <td>{{ s.parent_phone|default:"—" }}</td>
+      <td>{{ s.enrolled_date }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="10" style="text-align:center;color:#94a3b8;padding:16px;">មិនមានសិស្ស</td></tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="10">សរុប: {{ students|length }} នាក់</td></tr>
+  </tfoot>
+</table>
+
+<div class="sigs">
+  <div class="sig"><div class="line"></div><div class="lbl">រៀបចំដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">ត្រួតពិនិត្យដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">នាយក/នាយិកាសាលា</div></div>
+</div>
+{% endblock %}

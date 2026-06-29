@@ -1,0 +1,76 @@
+{% extends 'school/reports/report_base.html' %}
+{% block title %}របាយការណ៍ពិន្ទុ{% endblock %}
+{% block report_title %}របាយការណ៍លទ្ធផលប្រឡង{% endblock %}
+{% block report_meta %}
+  <div>
+    ឆ្នាំសិក្សា: <strong>{{ selected_year|default:"ទាំងអស់" }}</strong>
+    &nbsp;|&nbsp; ចំនួន: {{ scores|length }}
+    &nbsp;|&nbsp; ថ្ងៃទី: {{ today }}
+  </div>
+{% endblock %}
+
+{% block content %}
+<!-- Filter (screen only) -->
+<form method="get" style="margin-bottom:12px;display:flex;gap:8px;align-items:center;" class="no-print">
+  <label style="font-weight:700;font-size:10.5px;">ឆ្នាំសិក្សា:</label>
+  <select name="year" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;">
+    <option value="">ទាំងអស់</option>
+    {% for y in years %}
+    <option value="{{ y.pk }}" {% if selected_year and selected_year.pk == y.pk %}selected{% endif %}>{{ y.year }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" style="padding:4px 12px;background:#0f172a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">ស្វែងរក</button>
+</form>
+
+<div class="sum">
+  <div class="sum-box bl"><div class="v">{{ scores|length }}</div><div class="l">ចំនួនកំណត់ត្រា</div></div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>លេខ</th>
+      <th>ឈ្មោះ</th>
+      <th>មុខវិជ្ជា</th>
+      <th>ប្រភេទ</th>
+      <th>ពិន្ទុ</th>
+      <th>អតិបរមា</th>
+      <th>ភាគរយ</th>
+      <th>ថ្នាក់</th>
+      <th>ឆ្នាំ</th>
+      <th>ថ្ងៃ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sc in scores %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ sc.student.student_id }}</strong></td>
+      <td>{{ sc.student.first_name }} {{ sc.student.last_name }}</td>
+      <td>{{ sc.subject.name }}</td>
+      <td>{{ sc.exam_type.name }}</td>
+      <td style="font-weight:700;text-align:center;">{{ sc.score }}</td>
+      <td style="text-align:center;">{{ sc.max_score }}</td>
+      <td style="text-align:center;">{{ sc.percentage }}%</td>
+      <td style="text-align:center;">
+        <span class="b b-G{{ sc.grade_letter }}">{{ sc.grade_letter }}</span>
+      </td>
+      <td>{{ sc.academic_year }}</td>
+      <td>{{ sc.date_recorded }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="11" style="text-align:center;color:#94a3b8;padding:16px;">គ្មានទិន្នន័យ</td></tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><td colspan="11">សរុបកំណត់ត្រា: {{ scores|length }}</td></tr>
+  </tfoot>
+</table>
+
+<div class="sigs">
+  <div class="sig"><div class="line"></div><div class="lbl">គ្រូប្រចាំមុខវិជ្ជា</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">ត្រួតពិនិត្យដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">នាយក/នាយិកាសាលា</div></div>
+</div>
+{% endblock %}

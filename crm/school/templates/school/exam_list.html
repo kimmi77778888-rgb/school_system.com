@@ -1,0 +1,35 @@
+{% extends 'school/base.html' %}
+{% block title %}ការប្រឡង{% endblock %}
+{% block page_title %}គ្រប់គ្រងការប្រឡង{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-file-earmark-text-fill me-2 text-primary"></i>ការប្រឡង</h2>
+  <div class="actions">
+    <a href="{% url 'school:exam_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>បន្ថែមការប្រឡង</a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>ឈ្មោះ</th><th>ប្រភេទ</th><th>មុខវិជ្ជា</th><th>ថ្នាក់</th><th>កាលបរិច្ឆេទ</th><th>ពិន្ទុអតិបរមា</th><th>សកម្មភាព</th></tr></thead>
+    <tbody>
+    {% for exam in exams %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ exam.name }}</strong></td>
+      <td><span class="badge bg-info text-dark">{{ exam.exam_type }}</span></td>
+      <td>{{ exam.subject }}</td>
+      <td>{{ exam.classroom }}</td>
+      <td>{{ exam.date }}</td>
+      <td>{{ exam.max_score }}</td>
+      <td>
+        <a href="{% url 'school:exam_edit' exam.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:exam_delete' exam.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" class="text-center text-muted py-4">មិនមានការប្រឡង</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'school/base.html' %}
+{% block title %}លទ្ធផលកូន{% endblock %}
+{% block page_title %}លទ្ធផលកូន{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-bar-chart-fill me-2 text-primary"></i>លទ្ធផលរបស់ {{ student.first_name }} {{ student.last_name }}</h2>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ឆ្នាំ</th><th>ពិន្ទុ</th><th>ភាគរយ</th><th>ថ្នាក់</th></tr></thead>
+    <tbody>
+    {% for s in scores %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ s.subject.name }}</strong></td>
+      <td>{{ s.exam_type }}</td>
+      <td>{{ s.academic_year }}</td>
+      <td>{{ s.score }}/{{ s.max_score }}</td>
+      <td>{{ s.percentage }}%</td>
+      <td><span class="badge bg-{{ s.grade_color }}">{{ s.grade_letter }}</span></td>
+    </tr>
+    {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">មិនមានលទ្ធផល</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

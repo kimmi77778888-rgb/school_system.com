@@ -1,0 +1,67 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}Timetable{% endblock %}
+{% block page_title %}Timetable{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-calendar3-week-fill me-2 text-primary"></i>Timetable</h2>
+  <div class="actions">
+    <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Add Entry
+    </a>
+  </div>
+</div>
+
+<div class="card mb-3 p-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label mb-1">Classroom</label>
+      <select name="classroom" class="form-select form-select-sm">
+        <option value="">All Classrooms</option>
+        {% for c in classrooms %}
+        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <label class="form-label mb-1">Year</label>
+      <select name="year" class="form-select form-select-sm">
+        <option value="">All Years</option>
+        {% for y in years %}
+        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto"><button type="submit" class="btn btn-secondary btn-sm">Filter</button></div>
+  </form>
+</div>
+
+{% for day_num, entries in days.items %}
+<div class="card mb-3">
+  <div class="card-header">
+    <i class="bi bi-calendar-day me-2"></i><strong>{{ day_names|get_item:day_num }}</strong>
+  </div>
+  <table class="table table-hover mb-0">
+    <thead><tr><th>Period</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Classroom</th><th>Room</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for tt in entries %}
+    <tr>
+      <td><span class="badge bg-primary">P{{ tt.time_slot.period }}</span></td>
+      <td>{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</td>
+      <td><strong>{{ tt.subject.name }}</strong></td>
+      <td>{{ tt.teacher|default:"—" }}</td>
+      <td>{{ tt.classroom }}</td>
+      <td>{{ tt.room|default:"—" }}</td>
+      <td>
+        <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% empty %}
+<div class="card p-4 text-center text-muted">No timetable entries found. Add one to get started.</div>
+{% endfor %}
+{% endblock %}

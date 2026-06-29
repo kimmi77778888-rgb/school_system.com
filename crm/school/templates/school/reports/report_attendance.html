@@ -1,0 +1,74 @@
+{% extends 'school/reports/report_base.html' %}
+{% block title %}របាយការណ៍វត្តមាន{% endblock %}
+{% block report_title %}របាយការណ៍វត្តមានសិស្ស{% endblock %}
+{% block report_meta %}
+  <div>ថ្ងៃទី: <strong>{{ date_filter }}</strong> &nbsp;|&nbsp; ចំនួន: {{ records|length }}</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filter bar (screen only) -->
+<form method="get" style="margin-bottom:12px;display:flex;gap:8px;align-items:center;" class="no-print">
+  <label style="font-weight:700;font-size:10.5px;">ជ្រើសថ្ងៃ:</label>
+  <input type="date" name="date" value="{{ date_filter }}" style="padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;">
+  <button type="submit" style="padding:4px 12px;background:#0f172a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">ស្វែងរក</button>
+</form>
+
+<div class="sum">
+  <div class="sum-box bl"><div class="v">{{ records|length }}</div><div class="l">សរុប</div></div>
+  <div class="sum-box gr"><div class="v">{{ present }}</div><div class="l">មានវត្តមាន</div></div>
+  <div class="sum-box rd"><div class="v">{{ absent }}</div><div class="l">អវត្តមាន</div></div>
+  <div class="sum-box am"><div class="v">{{ late }}</div><div class="l">យឺត</div></div>
+  <div class="sum-box pu"><div class="v">{{ excused }}</div><div class="l">មានច្បាប់</div></div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:28px;">#</th>
+      <th>លេខ</th>
+      <th>ឈ្មោះ</th>
+      <th>ថ្នាក់</th>
+      <th>ថ្ងៃ</th>
+      <th>ស្ថានភាព</th>
+      <th>កំណត់ចំណាំ</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in records %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ r.student.student_id }}</strong></td>
+      <td>{{ r.student.first_name }} {{ r.student.last_name }}</td>
+      <td>{{ r.student.classroom|default:"—" }}</td>
+      <td>{{ r.date }}</td>
+      <td>
+        {% if r.status == 'P' %}<span class="b b-P">មានវត្តមាន</span>
+        {% elif r.status == 'A' %}<span class="b b-A">អវត្តមាន</span>
+        {% elif r.status == 'L' %}<span class="b b-L">យឺត</span>
+        {% else %}<span class="b b-E">មានច្បាប់</span>{% endif %}
+      </td>
+      <td>{{ r.note|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:16px;">គ្មានទិន្នន័យ</td></tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="7">
+        សរុប: {{ records|length }} &nbsp;|&nbsp;
+        មានវត្តមាន: {{ present }} &nbsp;|&nbsp;
+        អវត្តមាន: {{ absent }} &nbsp;|&nbsp;
+        យឺត: {{ late }} &nbsp;|&nbsp;
+        មានច្បាប់: {{ excused }}
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="sigs">
+  <div class="sig"><div class="line"></div><div class="lbl">គ្រូប្រចាំថ្នាក់</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">ត្រួតពិនិត្យដោយ</div></div>
+  <div class="sig"><div class="line"></div><div class="lbl">នាយក/នាយិកាសាលា</div></div>
+</div>
+{% endblock %}

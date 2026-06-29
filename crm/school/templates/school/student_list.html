@@ -1,0 +1,50 @@
+{% extends 'school/base.html' %}
+{% block title %}បញ្ជីសិស្ស{% endblock %}
+{% block page_title %}គ្រប់គ្រងសិស្ស{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-people-fill me-2 text-primary"></i>បញ្ជីសិស្ស</h2>
+  <div class="actions">
+    <form method="get" class="d-flex gap-2">
+      <input type="text" name="q" value="{{ q }}" placeholder="ស្វែងរកសិស្ស..." class="form-control form-control-sm" style="width:200px;"/>
+      <select name="classroom" class="form-select form-select-sm" style="width:160px;">
+        <option value="">ថ្នាក់ទាំងអស់</option>
+        {% for c in classrooms %}<option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
+    </form>
+    <a href="{% url 'school:student_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus-fill me-1"></i>បន្ថែមសិស្ស</a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>លេខ</th><th>ឈ្មោះ</th><th>ភេទ</th><th>ថ្នាក់</th><th>ទូរស័ព្ទ</th><th>ស្ថានភាព</th><th>សកម្មភាព</th></tr></thead>
+    <tbody>
+    {% for s in students %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><span class="badge bg-light text-dark fw-bold">{{ s.student_id }}</span></td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          {% if s.photo %}<img src="{{ s.photo.url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
+          {% else %}<div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="width:32px;height:32px;font-size:.75rem;font-weight:700;">{{ s.first_name|first }}</div>{% endif %}
+          <a href="{% url 'school:student_detail' s.pk %}" class="text-decoration-none fw-semibold">{{ s.first_name }} {{ s.last_name }}</a>
+        </div>
+      </td>
+      <td>{{ s.get_gender_display|default:"—" }}</td>
+      <td>{{ s.classroom|default:"—" }}</td>
+      <td>{{ s.phone|default:"—" }}</td>
+      <td>{% if s.is_active %}<span class="badge bg-success">សកម្ម</span>{% else %}<span class="badge bg-danger">អសកម្ម</span>{% endif %}</td>
+      <td>
+        <a href="{% url 'school:student_detail' s.pk %}" class="btn btn-outline-info btn-sm"><i class="bi bi-eye"></i></a>
+        <a href="{% url 'school:student_edit' s.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:student_delete' s.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>មិនមានសិស្ស</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,656 @@
+{% load school_tags %}
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>{% block title %}{{ school.school_name }}{% endblock %}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+{% if school.favicon %}<link rel="icon" href="{{ school.favicon.url }}">{% endif %}
+<!-- v={{ school.updated_at|date:"YmdHis" }} -->
+<style>
+:root{
+  --sb:260px;--sbc:60px;
+  --bg-sb:{{ school.sidebar_bg }};
+  --ac:{{ school.primary_color }};--ac2:{{ school.secondary_color }};
+  --top:56px;--bot:58px;
+  --bg:#f1f5f9;--card:#fff;--tx:#1e293b;--mu:#64748b;--br:#e2e8f0;--rd:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Noto Sans Khmer','Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:13.5px;line-height:1.5;}
+a{text-decoration:none;color:inherit;}
+
+/* ═══ SIDEBAR ═══ */
+.sb{
+  position:fixed;top:0;left:0;
+  width:var(--sb);height:100vh;
+  background:var(--bg-sb);
+  display:flex;flex-direction:column;
+  z-index:400;
+  box-shadow:2px 0 16px rgba(0,0,0,.3);
+  transition:width .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.sb.c{width:var(--sbc);}
+
+/* brand */
+.sb-brand{
+  display:flex;align-items:center;gap:10px;
+  padding:0 10px 0 12px;flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  height:56px;overflow:hidden;white-space:nowrap;
+  justify-content:space-between;
+}
+.sb-brand-left{display:flex;align-items:center;gap:10px;overflow:hidden;flex:1;}
+.sb-logo{
+  width:34px;height:34px;min-width:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:#fff;flex-shrink:0;overflow:hidden;
+  transition:transform .3s;
+}
+.sb-brand:hover .sb-logo{transform:scale(1.08) rotate(-6deg);}
+.sb-logo img{width:100%;height:100%;object-fit:contain;}
+.sb-btext{overflow:hidden;transition:opacity .22s,width .28s;}
+.sb.c .sb-btext{opacity:0;width:0;}
+.sb-bname{color:#fff;font-weight:800;font-size:.85rem;line-height:1.3;white-space:nowrap;}
+.sb-bsub{color:rgba(255,255,255,.35);font-size:.6rem;margin-top:1px;white-space:nowrap;}
+
+/* ── Toggle inside sidebar brand — always visible ── */
+.sb-tog{
+  width:28px;height:28px;min-width:28px;
+  border-radius:7px;flex-shrink:0;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.55);
+  font-size:.9rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .18s,color .18s;
+}
+.sb-tog:hover{background:rgba(255,255,255,.15);color:#fff;}
+/* icon flips when collapsed */
+.sb-tog .bi{transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.sb.c .sb-tog .bi{transform:rotate(180deg);}
+
+/* nav */
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 0;}
+.sb-nav::-webkit-scrollbar{width:2px;}
+.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+
+/* section label */
+.sb-lbl{
+  font-size:.52rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);
+  padding:8px 14px 2px;line-height:1;
+  white-space:nowrap;overflow:hidden;
+  transition:opacity .22s,max-height .22s,padding .22s;
+  max-height:28px;
+}
+.sb.c .sb-lbl{opacity:0;max-height:0;padding:0;}
+
+/* nav link — FIXED: explicit min/max height stops Khmer font inflation */
+.sb-a{
+  display:flex;align-items:center;gap:8px;
+  padding:0 10px;margin:1px 6px;
+  height:34px;min-height:34px;max-height:34px;
+  flex-shrink:0;
+  border-radius:7px;
+  color:rgba(255,255,255,.55);
+  font-size:.78rem;font-weight:500;line-height:1;
+  white-space:nowrap;overflow:hidden;
+  position:relative;cursor:pointer;
+  transition:background .15s,color .15s,transform .18s;
+}
+.sb-a i{font-size:.88rem;min-width:18px;text-align:center;flex-shrink:0;transition:transform .2s;line-height:1;}
+.sb-a .t{overflow:hidden;white-space:nowrap;line-height:1;flex:1;display:block;}
+.sb.c .sb-a .t{opacity:0;width:0;}
+.sb-a:hover{background:rgba(255,255,255,.07);color:#e2e8f0;transform:translateX(2px);}
+.sb-a:hover i{transform:scale(1.15);}
+.sb-a.on{background:rgba(37,99,235,.2);color:#93c5fd;font-weight:600;}
+.sb-a.on::before{
+  content:'';position:absolute;left:0;top:20%;height:60%;width:3px;
+  background:linear-gradient(180deg,#60a5fa,var(--ac));
+  border-radius:0 3px 3px 0;
+}
+.sb-a.on i{color:#60a5fa;}
+/* ripple */
+.sb-a .rpl{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none;transform:scale(0);animation:rpl .45s linear;}
+@keyframes rpl{to{transform:scale(4);opacity:0;}}
+/* tooltip when collapsed */
+.sb-a[data-tip]::after{
+  content:attr(data-tip);position:absolute;left:calc(var(--sbc) + 8px);
+  background:#1e293b;color:#f1f5f9;padding:4px 10px;border-radius:6px;
+  font-size:.7rem;white-space:nowrap;pointer-events:none;
+  opacity:0;transform:translateX(-4px);
+  transition:opacity .15s,transform .15s;
+  box-shadow:0 3px 12px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);
+  z-index:500;
+}
+.sb.c .sb-a[data-tip]:hover::after{opacity:1;transform:translateX(0);}
+
+/* slide-in stagger */
+@keyframes sbin{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+.sb-a:nth-child(1){animation:sbin .25s .04s both;}
+.sb-a:nth-child(2){animation:sbin .25s .07s both;}
+.sb-a:nth-child(3){animation:sbin .25s .10s both;}
+.sb-a:nth-child(4){animation:sbin .25s .13s both;}
+.sb-a:nth-child(5){animation:sbin .25s .16s both;}
+.sb-a:nth-child(6){animation:sbin .25s .19s both;}
+.sb-a:nth-child(7){animation:sbin .25s .22s both;}
+.sb-a:nth-child(n+8){animation:sbin .25s .25s both;}
+
+/* footer */
+.sb-foot{padding:8px 6px 10px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sb-prof{
+  display:flex;align-items:center;gap:9px;
+  padding:0 10px;height:40px;border-radius:8px;
+  cursor:pointer;overflow:hidden;white-space:nowrap;
+  transition:background .15s;
+}
+.sb-prof:hover{background:rgba(255,255,255,.07);}
+.sb-av{
+  width:30px;height:30px;min-width:30px;border-radius:50%;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  border:1.5px solid rgba(255,255,255,.2);
+  transition:box-shadow .2s;
+}
+.sb-av img{width:100%;height:100%;object-fit:cover;}
+.sb-prof:hover .sb-av{box-shadow:0 0 0 2px rgba(37,99,235,.5);}
+.sb-pinfo{overflow:hidden;transition:opacity .22s,width .28s;}
+.sb.c .sb-pinfo{opacity:0;width:0;}
+.sb-pname{color:#fff;font-size:.78rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;}
+.sb-prole{font-size:.6rem;color:rgba(255,255,255,.35);margin-top:1px;}
+.sb-fl{
+  display:flex;align-items:center;gap:8px;
+  padding:0 10px;height:30px;border-radius:7px;
+  color:rgba(255,255,255,.35);font-size:.75rem;
+  overflow:hidden;white-space:nowrap;
+  transition:background .15s,color .15s;
+}
+.sb-fl i{min-width:18px;text-align:center;flex-shrink:0;font-size:.85rem;}
+.sb-fl .t{transition:opacity .22s,width .28s;}
+.sb.c .sb-fl .t{opacity:0;width:0;}
+.sb-fl:hover{background:rgba(255,255,255,.07);color:#fff;}
+
+/* ═══ OVERLAY ═══ */
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:399;backdrop-filter:blur(2px);}
+.sb-ov.on{display:block;}
+
+/* ═══ TOPBAR ═══ */
+.top{
+  position:fixed;top:0;left:var(--sb);right:0;height:var(--top);
+  background:#fff;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;z-index:300;
+  transition:left .28s cubic-bezier(.4,0,.2,1),box-shadow .2s;
+}
+.sb.c~.top{left:var(--sbc);}
+.top-left{display:flex;align-items:center;gap:10px;}
+.top-title{font-weight:800;font-size:.92rem;color:#0f172a;}
+.top-right{display:flex;align-items:center;gap:6px;}
+.top-date{
+  display:flex;align-items:center;gap:5px;
+  background:var(--bg);border:1px solid var(--br);border-radius:20px;
+  padding:4px 12px;font-size:.72rem;color:var(--mu);
+}
+.mob-tog{display:none;background:none;border:none;font-size:1.25rem;color:var(--mu);cursor:pointer;padding:4px;line-height:1;}
+.top-av{
+  width:30px;height:30px;border-radius:50%;overflow:hidden;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;
+  cursor:pointer;transition:box-shadow .2s;
+  border:1.5px solid var(--br);
+}
+.top-av:hover{box-shadow:0 0 0 3px rgba(37,99,235,.2);}
+.top-av img{width:100%;height:100%;object-fit:cover;}
+
+/* ═══ MAIN ═══ */
+.main{
+  margin-left:var(--sb);
+  padding:calc(var(--top) + 22px) 22px 44px;
+  min-height:100vh;
+  transition:margin-left .28s cubic-bezier(.4,0,.2,1);
+}
+.sb.c~.top~.main{margin-left:var(--sbc);}
+
+/* ═══ CARDS ═══ */
+.card{background:var(--card);border:1px solid var(--br);border-radius:var(--rd);box-shadow:0 1px 4px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);}
+.card-header{
+  background:var(--card);border-bottom:1px solid var(--br);
+  border-radius:var(--rd) var(--rd) 0 0!important;
+  padding:12px 16px;font-weight:700;color:#0f172a;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.stat-card{border-radius:var(--rd);padding:18px 16px;color:#fff;position:relative;overflow:hidden;border:none;box-shadow:0 4px 18px rgba(0,0,0,.12);}
+.stat-card .ico,.stat-card .bg-icon{position:absolute;right:-6px;bottom:-8px;font-size:4rem;opacity:.1;}
+.stat-card .lbl{font-size:.7rem;font-weight:600;opacity:.85;}
+.stat-card .val{font-size:2rem;font-weight:900;line-height:1.15;margin-top:4px;}
+.sc-bl,.sc-blue{background:linear-gradient(135deg,#2563eb,#1e40af);}
+.sc-gr,.sc-green{background:linear-gradient(135deg,#059669,#065f46);}
+.sc-am,.sc-amber{background:linear-gradient(135deg,#d97706,#92400e);}
+.sc-pu,.sc-purple{background:linear-gradient(135deg,#7c3aed,#4c1d95);}
+.sc-ro,.sc-rose{background:linear-gradient(135deg,#e11d48,#9f1239);}
+.sc-cy,.sc-cyan{background:linear-gradient(135deg,#0891b2,#164e63);}
+
+/* ═══ TABLE ═══ */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--rd);}
+.table{margin:0;}
+.table thead th{background:#f8fafc;font-size:.68rem;color:var(--mu);font-weight:700;border-bottom:2px solid var(--br);padding:10px 13px;white-space:nowrap;}
+.table td{padding:9px 13px;vertical-align:middle;border-color:#f1f5f9;font-size:.82rem;}
+.table tbody tr:hover{background:#f8fafc;}
+
+/* ═══ BADGES ═══ */
+.b-P{background:#dcfce7;color:#166534;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.b-A{background:#fee2e2;color:#991b1b;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.b-L{background:#fef9c3;color:#854d0e;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.b-E{background:#dbeafe;color:#1e40af;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+/* legacy aliases */
+.badge-P{background:#dcfce7;color:#166534;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.badge-A{background:#fee2e2;color:#991b1b;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.badge-L{background:#fef9c3;color:#854d0e;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.badge-E{background:#dbeafe;color:#1e40af;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+
+/* ═══ FORMS ═══ */
+.btn{border-radius:8px;font-size:.82rem;font-weight:600;}
+.btn-primary{background:var(--ac);border-color:var(--ac);}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8;}
+.btn-sm{padding:.28rem .65rem;font-size:.75rem;}
+.form-control,.form-select{border-radius:8px;border-color:var(--br);font-size:.82rem;padding:7px 11px;}
+.form-control:focus,.form-select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.form-label{font-weight:700;font-size:.78rem;color:#374151;margin-bottom:4px;}
+.alert{border-radius:10px;border:none;font-size:.82rem;}
+.alert-success{background:#dcfce7;color:#166534;}
+.alert-warning{background:#fef9c3;color:#854d0e;}
+.alert-danger{background:#fee2e2;color:#991b1b;}
+.alert-info{background:#dbeafe;color:#1e40af;}
+
+/* ═══ PAGE HEADER ═══ */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;}
+.page-header h2{font-size:1.1rem;font-weight:900;color:#0f172a;}
+.page-header .actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+
+/* ═══ BOTTOM NAV ═══ */
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:#fff;border-top:1px solid var(--br);z-index:300;align-items:center;justify-content:space-around;padding:0 4px;}
+.bot-nav a{display:flex;flex-direction:column;align-items:center;gap:1px;flex:1;padding:5px 2px;border-radius:8px;color:var(--mu);font-size:.55rem;font-weight:600;transition:color .15s,background .15s;}
+.bot-nav a i{font-size:1.15rem;line-height:1;}
+.bot-nav a.on,.bot-nav a:hover{color:var(--ac);}
+.bot-nav a.on{background:rgba(37,99,235,.07);}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:992px){
+  .main{padding:calc(var(--top)+18px) 16px 76px;}
+  .stat-card .val{font-size:1.8rem;}
+}
+@media(max-width:768px){
+  /* Mobile: sidebar slides off by default, overlay when .mob */
+  .sb{transform:translateX(-100%)!important;transition:transform .32s cubic-bezier(.34,1.2,.64,1),width .3s,box-shadow .3s;}
+  .sb.mob{transform:translateX(0)!important;box-shadow:4px 0 32px rgba(0,0,0,.45);}
+  /* On mobile: when sidebar is open (.mob), .c still makes it icon-only */
+  .sb.mob.c{width:var(--sbc)!important;}
+  .top{left:0!important;padding:0 12px;height:52px;}
+  .top-title{font-size:.85rem;}
+  .mob-tog{display:flex;}
+  .top-date{display:none!important;}
+  .main{margin-left:0!important;padding:calc(52px+12px) 10px var(--bot);}
+  .stat-card .val{font-size:1.6rem;}
+  .stat-card .lbl{font-size:.66rem;}
+  .page-header{flex-direction:column;align-items:flex-start;}
+  .page-header .actions{width:100%;}
+  .bot-nav{display:flex;}
+  .sb-a{animation:none!important;}
+}
+@media(max-width:400px){
+  .main{padding:calc(52px+10px) 8px var(--bot);}
+  .stat-card .val{font-size:1.4rem;}
+  body{font-size:13px;}
+}
+
+/* ═══ PRINT ═══ */
+@media print{
+  .sb,.top,.no-print,.sb-ov,.bot-nav{display:none!important;}
+  .main{margin:0!important;padding:0!important;}
+  body{background:#fff!important;font-size:11px;}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;}
+  .table thead th{background:#0f172a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .table tbody tr:nth-child(even){background:#f8fafc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .stat-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .badge,.b-P,.b-A,.b-L,.b-E,.badge-P,.badge-A,.badge-L,.badge-E{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .btn{display:none!important;}
+  .page-header .actions{display:none!important;}
+  /* Show print header with school info */
+  .ph{display:block!important;}
+  /* Force page breaks for long tables */
+  tr{page-break-inside:avoid;}
+  /* Remove bootstrap shadows */
+  *{box-shadow:none!important;}
+}
+.ph{
+  display:none;
+  text-align:center;margin-bottom:14px;
+  padding-bottom:10px;border-bottom:2px solid #0f172a;
+}
+.ph h3{font-size:14px;font-weight:900;color:#0f172a;}
+.ph p{font-size:10px;color:#64748b;margin-top:3px;}
+
+/* nav tabs */
+.nav-tabs .nav-link{color:var(--mu);border:none;border-bottom:2px solid transparent;padding:.5rem .85rem;font-size:.82rem;}
+.nav-tabs .nav-link.active{color:var(--ac);border-bottom-color:var(--ac);background:none;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="sb-ov" id="sbOv" onclick="mbClose()"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sb" id="sb">
+  <div class="sb-brand">
+    <div class="sb-brand-left">
+      <div class="sb-logo">
+        {% if school.logo %}<img src="{{ school.logo.url }}" alt="">
+        {% else %}<i class="bi bi-mortarboard-fill"></i>{% endif %}
+      </div>
+      <div class="sb-btext">
+        <div class="sb-bname">{{ school.school_name }}</div>
+        <div class="sb-bsub">{{ school.school_slogan }}</div>
+      </div>
+    </div>
+    <!-- Toggle: visible on ALL screen sizes -->
+    <button class="sb-tog" onclick="togSb()" id="sbTog" title="លាក់/បង្ហាញម៉ឺនុយ">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-lbl">ទូទៅ</div>
+    <a class="sb-a {% if request.resolver_match.url_name == 'dashboard' %}on{% endif %}" href="{% url 'school:dashboard' %}" data-tip="ផ្ទាំង">
+      <i class="bi bi-grid-fill"></i><span class="t">ផ្ទាំងគ្រប់គ្រង</span>
+    </a>
+
+    {% with role=request.user.profile.role %}
+
+    {% if role == 'admin' or role == 'teacher' %}
+      {% if role == 'admin' %}
+      <div class="sb-lbl">គ្រប់គ្រង</div>
+      <a class="sb-a {% if 'user' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:user_list' %}" data-tip="អ្នកប្រើ">
+        <i class="bi bi-people-fill"></i><span class="t">អ្នកប្រើប្រាស់</span>
+      </a>
+      {% endif %}
+
+      <div class="sb-lbl">សិក្សា</div>
+      <a class="sb-a {% if 'student' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}" data-tip="សិស្ស">
+        <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
+      </a>
+      <a class="sb-a {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}" data-tip="គ្រូ">
+        <i class="bi bi-person-badge-fill"></i><span class="t">គ្រូបង្រៀន</span>
+      </a>
+      {% if role == 'admin' %}
+      <a class="sb-a {% if 'classroom' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:classroom_list' %}" data-tip="ថ្នាក់">
+        <i class="bi bi-building-fill"></i><span class="t">ថ្នាក់រៀន</span>
+      </a>
+      <a class="sb-a {% if 'subject' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:subject_list' %}" data-tip="មុខវិជ្ជា">
+        <i class="bi bi-journal-bookmark-fill"></i><span class="t">មុខវិជ្ជា</span>
+      </a>
+      {% endif %}
+      <a class="sb-a {% if 'timetable' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:timetable_list' %}" data-tip="តារាង">
+        <i class="bi bi-calendar3-week-fill"></i><span class="t">តារាងម៉ោង</span>
+      </a>
+
+      <div class="sb-lbl">ការបង្រៀន</div>
+      <a class="sb-a {% if request.resolver_match.url_name in 'attendance_list,attendance_add' %}on{% endif %}" href="{% url 'school:attendance_list' %}" data-tip="វត្តមាន">
+        <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមាន</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'attendance_bulk' %}on{% endif %}" href="{% url 'school:attendance_bulk' %}" data-tip="វត្តមានក្រុម">
+        <i class="bi bi-list-check"></i><span class="t">វត្តមានក្រុម</span>
+      </a>
+      <a class="sb-a {% if 'exam' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:exam_list' %}" data-tip="ប្រឡង">
+        <i class="bi bi-file-earmark-text-fill"></i><span class="t">ការប្រឡង</span>
+      </a>
+      <a class="sb-a {% if 'score' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}" data-tip="ពិន្ទុ">
+        <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
+      </a>
+
+      <div class="sb-lbl">ទំនាក់ទំនង</div>
+      <a class="sb-a {% if 'notification' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:notification_list' %}" data-tip="ជូនដំណឹង">
+        <i class="bi bi-bell-fill"></i><span class="t">ជូនដំណឹង</span>
+      </a>
+      <a class="sb-a {% if 'event' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:event_list' %}" data-tip="ព្រឹត្តិការណ៍">
+        <i class="bi bi-calendar-event-fill"></i><span class="t">ព្រឹត្តិការណ៍</span>
+      </a>
+
+      <div class="sb-lbl">លទ្ធផល</div>
+      <a class="sb-a {% if 'report_card' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:report_card_list' %}" data-tip="ប័ណ្ណ">
+        <i class="bi bi-journal-text"></i><span class="t">សៀវភៅប័ណ្ណ</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'report_students' %}on{% endif %}" href="{% url 'school:report_students' %}" data-tip="រាយការណ៍" target="_blank">
+        <i class="bi bi-file-earmark-person"></i><span class="t">របាយការណ៍សិស្ស</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'report_attendance' %}on{% endif %}" href="{% url 'school:report_attendance' %}" data-tip="វត្តមាន🖨" target="_blank">
+        <i class="bi bi-file-earmark-check"></i><span class="t">របាយការណ៍វត្តមាន</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'report_scores' %}on{% endif %}" href="{% url 'school:report_scores' %}" data-tip="ពិន្ទុ🖨" target="_blank">
+        <i class="bi bi-file-earmark-bar-graph"></i><span class="t">របាយការណ៍ពិន្ទុ</span>
+      </a>
+      {% if role == 'admin' %}
+      <a class="sb-a {% if request.resolver_match.url_name == 'report_teachers' %}on{% endif %}" href="{% url 'school:report_teachers' %}" data-tip="គ្រូ🖨" target="_blank">
+        <i class="bi bi-file-earmark-person-fill"></i><span class="t">របាយការណ៍គ្រូ</span>
+      </a>
+      {% endif %}
+
+    {% elif role == 'parent' %}
+      <div class="sb-lbl">ព័ត៌មានកូន</div>
+      <a class="sb-a {% if request.resolver_match.url_name == 'parent_attendance' %}on{% endif %}" href="{% url 'school:parent_attendance' %}" data-tip="វត្តមាន">
+        <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមានកូន</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'parent_results' %}on{% endif %}" href="{% url 'school:parent_results' %}" data-tip="លទ្ធផល">
+        <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលកូន</span>
+      </a>
+      <div class="sb-lbl">ព័ត៌មានសាលា</div>
+      <a class="sb-a {% if 'notification' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:notification_list' %}" data-tip="ជូនដំណឹង">
+        <i class="bi bi-bell-fill"></i><span class="t">ជូនដំណឹង</span>
+      </a>
+      <a class="sb-a {% if 'event' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:event_list' %}" data-tip="ព្រឹត្តិការណ៍">
+        <i class="bi bi-calendar-event-fill"></i><span class="t">ព្រឹត្តិការណ៍</span>
+      </a>
+
+    {% else %}
+      <div class="sb-lbl">ព័ត៌មានខ្ញុំ</div>
+      <a class="sb-a {% if 'timetable' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:timetable_list' %}" data-tip="តារាង">
+        <i class="bi bi-calendar3-week-fill"></i><span class="t">តារាងម៉ោង</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'student_results' %}on{% endif %}" href="{% url 'school:student_results' %}" data-tip="លទ្ធផល">
+        <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
+      </a>
+      <a class="sb-a {% if request.resolver_match.url_name == 'student_attendance' %}on{% endif %}" href="{% url 'school:student_attendance' %}" data-tip="វត្តមាន">
+        <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមានរបស់ខ្ញុំ</span>
+      </a>
+      <div class="sb-lbl">ព័ត៌មានសាលា</div>
+      <a class="sb-a {% if 'notification' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:notification_list' %}" data-tip="ជូនដំណឹង">
+        <i class="bi bi-bell-fill"></i><span class="t">ជូនដំណឹង</span>
+      </a>
+    {% endif %}
+    {% endwith %}
+  </nav>
+
+  <div class="sb-foot">
+    <a href="{% url 'school:profile_update' %}" class="sb-prof">
+      <div class="sb-av">
+        {% if request.user.profile.photo %}<img src="{{ request.user.profile.photo.url }}" alt="">
+        {% else %}{{ request.user.get_full_name|default:request.user.username|first|upper }}{% endif %}
+      </div>
+      <div class="sb-pinfo">
+        <div class="sb-pname">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="sb-prole">{% user_role_badge %}</div>
+      </div>
+    </a>
+    {% if request.user.profile.role == 'admin' %}
+    <a href="{% url 'school:school_settings' %}" class="sb-fl">
+      <i class="bi bi-gear-fill"></i><span class="t">ការកំណត់</span>
+    </a>
+    <a href="/admin/" class="sb-fl">
+      <i class="bi bi-shield-lock-fill"></i><span class="t">Admin Panel</span>
+    </a>
+    {% endif %}
+    <a href="{% url 'school:logout' %}" class="sb-fl">
+      <i class="bi bi-box-arrow-right"></i><span class="t">ចាកចេញ</span>
+    </a>
+  </div>
+</aside>
+
+<!-- ═══ TOPBAR ═══ -->
+<header class="top" id="top">
+  <div class="top-left">
+    <button class="mob-tog" onclick="mbOpen()" title="ម៉ឺនុយ">
+      <i class="bi bi-list"></i>
+    </button>
+    <span class="top-title">{% block page_title %}ផ្ទាំងគ្រប់គ្រង{% endblock %}</span>
+  </div>
+  <div class="top-right">
+    <span class="top-date d-none d-lg-flex"><i class="bi bi-calendar3"></i><span id="td"></span></span>
+    <!-- PRINT BUTTON — works on every page -->
+    <button onclick="window.print()" class="btn btn-sm no-print"
+      style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;"
+      title="បោះពុម្ពទំព័រនេះ">
+      <i class="bi bi-printer-fill" style="font-size:.85rem;"></i>
+      <span class="d-none d-md-inline">បោះពុម្ព</span>
+    </button>
+    <a href="{% url 'school:profile_update' %}" class="top-av no-print" title="ប្រវត្តិរូប">
+      {% if request.user.profile.photo %}<img src="{{ request.user.profile.photo.url }}" alt="">
+      {% else %}{{ request.user.get_full_name|default:request.user.username|first|upper }}{% endif %}
+    </a>
+    <span class="d-none d-sm-inline" style="font-size:.75rem;color:var(--mu);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+      {{ request.user.get_full_name|default:request.user.username }}
+    </span>
+    <a href="{% url 'school:logout' %}" class="btn btn-sm btn-outline-danger no-print d-none d-sm-inline-flex">
+      <i class="bi bi-box-arrow-right me-1"></i>ចាកចេញ
+    </a>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main" id="main">
+  <div class="ph">
+    <h3>{{ school.school_name }}</h3>
+    <p>{{ school.school_slogan }}{% if school.address %} &nbsp;|&nbsp; {{ school.address }}{% endif %}{% if school.phone %} &nbsp;|&nbsp; ☎ {{ school.phone }}{% endif %}</p>
+    <p id="pd" style="margin-top:2px;"></p>
+  </div>
+
+  {% if messages %}{% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }} alert-dismissible fade show d-flex align-items-center gap-2 mb-3 no-print" role="alert">
+    {% if msg.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+    {% elif msg.tags == 'error' or msg.tags == 'danger' %}<i class="bi bi-exclamation-triangle-fill"></i>
+    {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+    {{ msg }}<button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}{% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ═══ BOTTOM NAV (mobile) ═══ -->
+{% with role=request.user.profile.role %}
+<nav class="bot-nav no-print">
+  <a href="{% url 'school:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}on{% endif %}">
+    <i class="bi bi-grid-fill"></i><span>ទំព័រ</span>
+  </a>
+  {% if role == 'admin' or role == 'teacher' %}
+  <a href="{% url 'school:student_list' %}" class="{% if 'student' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-people-fill"></i><span>សិស្ស</span>
+  </a>
+  <a href="{% url 'school:attendance_list' %}" class="{% if 'attendance' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-calendar-check-fill"></i><span>វត្តមាន</span>
+  </a>
+  <a href="{% url 'school:score_list' %}" class="{% if 'score' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-bar-chart-fill"></i><span>ពិន្ទុ</span>
+  </a>
+  {% elif role == 'parent' %}
+  <a href="{% url 'school:parent_attendance' %}" class="{% if request.resolver_match.url_name == 'parent_attendance' %}on{% endif %}">
+    <i class="bi bi-calendar-check-fill"></i><span>វត្តមាន</span>
+  </a>
+  <a href="{% url 'school:parent_results' %}" class="{% if request.resolver_match.url_name == 'parent_results' %}on{% endif %}">
+    <i class="bi bi-bar-chart-fill"></i><span>លទ្ធផល</span>
+  </a>
+  <a href="{% url 'school:notification_list' %}" class="{% if 'notification' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-bell-fill"></i><span>ជូនដំណឹង</span>
+  </a>
+  {% else %}
+  <a href="{% url 'school:timetable_list' %}" class="{% if 'timetable' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-calendar3-week-fill"></i><span>តារាង</span>
+  </a>
+  <a href="{% url 'school:student_results' %}" class="{% if request.resolver_match.url_name == 'student_results' %}on{% endif %}">
+    <i class="bi bi-bar-chart-fill"></i><span>លទ្ធផល</span>
+  </a>
+  <a href="{% url 'school:notification_list' %}" class="{% if 'notification' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-bell-fill"></i><span>ជូន</span>
+  </a>
+  {% endif %}
+  <a href="{% url 'school:profile_update' %}" class="{% if 'profile' in request.resolver_match.url_name %}on{% endif %}">
+    <i class="bi bi-person-circle"></i><span>ប្រវត្តិ</span>
+  </a>
+</nav>
+{% endwith %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* Khmer date */
+const kd=['អាទិត្យ','ច័ន្ទ','អង្គារ','ពុធ','ព្រហស្បតិ៍','សុក្រ','សៅរ៍'];
+const km=['មករា','កុម្ភៈ','មីនា','មេសា','ឧសភា','មិថុនា','កក្កដា','សីហា','កញ្ញា','តុលា','វិច្ឆិកា','ធ្នូ'];
+const now=new Date();
+const ds=kd[now.getDay()]+' '+now.getDate()+' '+km[now.getMonth()]+' '+now.getFullYear();
+const tde=document.getElementById('td'); if(tde) tde.textContent=ds;
+const pde=document.getElementById('pd'); if(pde) pde.textContent='បោះពុម្ព: '+ds;
+
+/* Sidebar */
+const sb=document.getElementById('sb');
+let col=localStorage.getItem('sb-c')==='1';
+
+function applySb(){
+  // Only toggle the .c class — CSS handles all layout via ~ sibling selector
+  if(col) sb.classList.add('c');
+  else sb.classList.remove('c');
+}
+function togSb(){
+  // On mobile: toggle button closes the overlay sidebar
+  if(window.innerWidth<=768){
+    if(sb.classList.contains('mob')){ mbClose(); }
+    else { mbOpen(); }
+    return;
+  }
+  col=!col;
+  localStorage.setItem('sb-c',col?'1':'0');
+  applySb();
+}
+applySb();
+
+/* Topbar shadow on scroll */
+const topEl=document.getElementById('top');
+window.addEventListener('scroll',()=>{
+  if(topEl) topEl.style.boxShadow=window.scrollY>8?'0 2px 12px rgba(0,0,0,.08)':'none';
+},{passive:true});
+
+/* Mobile */
+const ov=document.getElementById('sbOv');
+function mbOpen(){sb.classList.add('mob');ov.classList.add('on');document.body.style.overflow='hidden';}
+function mbClose(){sb.classList.remove('mob');ov.classList.remove('on');document.body.style.overflow='';}
+document.querySelectorAll('.sb-a,.sb-prof,.sb-fl').forEach(el=>el.addEventListener('click',()=>{if(window.innerWidth<=768)mbClose();}));
+
+/* Ripple on nav links */
+document.querySelectorAll('.sb-a').forEach(el=>{
+  el.addEventListener('click',function(e){
+    const r=document.createElement('span'); r.className='rpl';
+    const rc=this.getBoundingClientRect(), s=Math.max(rc.width,rc.height);
+    r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-rc.left-s/2}px;top:${e.clientY-rc.top-s/2}px;`;
+    this.appendChild(r); setTimeout(()=>r.remove(),500);
+  });
+});
+
+/* Resize: on mobile clear collapsed state from layout */
+window.addEventListener('resize',()=>{if(window.innerWidth>768) mbClose();});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

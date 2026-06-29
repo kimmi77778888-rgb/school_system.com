@@ -1,0 +1,52 @@
+{% extends 'school/base.html' %}
+{% block title %}វត្តមាន{% endblock %}
+{% block page_title %}គ្រប់គ្រងវត្តមាន{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-calendar-check-fill me-2 text-success"></i>វត្តមានសិស្ស</h2>
+  <div class="actions">
+    <form method="get" class="d-flex gap-2 flex-wrap">
+      <input type="date" name="date" value="{{ date_filter }}" class="form-control form-control-sm" style="width:160px;"/>
+      <select name="classroom" class="form-select form-select-sm" style="width:160px;">
+        <option value="">ថ្នាក់ទាំងអស់</option>
+        {% for c in classrooms %}<option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
+    </form>
+    <a href="{% url 'school:attendance_bulk' %}" class="btn btn-primary btn-sm"><i class="bi bi-list-check me-1"></i>វត្តមានក្រុម</a>
+    <a href="{% url 'school:attendance_add' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>បន្ថែម</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">{{ present }}</div><div class="text-muted small">មានវត្តមាន</div></div></div>
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">{{ absent }}</div><div class="text-muted small">អវត្តមាន</div></div></div>
+  <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-warning">{{ late }}</div><div class="text-muted small">យឺត</div></div></div>
+</div>
+
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>សិស្ស</th><th>ថ្ងៃ</th><th>ស្ថានភាព</th><th>កំណត់ចំណាំ</th></tr></thead>
+    <tbody>
+    {% for r in records %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ r.student.first_name }} {{ r.student.last_name }}</strong>
+        <div class="text-muted" style="font-size:.75rem;">{{ r.student.student_id }}</div>
+      </td>
+      <td>{{ r.date }}</td>
+      <td>
+        {% if r.status == 'P' %}<span class="badge-P">មានវត្តមាន</span>
+        {% elif r.status == 'A' %}<span class="badge-A">អវត្តមាន</span>
+        {% elif r.status == 'L' %}<span class="badge-L">យឺត</span>
+        {% else %}<span class="badge-E">មានច្បាប់</span>{% endif %}
+      </td>
+      <td>{{ r.note|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="text-center text-muted py-4">មិនមានទិន្នន័យ</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'school/base.html' %}
+{% block title %}បន្ថែមអ្នកប្រើ{% endblock %}
+{% block page_title %}បន្ថែមអ្នកប្រើប្រាស់{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-6">
+  <div class="card border-0" style="border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,.07);">
+    <div class="card-header" style="border-radius:16px 16px 0 0;">
+      <span><i class="bi bi-person-plus-fill me-2 text-primary"></i>បង្កើតគណនីអ្នកប្រើថ្មី</span>
+      <a href="{% url 'school:user_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
+      </a>
+    </div>
+    <div class="card-body p-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">
+              <i class="bi bi-person-badge me-1 text-primary"></i>
+              តួនាទី <span class="text-danger">*</span>
+            </label>
+            <select name="role" class="form-select" required>
+              <option value="">-- ជ្រើសរើសតួនាទី --</option>
+              <option value="admin"   {% if form.role.value == 'admin'   %}selected{% endif %}>👑 Admin — អ្នកគ្រប់គ្រង</option>
+              <option value="teacher" {% if form.role.value == 'teacher' %}selected{% endif %}>👨‍🏫 Teacher — គ្រូបង្រៀន</option>
+              <option value="parent"  {% if form.role.value == 'parent'  %}selected{% endif %}>👪 Parent — មាតាបិតា</option>
+              <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>🎓 Student — សិស្ស</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Username <span class="text-danger">*</span></label>
+            {{ form.username }}
+            {% if form.username.errors %}
+            <div class="text-danger mt-1" style="font-size:.78rem;">
+              {% for e in form.username.errors %}{{ e }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">ឈ្មោះដំបូង</label>
+            {{ form.first_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">នាមត្រកូល</label>
+            {{ form.last_name }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">អ៊ីម៉ែល</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="text-danger mt-1" style="font-size:.78rem;">
+              {% for e in form.email.errors %}{{ e }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">ពាក្យសម្ងាត់ <span class="text-danger">*</span></label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+            <div class="text-danger mt-1" style="font-size:.78rem;">
+              {% for e in form.password1.errors %}{{ e }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">បញ្ជាក់ពាក្យសម្ងាត់ <span class="text-danger">*</span></label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+            <div class="text-danger mt-1" style="font-size:.78rem;">
+              {% for e in form.password2.errors %}{{ e }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr class="my-4">
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg me-2"></i>បង្កើតគណនី
+          </button>
+          <a href="{% url 'school:user_list' %}" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-x-lg me-1"></i>បោះបង់
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

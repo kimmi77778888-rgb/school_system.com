@@ -1,0 +1,34 @@
+{% extends 'school/base.html' %}
+{% block title %}មុខវិជ្ជា{% endblock %}
+{% block page_title %}គ្រប់គ្រងមុខវិជ្ជា{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-journal-bookmark-fill me-2 text-purple" style="color:#7c3aed;"></i>មុខវិជ្ជា</h2>
+  <div class="actions">
+    <a href="{% url 'school:subject_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>បន្ថែមមុខវិជ្ជា</a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>ឈ្មោះ</th><th>លេខកូដ</th><th>ថ្នាក់</th><th>គ្រូ</th><th>ក្រេឌីត</th><th>សកម្មភាព</th></tr></thead>
+    <tbody>
+    {% for s in subjects %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ s.name }}</strong></td>
+      <td><span class="badge bg-secondary">{{ s.code|default:"—" }}</span></td>
+      <td>{{ s.grade }}</td>
+      <td>{{ s.teacher|default:"—" }}</td>
+      <td>{{ s.credit }}</td>
+      <td>
+        <a href="{% url 'school:subject_edit' s.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:subject_delete' s.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" class="text-center text-muted py-4">មិនមានមុខវិជ្ជា</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'school/base.html' %}
+{% block title %}ថ្នាក់រៀន{% endblock %}
+{% block page_title %}គ្រប់គ្រងថ្នាក់រៀន{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-building me-2 text-warning"></i>ថ្នាក់រៀន</h2>
+  <div class="actions">
+    <a href="{% url 'school:classroom_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>បន្ថែមថ្នាក់</a>
+  </div>
+</div>
+<div class="card table-card">
+  <table class="table table-hover">
+    <thead><tr><th>#</th><th>ថ្នាក់</th><th>ឆ្នាំសិក្សា</th><th>គ្រូប្រចាំ</th><th>លេខបន្ទប់</th><th>ចំណុះ</th><th>សិស្ស</th><th>សកម្មភាព</th></tr></thead>
+    <tbody>
+    {% for c in classrooms %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ c.grade }}</strong></td>
+      <td><span class="badge bg-info text-dark">{{ c.academic_year }}</span></td>
+      <td>{{ c.homeroom_teacher|default:"—" }}</td>
+      <td>{{ c.room_number|default:"—" }}</td>
+      <td>{{ c.capacity }}</td>
+      <td><span class="badge bg-primary">{{ c.student_count }}</span></td>
+      <td>
+        <a href="{% url 'school:classroom_edit' c.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:classroom_delete' c.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" class="text-center text-muted py-4">មិនមានថ្នាក់</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

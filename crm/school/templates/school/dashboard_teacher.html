@@ -1,0 +1,97 @@
+{% extends 'school/base.html' %}
+{% block title %}ផ្ទាំងគ្រូ{% endblock %}
+{% block page_title %}ផ្ទាំងគ្រូបង្រៀន{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-blue">
+      <div class="lbl">សិស្សរបស់ខ្ញុំ</div>
+      <div class="val">{{ my_students_count }}</div>
+      <i class="bi bi-people-fill bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-green">
+      <div class="lbl">មានវត្តមាន</div>
+      <div class="val">{{ today_present }}</div>
+      <i class="bi bi-calendar-check bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-rose">
+      <div class="lbl">អវត្តមាន</div>
+      <div class="val">{{ today_absent }}</div>
+      <i class="bi bi-calendar-x bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card sc-amber">
+      <div class="lbl">ថ្នាក់របស់ខ្ញុំ</div>
+      <div class="val">{{ my_classes|length }}</div>
+      <i class="bi bi-building bg-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <div class="fw-bold mb-3"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>សកម្មភាពរហ័ស</div>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'school:attendance_bulk' %}" class="btn btn-primary btn-sm"><i class="bi bi-list-check me-1"></i>កត់ត្រាវត្តមាន</a>
+        <a href="{% url 'school:score_add' %}" class="btn btn-success btn-sm"><i class="bi bi-plus me-1"></i>បន្ថែមពិន្ទុ</a>
+        <a href="{% url 'school:student_list' %}" class="btn btn-info text-white btn-sm"><i class="bi bi-people me-1"></i>មើលសិស្ស</a>
+        <a href="{% url 'school:report_card_add' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-journal-text me-1"></i>ប័ណ្ណ</a>
+        <a href="{% url 'school:notification_add' %}" class="btn btn-dark btn-sm"><i class="bi bi-bell me-1"></i>ជូនដំណឹង</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3">
+      <div class="fw-bold mb-2"><i class="bi bi-building text-primary me-1"></i>ថ្នាក់របស់ខ្ញុំ</div>
+      {% for c in my_classes %}
+      <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+        <strong>{{ c }}</strong>
+        <a href="{% url 'school:student_list' %}?classroom={{ c.pk }}" class="btn btn-outline-secondary btn-sm">មើលសិស្ស</a>
+      </div>
+      {% empty %}<p class="text-muted">មិនទាន់មានថ្នាក់ប្រគល់ឱ្យ</p>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-bar-chart-fill text-success me-2"></i>ពិន្ទុចុងក្រោយ</span>
+        <a href="{% url 'school:score_list' %}" class="btn btn-outline-secondary btn-sm">ទាំងអស់</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead><tr><th>សិស្ស</th><th>មុខវិជ្ជា</th><th>ពិន្ទុ</th><th>ថ្នាក់</th></tr></thead>
+        <tbody>
+        {% for sc in recent_scores %}
+        <tr>
+          <td>{{ sc.student.first_name }} {{ sc.student.last_name }}</td>
+          <td>{{ sc.subject.name }}</td>
+          <td>{{ sc.score }}/{{ sc.max_score }}</td>
+          <td><span class="badge bg-{{ sc.grade_color }}">{{ sc.grade_letter }}</span></td>
+        </tr>
+        {% empty %}<tr><td colspan="4" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-bell-fill text-warning me-2"></i>សេចក្ដីជូនដំណឹង</span></div>
+      <ul class="list-group list-group-flush">
+        {% for n in notifications %}
+        <li class="list-group-item">
+          <strong style="font-size:.88rem;">{{ n.title }}</strong>
+          <div class="text-muted" style="font-size:.78rem;">{{ n.message|truncatechars:60 }}</div>
+        </li>
+        {% empty %}<li class="list-group-item text-center text-muted py-3">មិនមានសេចក្ដីជូនដំណឹង</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'school/base.html' %}
+{% block title %}ផ្ទាំងមាតាបិតា{% endblock %}
+{% block page_title %}ផ្ទាំងមាតាបិតា{% endblock %}
+{% block content %}
+{% if student %}
+<div class="card p-4 mb-4" style="background:linear-gradient(135deg,#1e3a5f,#0f172a);color:#fff;border:none;border-radius:16px;">
+  <div class="d-flex align-items-center gap-3">
+    {% if student.photo %}
+    <img src="{{ student.photo.url }}" class="rounded-circle" width="70" height="70" style="object-fit:cover;border:3px solid rgba(255,255,255,.3);">
+    {% else %}
+    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width:70px;height:70px;font-size:1.8rem;color:#fff;">{{ student.first_name|first }}</div>
+    {% endif %}
+    <div>
+      <h4 class="mb-0 fw-bold">{{ student.first_name }} {{ student.last_name }}</h4>
+      <div style="opacity:.7;font-size:.85rem;">{{ student.student_id }} &nbsp;|&nbsp; {{ student.classroom|default:"មិនទាន់មានថ្នាក់" }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <a href="{% url 'school:parent_attendance' %}" class="text-decoration-none">
+      <div class="card p-3 text-center h-100" style="border-left:4px solid #10b981;">
+        <i class="bi bi-calendar-check-fill fs-2 text-success mb-2"></i>
+        <div class="fw-bold">វត្តមាន</div>
+        <div class="text-muted small">មើលវត្តមានកូន</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'school:parent_results' %}" class="text-decoration-none">
+      <div class="card p-3 text-center h-100" style="border-left:4px solid #3b82f6;">
+        <i class="bi bi-bar-chart-fill fs-2 text-primary mb-2"></i>
+        <div class="fw-bold">លទ្ធផល</div>
+        <div class="text-muted small">ពិន្ទុប្រឡង</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'school:notification_list' %}" class="text-decoration-none">
+      <div class="card p-3 text-center h-100" style="border-left:4px solid #f59e0b;">
+        <i class="bi bi-bell-fill fs-2 text-warning mb-2"></i>
+        <div class="fw-bold">សេចក្ដីជូនដំណឹង</div>
+        <div class="text-muted small">ពីសាលា</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'school:event_list' %}" class="text-decoration-none">
+      <div class="card p-3 text-center h-100" style="border-left:4px solid #8b5cf6;">
+        <i class="bi bi-calendar-event-fill fs-2 text-purple mb-2" style="color:#8b5cf6;"></i>
+        <div class="fw-bold">ព្រឹត្តិការណ៍</div>
+        <div class="text-muted small">ព្រឹត្តិការណ៍សាលា</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-calendar-check text-success me-2"></i>វត្តមានថ្មីៗ
+        <a href="{% url 'school:parent_attendance' %}" class="btn btn-outline-secondary btn-sm">ទាំងអស់</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead><tr><th>កាលបរិច្ឆេទ</th><th>ស្ថានភាព</th><th>កំណត់ចំណាំ</th></tr></thead>
+        <tbody>
+        {% for a in attendances %}
+        <tr>
+          <td>{{ a.date }}</td>
+          <td>
+            {% if a.status == 'P' %}<span class="badge-P">មានវត្តមាន</span>
+            {% elif a.status == 'A' %}<span class="badge-A">អវត្តមាន</span>
+            {% elif a.status == 'L' %}<span class="badge-L">យឺត</span>
+            {% else %}<span class="badge-E">មានច្បាប់</span>{% endif %}
+          </td>
+          <td>{{ a.note|default:"—" }}</td>
+        </tr>
+        {% empty %}<tr><td colspan="3" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-bar-chart text-primary me-2"></i>ពិន្ទុចុងក្រោយ
+        <a href="{% url 'school:parent_results' %}" class="btn btn-outline-secondary btn-sm">ទាំងអស់</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead><tr><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ពិន្ទុ</th><th>ថ្នាក់</th></tr></thead>
+        <tbody>
+        {% for s in scores %}
+        <tr>
+          <td>{{ s.subject.name }}</td>
+          <td>{{ s.exam_type }}</td>
+          <td>{{ s.score }}/{{ s.max_score }}</td>
+          <td><span class="badge bg-{{ s.grade_color }}">{{ s.grade_letter }}</span></td>
+        </tr>
+        {% empty %}<tr><td colspan="4" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
