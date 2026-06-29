@@ -11,5 +11,5 @@ python create_admin.py
 
 # Load initial data if fixture exists
 if [ -f data_export.json ]; then
-  python manage.py loaddata data_export.json || echo "Data already loaded or skipped"
+  python manage.py loaddata data_export.json --ignorenonexistent || echo "Warning: some data skipped"
 fi
