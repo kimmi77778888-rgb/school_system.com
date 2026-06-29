@@ -1,1000 +1,1000 @@
 [
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$lRWLBgdxwuZbZ1fgMSMlSB$OvtSB2tbwV4ROi9AzriOXfRfZUovnakEL9jFdv4eNOI=",
-    "last_login": "2026-06-28T15:52:57.595Z",
-    "is_superuser": true,
-    "username": "admin",
-    "first_name": "",
-    "last_name": "",
-    "email": "admin@gmail.com",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2026-06-03T16:10:24.322Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$eTIzfl2S3vWdwFWPJqb4Mm$oXApxWLmsWbTSAmataGeTv6dnkGlyS99jrcA6R6c5XA=",
-    "last_login": "2026-06-28T14:22:25.419Z",
-    "is_superuser": false,
-    "username": "LenSophara",
-    "first_name": "Len",
-    "last_name": "Sophara",
-    "email": "Lensophara@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-28T14:21:52.253Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.user",
-  "fields": {
-    "password": "pbkdf2_sha256$1200000$XgTnQqrkrZ98EmpUgIcX91$mznOkgupZJCWNclTmiSe6+HnJRZIEeeZVJOtd0NhlU4=",
-    "last_login": "2026-06-28T14:23:57.670Z",
-    "is_superuser": false,
-    "username": "Dad",
-    "first_name": "ka",
-    "last_name": "ka",
-    "email": "kaka88@gmail.com",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2026-06-28T14:23:42.058Z",
-    "groups": [],
-    "user_permissions": []
-  }
-},
-{
-  "model": "auth.group",
-  "fields": {
-    "name": "IT",
-    "permissions": [
-      [
-        "add_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "change_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "delete_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "view_category",
-        "accounts",
-        "category"
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$lRWLBgdxwuZbZ1fgMSMlSB$OvtSB2tbwV4ROi9AzriOXfRfZUovnakEL9jFdv4eNOI=",
+      "last_login": "2026-06-28T15:52:57.595Z",
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "admin@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2026-06-03T16:10:24.322Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$eTIzfl2S3vWdwFWPJqb4Mm$oXApxWLmsWbTSAmataGeTv6dnkGlyS99jrcA6R6c5XA=",
+      "last_login": "2026-06-28T14:22:25.419Z",
+      "is_superuser": false,
+      "username": "LenSophara",
+      "first_name": "Len",
+      "last_name": "Sophara",
+      "email": "Lensophara@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-28T14:21:52.253Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$XgTnQqrkrZ98EmpUgIcX91$mznOkgupZJCWNclTmiSe6+HnJRZIEeeZVJOtd0NhlU4=",
+      "last_login": "2026-06-28T14:23:57.670Z",
+      "is_superuser": false,
+      "username": "Dad",
+      "first_name": "ka",
+      "last_name": "ka",
+      "email": "kaka88@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-06-28T14:23:42.058Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "IT",
+      "permissions": [
+        [
+          "add_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "change_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "delete_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "view_category",
+          "accounts",
+          "category"
+        ]
       ]
-    ]
-  }
-},
-{
-  "model": "auth.group",
-  "fields": {
-    "name": "accounting",
-    "permissions": [
-      [
-        "change_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "delete_category",
-        "accounts",
-        "category"
+    }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "accounting",
+      "permissions": [
+        [
+          "change_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "delete_category",
+          "accounts",
+          "category"
+        ]
       ]
-    ]
-  }
-},
-{
-  "model": "auth.group",
-  "fields": {
-    "name": "Marketing",
-    "permissions": [
-      [
-        "view_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "view_product",
-        "accounts",
-        "product"
-      ],
-      [
-        "view_logentry",
-        "admin",
-        "logentry"
-      ],
-      [
-        "view_permission",
-        "auth",
-        "permission"
-      ],
-      [
-        "view_user",
-        "auth",
-        "user"
-      ],
-      [
-        "view_session",
-        "sessions",
-        "session"
+    }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "Marketing",
+      "permissions": [
+        [
+          "view_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "view_product",
+          "accounts",
+          "product"
+        ],
+        [
+          "view_logentry",
+          "admin",
+          "logentry"
+        ],
+        [
+          "view_permission",
+          "auth",
+          "permission"
+        ],
+        [
+          "view_user",
+          "auth",
+          "user"
+        ],
+        [
+          "view_session",
+          "sessions",
+          "session"
+        ]
       ]
-    ]
-  }
-},
-{
-  "model": "auth.group",
-  "fields": {
-    "name": "Managment",
-    "permissions": [
-      [
-        "add_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "change_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "delete_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "view_category",
-        "accounts",
-        "category"
-      ],
-      [
-        "add_product",
-        "accounts",
-        "product"
-      ],
-      [
-        "change_product",
-        "accounts",
-        "product"
-      ],
-      [
-        "delete_product",
-        "accounts",
-        "product"
-      ],
-      [
-        "view_product",
-        "accounts",
-        "product"
-      ],
-      [
-        "add_logentry",
-        "admin",
-        "logentry"
-      ],
-      [
-        "change_logentry",
-        "admin",
-        "logentry"
-      ],
-      [
-        "delete_logentry",
-        "admin",
-        "logentry"
-      ],
-      [
-        "view_logentry",
-        "admin",
-        "logentry"
-      ],
-      [
-        "add_group",
-        "auth",
-        "group"
-      ],
-      [
-        "change_group",
-        "auth",
-        "group"
-      ],
-      [
-        "delete_group",
-        "auth",
-        "group"
-      ],
-      [
-        "view_group",
-        "auth",
-        "group"
-      ],
-      [
-        "add_permission",
-        "auth",
-        "permission"
-      ],
-      [
-        "change_permission",
-        "auth",
-        "permission"
-      ],
-      [
-        "delete_permission",
-        "auth",
-        "permission"
-      ],
-      [
-        "view_permission",
-        "auth",
-        "permission"
-      ],
-      [
-        "add_user",
-        "auth",
-        "user"
-      ],
-      [
-        "change_user",
-        "auth",
-        "user"
-      ],
-      [
-        "delete_user",
-        "auth",
-        "user"
-      ],
-      [
-        "view_user",
-        "auth",
-        "user"
-      ],
-      [
-        "add_contenttype",
-        "contenttypes",
-        "contenttype"
-      ],
-      [
-        "change_contenttype",
-        "contenttypes",
-        "contenttype"
-      ],
-      [
-        "delete_contenttype",
-        "contenttypes",
-        "contenttype"
-      ],
-      [
-        "view_contenttype",
-        "contenttypes",
-        "contenttype"
-      ],
-      [
-        "add_session",
-        "sessions",
-        "session"
-      ],
-      [
-        "change_session",
-        "sessions",
-        "session"
-      ],
-      [
-        "delete_session",
-        "sessions",
-        "session"
-      ],
-      [
-        "view_session",
-        "sessions",
-        "session"
+    }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "Managment",
+      "permissions": [
+        [
+          "add_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "change_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "delete_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "view_category",
+          "accounts",
+          "category"
+        ],
+        [
+          "add_product",
+          "accounts",
+          "product"
+        ],
+        [
+          "change_product",
+          "accounts",
+          "product"
+        ],
+        [
+          "delete_product",
+          "accounts",
+          "product"
+        ],
+        [
+          "view_product",
+          "accounts",
+          "product"
+        ],
+        [
+          "add_logentry",
+          "admin",
+          "logentry"
+        ],
+        [
+          "change_logentry",
+          "admin",
+          "logentry"
+        ],
+        [
+          "delete_logentry",
+          "admin",
+          "logentry"
+        ],
+        [
+          "view_logentry",
+          "admin",
+          "logentry"
+        ],
+        [
+          "add_group",
+          "auth",
+          "group"
+        ],
+        [
+          "change_group",
+          "auth",
+          "group"
+        ],
+        [
+          "delete_group",
+          "auth",
+          "group"
+        ],
+        [
+          "view_group",
+          "auth",
+          "group"
+        ],
+        [
+          "add_permission",
+          "auth",
+          "permission"
+        ],
+        [
+          "change_permission",
+          "auth",
+          "permission"
+        ],
+        [
+          "delete_permission",
+          "auth",
+          "permission"
+        ],
+        [
+          "view_permission",
+          "auth",
+          "permission"
+        ],
+        [
+          "add_user",
+          "auth",
+          "user"
+        ],
+        [
+          "change_user",
+          "auth",
+          "user"
+        ],
+        [
+          "delete_user",
+          "auth",
+          "user"
+        ],
+        [
+          "view_user",
+          "auth",
+          "user"
+        ],
+        [
+          "add_contenttype",
+          "contenttypes",
+          "contenttype"
+        ],
+        [
+          "change_contenttype",
+          "contenttypes",
+          "contenttype"
+        ],
+        [
+          "delete_contenttype",
+          "contenttypes",
+          "contenttype"
+        ],
+        [
+          "view_contenttype",
+          "contenttypes",
+          "contenttype"
+        ],
+        [
+          "add_session",
+          "sessions",
+          "session"
+        ],
+        [
+          "change_session",
+          "sessions",
+          "session"
+        ],
+        [
+          "delete_session",
+          "sessions",
+          "session"
+        ],
+        [
+          "view_session",
+          "sessions",
+          "session"
+        ]
       ]
-    ]
+    }
+  },
+  {
+    "model": "school.schoolsettings",
+    "pk": 1,
+    "fields": {
+      "school_name": "Beltei",
+      "school_name_en": "Primary School",
+      "school_slogan": "Primary School MS",
+      "logo": "",
+      "favicon": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "website": "",
+      "primary_color": "#24a8eb",
+      "secondary_color": "#4f46e5",
+      "sidebar_bg": "#0b1120",
+      "updated_at": "2026-06-28T15:28:24.611Z"
+    }
+  },
+  {
+    "model": "school.academicyear",
+    "pk": 1,
+    "fields": {
+      "year": "Year3",
+      "is_active": true
+    }
+  },
+  {
+    "model": "school.academicyear",
+    "pk": 2,
+    "fields": {
+      "year": "2026",
+      "is_active": true
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 2,
+    "fields": {
+      "name": "ទី១",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 3,
+    "fields": {
+      "name": "ទី២",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 4,
+    "fields": {
+      "name": "ទី៣",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 5,
+    "fields": {
+      "name": "ទី៤",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 6,
+    "fields": {
+      "name": "ទី៥",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.grade",
+    "pk": 7,
+    "fields": {
+      "name": "ទី៦",
+      "section": ""
+    }
+  },
+  {
+    "model": "school.teacher",
+    "pk": 1,
+    "fields": {
+      "teacher_id": "1",
+      "first_name": "Len",
+      "last_name": "Sophara",
+      "first_name_en": "",
+      "last_name_en": "",
+      "gender": "M",
+      "phone": "0316666146",
+      "email": "Lensophara@gmail.com",
+      "address": "PhnomPenh",
+      "subject_specialty": "គណិតវិទ្យា",
+      "hire_date": "2026-06-27",
+      "photo": "",
+      "qualification": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "school.teacher",
+    "pk": 2,
+    "fields": {
+      "teacher_id": "TCH-0002",
+      "first_name": "ta",
+      "last_name": "ki",
+      "first_name_en": "",
+      "last_name_en": "",
+      "gender": "M",
+      "phone": "",
+      "email": "",
+      "address": "PhnomPenh",
+      "subject_specialty": "សិក្សាសង្គម",
+      "hire_date": "2026-06-28",
+      "photo": "",
+      "qualification": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "school.classroom",
+    "pk": 2,
+    "fields": {
+      "grade": 2,
+      "homeroom_teacher": 1,
+      "academic_year": 2,
+      "room_number": "5",
+      "capacity": 30
+    }
+  },
+  {
+    "model": "school.classroom",
+    "pk": 3,
+    "fields": {
+      "grade": 3,
+      "homeroom_teacher": 2,
+      "academic_year": 2,
+      "room_number": "6",
+      "capacity": 30
+    }
+  },
+  {
+    "model": "school.student",
+    "pk": 1,
+    "fields": {
+      "student_id": "2",
+      "first_name": "Nim",
+      "last_name": "Hunneng",
+      "first_name_en": "",
+      "last_name_en": "",
+      "gender": "M",
+      "date_of_birth": "2006-02-01",
+      "address": "តាកែវ",
+      "phone": "0974444123",
+      "parent_name": "Nim",
+      "parent_phone": "0316666146",
+      "parent_email": "svi390484@gmail.com",
+      "classroom": 2,
+      "enrolled_date": "2026-06-27",
+      "photo": "",
+      "is_active": true,
+      "blood_group": "",
+      "medical_notes": ""
+    }
+  },
+  {
+    "model": "school.subject",
+    "pk": 2,
+    "fields": {
+      "name": "គណិតវិទ្យា",
+      "code": "1002",
+      "teacher": 1,
+      "grade": 2,
+      "credit": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "school.subject",
+    "pk": 3,
+    "fields": {
+      "name": "ភាសាខ្មែរ",
+      "code": "1001",
+      "teacher": 1,
+      "grade": 2,
+      "credit": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "school.subject",
+    "pk": 5,
+    "fields": {
+      "name": "វិទ្យាសាស្យ្ត",
+      "code": "1004",
+      "teacher": 1,
+      "grade": 2,
+      "credit": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "school.subject",
+    "pk": 4,
+    "fields": {
+      "name": "សិក្សាសង្គម",
+      "code": "1003",
+      "teacher": 1,
+      "grade": 2,
+      "credit": 1,
+      "description": ""
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 1,
+    "fields": {
+      "day": 1,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 2,
+    "fields": {
+      "day": 1,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 3,
+    "fields": {
+      "day": 1,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 4,
+    "fields": {
+      "day": 1,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 5,
+    "fields": {
+      "day": 1,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 6,
+    "fields": {
+      "day": 1,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 7,
+    "fields": {
+      "day": 2,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 8,
+    "fields": {
+      "day": 2,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 9,
+    "fields": {
+      "day": 2,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 10,
+    "fields": {
+      "day": 2,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 11,
+    "fields": {
+      "day": 2,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 12,
+    "fields": {
+      "day": 2,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 13,
+    "fields": {
+      "day": 3,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 14,
+    "fields": {
+      "day": 3,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 15,
+    "fields": {
+      "day": 3,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 16,
+    "fields": {
+      "day": 3,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 17,
+    "fields": {
+      "day": 3,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 18,
+    "fields": {
+      "day": 3,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 19,
+    "fields": {
+      "day": 4,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 20,
+    "fields": {
+      "day": 4,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 21,
+    "fields": {
+      "day": 4,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 22,
+    "fields": {
+      "day": 4,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 23,
+    "fields": {
+      "day": 4,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 24,
+    "fields": {
+      "day": 4,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 25,
+    "fields": {
+      "day": 5,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 26,
+    "fields": {
+      "day": 5,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 27,
+    "fields": {
+      "day": 5,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 28,
+    "fields": {
+      "day": 5,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 29,
+    "fields": {
+      "day": 5,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 30,
+    "fields": {
+      "day": 5,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 31,
+    "fields": {
+      "day": 6,
+      "start_time": "07:00:00",
+      "end_time": "07:45:00",
+      "period": 1
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 32,
+    "fields": {
+      "day": 6,
+      "start_time": "07:45:00",
+      "end_time": "08:30:00",
+      "period": 2
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 33,
+    "fields": {
+      "day": 6,
+      "start_time": "08:30:00",
+      "end_time": "09:15:00",
+      "period": 3
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 34,
+    "fields": {
+      "day": 6,
+      "start_time": "09:30:00",
+      "end_time": "10:15:00",
+      "period": 4
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 35,
+    "fields": {
+      "day": 6,
+      "start_time": "10:15:00",
+      "end_time": "11:00:00",
+      "period": 5
+    }
+  },
+  {
+    "model": "school.timeslot",
+    "pk": 36,
+    "fields": {
+      "day": 6,
+      "start_time": "11:00:00",
+      "end_time": "11:45:00",
+      "period": 6
+    }
+  },
+  {
+    "model": "school.timetable",
+    "pk": 1,
+    "fields": {
+      "classroom": 2,
+      "subject": 2,
+      "teacher": 1,
+      "time_slot": 1,
+      "academic_year": 2,
+      "room": "418"
+    }
+  },
+  {
+    "model": "school.timetable",
+    "pk": 2,
+    "fields": {
+      "classroom": 2,
+      "subject": 3,
+      "teacher": 1,
+      "time_slot": 2,
+      "academic_year": 2,
+      "room": "418"
+    }
+  },
+  {
+    "model": "school.timetable",
+    "pk": 3,
+    "fields": {
+      "classroom": 2,
+      "subject": 4,
+      "teacher": 1,
+      "time_slot": 3,
+      "academic_year": 2,
+      "room": "418"
+    }
+  },
+  {
+    "model": "school.timetable",
+    "pk": 4,
+    "fields": {
+      "classroom": 2,
+      "subject": 5,
+      "teacher": 1,
+      "time_slot": 5,
+      "academic_year": 2,
+      "room": "418"
+    }
+  },
+  {
+    "model": "school.examtype",
+    "pk": 2,
+    "fields": {
+      "name": "តេស្ត"
+    }
+  },
+  {
+    "model": "school.examtype",
+    "pk": 3,
+    "fields": {
+      "name": "ប្រឡងពាក់កណ្ដាលឆ្នាំ"
+    }
+  },
+  {
+    "model": "school.examtype",
+    "pk": 4,
+    "fields": {
+      "name": "ប្រឡងចុងឆ្នាំ"
+    }
+  },
+  {
+    "model": "school.examtype",
+    "pk": 5,
+    "fields": {
+      "name": "លំហាត់"
+    }
+  },
+  {
+    "model": "school.userprofile",
+    "pk": 1,
+    "fields": {
+      "user": [
+        "admin"
+      ],
+      "role": "admin",
+      "phone": "",
+      "photo": "",
+      "teacher": null,
+      "student": null
+    }
+  },
+  {
+    "model": "school.userprofile",
+    "pk": 29,
+    "fields": {
+      "user": [
+        "LenSophara"
+      ],
+      "role": "student",
+      "phone": "",
+      "photo": "",
+      "teacher": null,
+      "student": null
+    }
+  },
+  {
+    "model": "school.userprofile",
+    "pk": 30,
+    "fields": {
+      "user": [
+        "Dad"
+      ],
+      "role": "parent",
+      "phone": "",
+      "photo": "",
+      "teacher": null,
+      "student": null
+    }
   }
-},
-{
-  "model": "school.schoolsettings",
-  "pk": 1,
-  "fields": {
-    "school_name": "Beltei",
-    "school_name_en": "Primary School",
-    "school_slogan": "Primary School MS",
-    "logo": "school/logo/images_24_tlmWNdT.jpg",
-    "favicon": "school/favicon/images_24_Ys5nhk7.jpg",
-    "address": "",
-    "phone": "",
-    "email": "",
-    "website": "",
-    "primary_color": "#24a8eb",
-    "secondary_color": "#4f46e5",
-    "sidebar_bg": "#0b1120",
-    "updated_at": "2026-06-28T15:28:24.611Z"
-  }
-},
-{
-  "model": "school.academicyear",
-  "pk": 1,
-  "fields": {
-    "year": "Year3",
-    "is_active": true
-  }
-},
-{
-  "model": "school.academicyear",
-  "pk": 2,
-  "fields": {
-    "year": "2026",
-    "is_active": true
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 2,
-  "fields": {
-    "name": "ទី១",
-    "section": ""
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 3,
-  "fields": {
-    "name": "ទី២",
-    "section": ""
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 4,
-  "fields": {
-    "name": "ទី៣",
-    "section": ""
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 5,
-  "fields": {
-    "name": "ទី៤",
-    "section": ""
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 6,
-  "fields": {
-    "name": "ទី៥",
-    "section": ""
-  }
-},
-{
-  "model": "school.grade",
-  "pk": 7,
-  "fields": {
-    "name": "ទី៦",
-    "section": ""
-  }
-},
-{
-  "model": "school.teacher",
-  "pk": 1,
-  "fields": {
-    "teacher_id": "1",
-    "first_name": "Len",
-    "last_name": "Sophara",
-    "first_name_en": "",
-    "last_name_en": "",
-    "gender": "M",
-    "phone": "0316666146",
-    "email": "Lensophara@gmail.com",
-    "address": "PhnomPenh",
-    "subject_specialty": "គណិតវិទ្យា",
-    "hire_date": "2026-06-27",
-    "photo": "images/Teachers/photo_2024-12-14_13-05-12.jpg",
-    "qualification": "",
-    "is_active": true
-  }
-},
-{
-  "model": "school.teacher",
-  "pk": 2,
-  "fields": {
-    "teacher_id": "TCH-0002",
-    "first_name": "ta",
-    "last_name": "ki",
-    "first_name_en": "",
-    "last_name_en": "",
-    "gender": "M",
-    "phone": "",
-    "email": "",
-    "address": "PhnomPenh",
-    "subject_specialty": "សិក្សាសង្គម",
-    "hire_date": "2026-06-28",
-    "photo": "images/Teachers/photo_2026-04-09_14-24-03.jpg",
-    "qualification": "",
-    "is_active": true
-  }
-},
-{
-  "model": "school.classroom",
-  "pk": 2,
-  "fields": {
-    "grade": 2,
-    "homeroom_teacher": 1,
-    "academic_year": 2,
-    "room_number": "5",
-    "capacity": 30
-  }
-},
-{
-  "model": "school.classroom",
-  "pk": 3,
-  "fields": {
-    "grade": 3,
-    "homeroom_teacher": 2,
-    "academic_year": 2,
-    "room_number": "6",
-    "capacity": 30
-  }
-},
-{
-  "model": "school.student",
-  "pk": 1,
-  "fields": {
-    "student_id": "2",
-    "first_name": "Nim",
-    "last_name": "Hunneng",
-    "first_name_en": "",
-    "last_name_en": "",
-    "gender": "M",
-    "date_of_birth": "2006-02-01",
-    "address": "តាកែវ",
-    "phone": "0974444123",
-    "parent_name": "Nim",
-    "parent_phone": "0316666146",
-    "parent_email": "svi390484@gmail.com",
-    "classroom": 2,
-    "enrolled_date": "2026-06-27",
-    "photo": "images/Students/photo_2026-04-09_14-29-34.jpg",
-    "is_active": true,
-    "blood_group": "",
-    "medical_notes": ""
-  }
-},
-{
-  "model": "school.subject",
-  "pk": 2,
-  "fields": {
-    "name": "គណិតវិទ្យា",
-    "code": "1002",
-    "teacher": 1,
-    "grade": 2,
-    "credit": 1,
-    "description": ""
-  }
-},
-{
-  "model": "school.subject",
-  "pk": 3,
-  "fields": {
-    "name": "ភាសាខ្មែរ",
-    "code": "1001",
-    "teacher": 1,
-    "grade": 2,
-    "credit": 1,
-    "description": ""
-  }
-},
-{
-  "model": "school.subject",
-  "pk": 5,
-  "fields": {
-    "name": "វិទ្យាសាស្យ្ត",
-    "code": "1004",
-    "teacher": 1,
-    "grade": 2,
-    "credit": 1,
-    "description": ""
-  }
-},
-{
-  "model": "school.subject",
-  "pk": 4,
-  "fields": {
-    "name": "សិក្សាសង្គម",
-    "code": "1003",
-    "teacher": 1,
-    "grade": 2,
-    "credit": 1,
-    "description": ""
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 1,
-  "fields": {
-    "day": 1,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 2,
-  "fields": {
-    "day": 1,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 3,
-  "fields": {
-    "day": 1,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 4,
-  "fields": {
-    "day": 1,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 5,
-  "fields": {
-    "day": 1,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 6,
-  "fields": {
-    "day": 1,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 7,
-  "fields": {
-    "day": 2,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 8,
-  "fields": {
-    "day": 2,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 9,
-  "fields": {
-    "day": 2,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 10,
-  "fields": {
-    "day": 2,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 11,
-  "fields": {
-    "day": 2,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 12,
-  "fields": {
-    "day": 2,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 13,
-  "fields": {
-    "day": 3,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 14,
-  "fields": {
-    "day": 3,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 15,
-  "fields": {
-    "day": 3,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 16,
-  "fields": {
-    "day": 3,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 17,
-  "fields": {
-    "day": 3,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 18,
-  "fields": {
-    "day": 3,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 19,
-  "fields": {
-    "day": 4,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 20,
-  "fields": {
-    "day": 4,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 21,
-  "fields": {
-    "day": 4,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 22,
-  "fields": {
-    "day": 4,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 23,
-  "fields": {
-    "day": 4,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 24,
-  "fields": {
-    "day": 4,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 25,
-  "fields": {
-    "day": 5,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 26,
-  "fields": {
-    "day": 5,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 27,
-  "fields": {
-    "day": 5,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 28,
-  "fields": {
-    "day": 5,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 29,
-  "fields": {
-    "day": 5,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 30,
-  "fields": {
-    "day": 5,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 31,
-  "fields": {
-    "day": 6,
-    "start_time": "07:00:00",
-    "end_time": "07:45:00",
-    "period": 1
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 32,
-  "fields": {
-    "day": 6,
-    "start_time": "07:45:00",
-    "end_time": "08:30:00",
-    "period": 2
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 33,
-  "fields": {
-    "day": 6,
-    "start_time": "08:30:00",
-    "end_time": "09:15:00",
-    "period": 3
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 34,
-  "fields": {
-    "day": 6,
-    "start_time": "09:30:00",
-    "end_time": "10:15:00",
-    "period": 4
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 35,
-  "fields": {
-    "day": 6,
-    "start_time": "10:15:00",
-    "end_time": "11:00:00",
-    "period": 5
-  }
-},
-{
-  "model": "school.timeslot",
-  "pk": 36,
-  "fields": {
-    "day": 6,
-    "start_time": "11:00:00",
-    "end_time": "11:45:00",
-    "period": 6
-  }
-},
-{
-  "model": "school.timetable",
-  "pk": 1,
-  "fields": {
-    "classroom": 2,
-    "subject": 2,
-    "teacher": 1,
-    "time_slot": 1,
-    "academic_year": 2,
-    "room": "418"
-  }
-},
-{
-  "model": "school.timetable",
-  "pk": 2,
-  "fields": {
-    "classroom": 2,
-    "subject": 3,
-    "teacher": 1,
-    "time_slot": 2,
-    "academic_year": 2,
-    "room": "418"
-  }
-},
-{
-  "model": "school.timetable",
-  "pk": 3,
-  "fields": {
-    "classroom": 2,
-    "subject": 4,
-    "teacher": 1,
-    "time_slot": 3,
-    "academic_year": 2,
-    "room": "418"
-  }
-},
-{
-  "model": "school.timetable",
-  "pk": 4,
-  "fields": {
-    "classroom": 2,
-    "subject": 5,
-    "teacher": 1,
-    "time_slot": 5,
-    "academic_year": 2,
-    "room": "418"
-  }
-},
-{
-  "model": "school.examtype",
-  "pk": 2,
-  "fields": {
-    "name": "តេស្ត"
-  }
-},
-{
-  "model": "school.examtype",
-  "pk": 3,
-  "fields": {
-    "name": "ប្រឡងពាក់កណ្ដាលឆ្នាំ"
-  }
-},
-{
-  "model": "school.examtype",
-  "pk": 4,
-  "fields": {
-    "name": "ប្រឡងចុងឆ្នាំ"
-  }
-},
-{
-  "model": "school.examtype",
-  "pk": 5,
-  "fields": {
-    "name": "លំហាត់"
-  }
-},
-{
-  "model": "school.userprofile",
-  "pk": 1,
-  "fields": {
-    "user": [
-      "admin"
-    ],
-    "role": "admin",
-    "phone": "",
-    "photo": "images/Users/photo_2026-02-21_21-26-08.jpg",
-    "teacher": null,
-    "student": null
-  }
-},
-{
-  "model": "school.userprofile",
-  "pk": 29,
-  "fields": {
-    "user": [
-      "LenSophara"
-    ],
-    "role": "student",
-    "phone": "",
-    "photo": "",
-    "teacher": null,
-    "student": null
-  }
-},
-{
-  "model": "school.userprofile",
-  "pk": 30,
-  "fields": {
-    "user": [
-      "Dad"
-    ],
-    "role": "parent",
-    "phone": "",
-    "photo": "",
-    "teacher": null,
-    "student": null
-  }
-}
 ]
