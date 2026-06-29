@@ -24,8 +24,10 @@
         <div class="d-flex align-items-center gap-2">
           <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#4f46e5);
                display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;">
-            {% if u.profile.photo %}<img src="{{ u.profile.photo|safe_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-            {% else %}{{ u.username|first|upper }}{% endif %}
+            {% with photo=u.profile.photo|default:"" %}
+              {% if photo %}<img src="{{ photo|safe_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              {% else %}{{ u.username|first|upper }}{% endif %}
+            {% endwith %}
           </div>
           <strong>{{ u.username }}</strong>
         </div>

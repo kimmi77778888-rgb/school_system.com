@@ -179,7 +179,18 @@ def dashboard(request):
 #  USER MANAGEMENT (Admin only)
 # ══════════════════════════════════════════════
 @admin_required
+@admin_required
 def user_list(request):
+    # Ensure all users have profiles before rendering
+    from school.models import UserProfile
+    users = User.objects.select_related('profile').order_by('username')
+    for u in users:
+        try:
+            _ = u.profile
+        except Exception:
+            role = 'admin' if u.is_superuser else 'student'
+            UserProfile.objects.create(user=u, role=role)
+    # Re-fetch with profiles guaranteed
     users = User.objects.select_related('profile').order_by('username')
     return render(request, 'school/users/user_list.html', {'users': users})
 
