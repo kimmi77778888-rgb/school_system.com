@@ -176,7 +176,6 @@ USE_TZ = True
 # ──────────────────────────────────────────────────────
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Cloudinary for media files (uploaded images)
 CLOUDINARY_STORAGE = {
@@ -188,7 +187,16 @@ CLOUDINARY_STORAGE = {
 MEDIA_URL = '/media/'
 
 if os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    # Django 4.2+ uses STORAGES dict; also set legacy key for compatibility
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     MEDIA_ROOT = ''
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
