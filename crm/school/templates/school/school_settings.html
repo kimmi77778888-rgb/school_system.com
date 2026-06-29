@@ -10,7 +10,7 @@
   <div class="card mb-4 border-0" style="background:{{ settings.sidebar_bg }};border-radius:18px;overflow:hidden;">
     <div class="card-body p-4 d-flex align-items-center gap-4">
       {% if settings.logo and settings.logo.name %}
-        <img src="{{ settings.logo.url }}" alt="logo"
+        <img src="{{ settings.logo|safe_url }}" alt="logo"
              style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff;padding:4px;"
              onerror="this.style.display='none'">
       {% else %}
@@ -55,13 +55,13 @@
             <label class="form-label">
               <i class="bi bi-image me-1"></i>Logo
               {% if settings.logo and settings.logo.name %}
-                <a href="{{ settings.logo.url }}" target="_blank" class="text-primary ms-2" style="font-size:.75rem;">(មើល)</a>
+                <a href="{{ settings.logo|safe_url }}" target="_blank" class="text-primary ms-2" style="font-size:.75rem;">(មើល)</a>
               {% endif %}
             </label>
             {{ form.logo }}
             {% if settings.logo and settings.logo.name %}
             <div class="mt-2">
-              <img src="{{ settings.logo.url }}" style="height:48px;border-radius:8px;border:1px solid #e2e8f0;" onerror="this.style.display='none'">
+              <img src="{{ settings.logo|safe_url }}" style="height:48px;border-radius:8px;border:1px solid #e2e8f0;" onerror="this.style.display='none'">
             </div>
             {% endif %}
           </div>
@@ -70,7 +70,7 @@
             {{ form.favicon }}
             {% if settings.favicon and settings.favicon.name %}
             <div class="mt-2">
-              <img src="{{ settings.favicon.url }}" style="height:32px;border-radius:4px;border:1px solid #e2e8f0;" onerror="this.style.display='none'">
+              <img src="{{ settings.favicon|safe_url }}" style="height:32px;border-radius:4px;border:1px solid #e2e8f0;" onerror="this.style.display='none'">
             </div>
             {% endif %}
           </div>
