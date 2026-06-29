@@ -120,6 +120,23 @@ def debug_view(request):
     except Exception as e:
         result['teacher_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
 
+    # Test 6: try rendering each failing template
+    from django.template.loader import render_to_string
+    from django.contrib.auth.models import User
+    from school.models import Student, Teacher
+
+    for tpl, ctx_fn in [
+        ('school/users/user_list.html', lambda: {'users': User.objects.select_related('profile').order_by('username')}),
+        ('school/student_list.html',    lambda: {'students': Student.objects.filter(is_active=True).select_related('classroom__grade'), 'q': '', 'classrooms': [], 'selected_classroom': '', 'role': 'admin'}),
+        ('school/teacher_list.html',    lambda: {'teachers': Teacher.objects.filter(is_active=True), 'q': '', 'role': 'admin'}),
+    ]:
+        try:
+            from django.template import RequestContext
+            render_to_string(tpl, ctx_fn(), request=request)
+            result[f'render_{tpl}'] = 'ok'
+        except Exception as e:
+            result[f'render_{tpl}_ERROR'] = traceback.format_exc()
+
     return JsonResponse(result, json_dumps_params={'indent': 2})
 
 
