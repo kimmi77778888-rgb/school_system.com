@@ -71,15 +71,14 @@ for model_label in model_order:
         try:
             for obj in serializers.deserialize('json', json_str):
                 try:
-                    # Check if already exists
                     if model.objects.filter(pk=obj.object.pk).exists():
                         skipped += 1
                     else:
                         obj.save()
                         created += 1
-                except Exception as e:
+                except Exception:
                     skipped += 1
-        except Exception as e:
+        except Exception:
             skipped += 1
 
     print(f"  {model_label}: {created} created, {skipped} skipped")
@@ -87,3 +86,25 @@ for model_label in model_order:
     total_skipped += skipped
 
 print(f"\nDone! Total: {total_created} created, {total_skipped} skipped")
+
+# ── CRITICAL: ensure every user has a UserProfile ──────────────
+# load_data uses deserializers that bypass Django signals,
+# so profiles may not be created automatically.
+print("\nEnsuring all users have a UserProfile...")
+from django.contrib.auth.models import User
+from school.models import UserProfile
+
+fixed = 0
+for user in User.objects.all():
+    try:
+        _ = user.profile
+    except Exception:
+        role = 'admin' if user.is_superuser else 'student'
+        UserProfile.objects.create(user=user, role=role)
+        print(f"  Created missing profile for user: {user.username} (role={role})")
+        fixed += 1
+
+if fixed == 0:
+    print("  All users already have profiles.")
+else:
+    print(f"  Fixed {fixed} missing profiles.")

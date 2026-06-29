@@ -8,3 +8,4 @@ python manage.py migrate
 python create_admin.py
 python fix_images.py || true
 python load_data.py || true
+python fix_profiles.py

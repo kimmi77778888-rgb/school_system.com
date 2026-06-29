@@ -26,6 +26,7 @@ def health_check(request):
     """Diagnostic endpoint — shows what's working on Render."""
     info = {
         'status': 'ok',
+        'commit': '65521a3',
         'python': sys.version,
         'django': __import__('django').get_version(),
         'debug': settings.DEBUG,
@@ -38,13 +39,22 @@ def health_check(request):
         from django.contrib.auth.models import User
         info['db_users'] = User.objects.count()
         info['db_ok'] = True
+        # Check if all users have profiles
+        users_without_profile = []
+        for u in User.objects.all():
+            try:
+                _ = u.profile
+            except Exception:
+                users_without_profile.append(u.username)
+        info['users_without_profile'] = users_without_profile
     except Exception as e:
         info['db_ok'] = False
         info['db_error'] = str(e)
     try:
-        from school.models import SchoolSettings
+        from school.models import SchoolSettings, UserProfile
         SchoolSettings.get()
         info['school_settings_ok'] = True
+        info['total_profiles'] = UserProfile.objects.count()
     except Exception as e:
         info['school_settings_ok'] = False
         info['school_settings_error'] = str(e)
