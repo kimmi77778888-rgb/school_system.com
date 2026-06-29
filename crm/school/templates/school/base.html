@@ -341,6 +341,43 @@ a{text-decoration:none;color:inherit;}
 /* nav tabs */
 .nav-tabs .nav-link{color:var(--mu);border:none;border-bottom:2px solid transparent;padding:.5rem .85rem;font-size:.82rem;}
 .nav-tabs .nav-link.active{color:var(--ac);border-bottom-color:var(--ac);background:none;font-weight:700;}
+
+/* ═══ SIDEBAR DROPDOWN GROUPS ═══ */
+.sb-grp{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 10px;margin:1px 6px;
+  height:34px;min-height:34px;
+  border-radius:7px;
+  background:none;border:none;width:calc(100% - 12px);
+  color:rgba(255,255,255,.55);
+  font-size:.78rem;font-weight:600;
+  cursor:pointer;text-align:left;
+  transition:background .15s,color .15s;
+}
+.sb-grp:hover{background:rgba(255,255,255,.07);color:#e2e8f0;}
+.sb-grp.open{color:#93c5fd;background:rgba(37,99,235,.15);}
+.sb-grp-left{display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap;}
+.sb-grp-left i{font-size:.88rem;min-width:18px;text-align:center;flex-shrink:0;}
+.sb-grp-left .t{overflow:hidden;white-space:nowrap;line-height:1;}
+.sb.c .sb-grp-left .t{opacity:0;width:0;}
+.sb-grp-arrow{font-size:.65rem;flex-shrink:0;transition:transform .25s;opacity:.6;}
+.sb.c .sb-grp-arrow{opacity:0;width:0;}
+.sb-grp.open .sb-grp-arrow{transform:rotate(180deg);}
+
+.sb-grp-body{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .28s cubic-bezier(.4,0,.2,1);
+}
+.sb-grp-body.show{max-height:400px;}
+.sb.c .sb-grp-body{max-height:0!important;}
+
+.sb-sub{
+  padding-left:28px!important;
+  font-size:.75rem!important;
+  opacity:.85;
+}
+.sb-sub:hover{opacity:1;}
 </style>
 </head>
 <body>
@@ -374,72 +411,113 @@ a{text-decoration:none;color:inherit;}
     {% with role=request.user.profile.role|default:"" %}
 
     {% if role == 'admin' or role == 'teacher' %}
+
       {% if role == 'admin' %}
+      <!-- ── គ្រប់គ្រង ── -->
       <div class="sb-lbl">គ្រប់គ្រង</div>
       <a class="sb-a {% if 'user' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:user_list' %}" data-tip="អ្នកប្រើ">
         <i class="bi bi-people-fill"></i><span class="t">អ្នកប្រើប្រាស់</span>
       </a>
       {% endif %}
 
-      <div class="sb-lbl">សិក្សា</div>
-      <a class="sb-a {% if 'student' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}" data-tip="សិស្ស">
-        <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
-      </a>
-      <a class="sb-a {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}" data-tip="គ្រូ">
-        <i class="bi bi-mortarboard-fill"></i><span class="t">គ្រូបង្រៀន</span>
-      </a>
-      {% if role == 'admin' %}
-      <a class="sb-a {% if 'classroom' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:classroom_list' %}" data-tip="ថ្នាក់">
-        <i class="bi bi-building-fill"></i><span class="t">ថ្នាក់រៀន</span>
-      </a>
-      <a class="sb-a {% if 'subject' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:subject_list' %}" data-tip="មុខវិជ្ជា">
-        <i class="bi bi-journal-bookmark-fill"></i><span class="t">មុខវិជ្ជា</span>
-      </a>
-      {% endif %}
-      <a class="sb-a {% if 'timetable' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:timetable_list' %}" data-tip="តារាង">
-        <i class="bi bi-calendar3-week-fill"></i><span class="t">តារាងម៉ោង</span>
-      </a>
+      <!-- ── សិក្សា (dropdown) ── -->
+      {% with edu_open='student teacher classroom subject timetable' %}
+      {% with edu_active=request.resolver_match.url_name %}
+      <button class="sb-grp {% if edu_active in edu_open or 'student' in edu_active or 'teacher' in edu_active or 'classroom' in edu_active or 'subject' in edu_active or 'timetable' in edu_active %}open{% endif %}"
+              onclick="togGrp(this)" data-tip="សិក្សា">
+        <span class="sb-grp-left">
+          <i class="bi bi-book-half"></i><span class="t">សិក្សា</span>
+        </span>
+        <i class="bi bi-chevron-down sb-grp-arrow"></i>
+      </button>
+      <div class="sb-grp-body">
+        <a class="sb-a sb-sub {% if 'student' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}">
+          <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}">
+          <i class="bi bi-mortarboard-fill"></i><span class="t">គ្រូបង្រៀន</span>
+        </a>
+        {% if role == 'admin' %}
+        <a class="sb-a sb-sub {% if 'classroom' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:classroom_list' %}">
+          <i class="bi bi-building-fill"></i><span class="t">ថ្នាក់រៀន</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'subject' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:subject_list' %}">
+          <i class="bi bi-journal-bookmark-fill"></i><span class="t">មុខវិជ្ជា</span>
+        </a>
+        {% endif %}
+        <a class="sb-a sb-sub {% if 'timetable' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:timetable_list' %}">
+          <i class="bi bi-calendar3-week-fill"></i><span class="t">តារាងម៉ោង</span>
+        </a>
+      </div>
+      {% endwith %}{% endwith %}
 
-      <div class="sb-lbl">ការបង្រៀន</div>
-      <a class="sb-a {% if request.resolver_match.url_name in 'attendance_list,attendance_add' %}on{% endif %}" href="{% url 'school:attendance_list' %}" data-tip="វត្តមាន">
-        <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមាន</span>
-      </a>
-      <a class="sb-a {% if request.resolver_match.url_name == 'attendance_bulk' %}on{% endif %}" href="{% url 'school:attendance_bulk' %}" data-tip="វត្តមានក្រុម">
-        <i class="bi bi-list-check"></i><span class="t">វត្តមានក្រុម</span>
-      </a>
-      <a class="sb-a {% if 'exam' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:exam_list' %}" data-tip="ប្រឡង">
-        <i class="bi bi-file-earmark-text-fill"></i><span class="t">ការប្រឡង</span>
-      </a>
-      <a class="sb-a {% if 'score' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}" data-tip="ពិន្ទុ">
-        <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
-      </a>
+      <!-- ── ការបង្រៀន (dropdown) ── -->
+      <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name %}open{% endif %}"
+              onclick="togGrp(this)" data-tip="ការបង្រៀន">
+        <span class="sb-grp-left">
+          <i class="bi bi-pencil-square"></i><span class="t">ការបង្រៀន</span>
+        </span>
+        <i class="bi bi-chevron-down sb-grp-arrow"></i>
+      </button>
+      <div class="sb-grp-body">
+        <a class="sb-a sb-sub {% if 'attendance_list' in request.resolver_match.url_name or 'attendance_add' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:attendance_list' %}">
+          <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមាន</span>
+        </a>
+        <a class="sb-a sb-sub {% if request.resolver_match.url_name == 'attendance_bulk' %}on{% endif %}" href="{% url 'school:attendance_bulk' %}">
+          <i class="bi bi-list-check"></i><span class="t">វត្តមានក្រុម</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'exam' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:exam_list' %}">
+          <i class="bi bi-file-earmark-text-fill"></i><span class="t">ការប្រឡង</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'score' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}">
+          <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
+        </a>
+      </div>
 
-      <div class="sb-lbl">ទំនាក់ទំនង</div>
-      <a class="sb-a {% if 'notification' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:notification_list' %}" data-tip="ជូនដំណឹង">
-        <i class="bi bi-bell-fill"></i><span class="t">ជូនដំណឹង</span>
-      </a>
-      <a class="sb-a {% if 'event' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:event_list' %}" data-tip="ព្រឹត្តិការណ៍">
-        <i class="bi bi-calendar-event-fill"></i><span class="t">ព្រឹត្តិការណ៍</span>
-      </a>
+      <!-- ── ទំនាក់ទំនង (dropdown) ── -->
+      <button class="sb-grp {% if 'notification' in request.resolver_match.url_name or 'event' in request.resolver_match.url_name %}open{% endif %}"
+              onclick="togGrp(this)" data-tip="ទំនាក់ទំនង">
+        <span class="sb-grp-left">
+          <i class="bi bi-chat-dots-fill"></i><span class="t">ទំនាក់ទំនង</span>
+        </span>
+        <i class="bi bi-chevron-down sb-grp-arrow"></i>
+      </button>
+      <div class="sb-grp-body">
+        <a class="sb-a sb-sub {% if 'notification' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:notification_list' %}">
+          <i class="bi bi-bell-fill"></i><span class="t">ជូនដំណឹង</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'event' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:event_list' %}">
+          <i class="bi bi-calendar-event-fill"></i><span class="t">ព្រឹត្តិការណ៍</span>
+        </a>
+      </div>
 
-      <div class="sb-lbl">លទ្ធផល</div>
-      <a class="sb-a {% if 'report_card' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:report_card_list' %}" data-tip="ប័ណ្ណ">
-        <i class="bi bi-journal-text"></i><span class="t">សៀវភៅប័ណ្ណ</span>
-      </a>
-      <a class="sb-a {% if request.resolver_match.url_name == 'report_students' %}on{% endif %}" href="{% url 'school:report_students' %}" data-tip="រាយការណ៍" target="_blank">
-        <i class="bi bi-file-earmark-person"></i><span class="t">របាយការណ៍សិស្ស</span>
-      </a>
-      <a class="sb-a {% if request.resolver_match.url_name == 'report_attendance' %}on{% endif %}" href="{% url 'school:report_attendance' %}" data-tip="វត្តមាន🖨" target="_blank">
-        <i class="bi bi-file-earmark-check"></i><span class="t">របាយការណ៍វត្តមាន</span>
-      </a>
-      <a class="sb-a {% if request.resolver_match.url_name == 'report_scores' %}on{% endif %}" href="{% url 'school:report_scores' %}" data-tip="ពិន្ទុ🖨" target="_blank">
-        <i class="bi bi-file-earmark-bar-graph"></i><span class="t">របាយការណ៍ពិន្ទុ</span>
-      </a>
-      {% if role == 'admin' %}
-      <a class="sb-a {% if request.resolver_match.url_name == 'report_teachers' %}on{% endif %}" href="{% url 'school:report_teachers' %}" data-tip="គ្រូ🖨" target="_blank">
-        <i class="bi bi-file-earmark-person-fill"></i><span class="t">របាយការណ៍គ្រូ</span>
-      </a>
-      {% endif %}
+      <!-- ── លទ្ធផល (dropdown) ── -->
+      <button class="sb-grp {% if 'report' in request.resolver_match.url_name %}open{% endif %}"
+              onclick="togGrp(this)" data-tip="លទ្ធផល">
+        <span class="sb-grp-left">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i><span class="t">លទ្ធផល</span>
+        </span>
+        <i class="bi bi-chevron-down sb-grp-arrow"></i>
+      </button>
+      <div class="sb-grp-body">
+        <a class="sb-a sb-sub {% if 'report_card' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:report_card_list' %}">
+          <i class="bi bi-journal-text"></i><span class="t">សៀវភៅប័ណ្ណ</span>
+        </a>
+        <a class="sb-a sb-sub {% if request.resolver_match.url_name == 'report_students' %}on{% endif %}" href="{% url 'school:report_students' %}" target="_blank">
+          <i class="bi bi-file-earmark-person"></i><span class="t">របាយការណ៍សិស្ស</span>
+        </a>
+        <a class="sb-a sb-sub {% if request.resolver_match.url_name == 'report_attendance' %}on{% endif %}" href="{% url 'school:report_attendance' %}" target="_blank">
+          <i class="bi bi-file-earmark-check"></i><span class="t">របាយការណ៍វត្តមាន</span>
+        </a>
+        <a class="sb-a sb-sub {% if request.resolver_match.url_name == 'report_scores' %}on{% endif %}" href="{% url 'school:report_scores' %}" target="_blank">
+          <i class="bi bi-file-earmark-bar-graph"></i><span class="t">របាយការណ៍ពិន្ទុ</span>
+        </a>
+        {% if role == 'admin' %}
+        <a class="sb-a sb-sub {% if request.resolver_match.url_name == 'report_teachers' %}on{% endif %}" href="{% url 'school:report_teachers' %}" target="_blank">
+          <i class="bi bi-file-earmark-person-fill"></i><span class="t">របាយការណ៍គ្រូ</span>
+        </a>
+        {% endif %}
+      </div>
 
     {% elif role == 'parent' %}
       <div class="sb-lbl">ព័ត៌មានកូន</div>
@@ -638,9 +716,19 @@ function mbOpen(){sb.classList.add('mob');ov.classList.add('on');document.body.s
 function mbClose(){sb.classList.remove('mob');ov.classList.remove('on');document.body.style.overflow='';}
 document.querySelectorAll('.sb-a,.sb-prof,.sb-fl').forEach(el=>el.addEventListener('click',()=>{if(window.innerWidth<=768)mbClose();}));
 
+/* Sidebar dropdown groups */
+function togGrp(btn){
+  const body=btn.nextElementSibling;
+  const open=btn.classList.contains('open');
+  btn.classList.toggle('open',!open);
+  body.classList.toggle('show',!open);
+}
+document.querySelectorAll('.sb-grp').forEach(btn=>{
+  if(btn.classList.contains('open')) btn.nextElementSibling.classList.add('show');
+});
+
 /* Ripple on nav links */
-document.querySelectorAll('.sb-a').forEach(el=>{
-  el.addEventListener('click',function(e){
+document.querySelectorAll('.sb-a').forEach(el=>{  el.addEventListener('click',function(e){
     const r=document.createElement('span'); r.className='rpl';
     const rc=this.getBoundingClientRect(), s=Math.max(rc.width,rc.height);
     r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-rc.left-s/2}px;top:${e.clientY-rc.top-s/2}px;`;
