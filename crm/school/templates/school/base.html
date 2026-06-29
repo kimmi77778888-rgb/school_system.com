@@ -386,7 +386,7 @@ a{text-decoration:none;color:inherit;}
         <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
       </a>
       <a class="sb-a {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}" data-tip="គ្រូ">
-        <i class="bi bi-person-badge-fill"></i><span class="t">គ្រូបង្រៀន</span>
+        <i class="bi bi-mortarboard-fill"></i><span class="t">គ្រូបង្រៀន</span>
       </a>
       {% if role == 'admin' %}
       <a class="sb-a {% if 'classroom' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:classroom_list' %}" data-tip="ថ្នាក់">
