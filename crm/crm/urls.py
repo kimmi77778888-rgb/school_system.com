@@ -120,10 +120,10 @@ def debug_view(request):
     except Exception as e:
         result['teacher_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
 
-    # Test Cloudinary configuration
+    # Test Cloudinary configuration + actual API ping
     try:
         import cloudinary
-        import cloudinary.uploader
+        import cloudinary.api
         cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
         api_key = os.environ.get('CLOUDINARY_API_KEY', '')
         api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
@@ -131,8 +131,14 @@ def debug_view(request):
         result['cloudinary_api_key'] = api_key[:4] + '***' if api_key else 'NOT SET'
         result['cloudinary_api_secret_set'] = bool(api_secret)
         result['cloudinary_configured'] = bool(cloud_name and api_key and api_secret)
-        # Check DEFAULT_FILE_STORAGE backend
         result['media_backend'] = settings.STORAGES.get('default', {}).get('BACKEND', 'unknown')
+        # Actually ping Cloudinary API to verify credentials work
+        if cloud_name and api_key and api_secret:
+            cloudinary.config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
+            ping = cloudinary.api.ping()
+            result['cloudinary_ping'] = ping.get('status', 'unknown')
+    except Exception as e:
+        result['cloudinary_error'] = f"{type(e).__name__}: {e}"
     except Exception as e:
         result['cloudinary_error'] = str(e)
     from django.template.loader import render_to_string
