@@ -1,98 +1,71 @@
 {% extends 'school/reports/report_base.html' %}
-{% block title %}របាយការណ៍វត្តមានសិស្ស{% endblock %}
-{% block report_title %}របាយការណ៍វត្តមានសិស្ស / Student Attendance Report{% endblock %}
+{% block title %}របាយការណ៍វត្តមាន{% endblock %}
+{% block report_title %}របាយការណ៍វត្តមានសិស្ស / Attendance Report{% endblock %}
 {% block report_meta %}
-  ថ្ងៃ: <strong>{{ date_filter }}</strong> &nbsp;|&nbsp;
-  ចំនួនកំណត់ត្រា: <strong>{{ records|length }}</strong> &nbsp;|&nbsp;
-  ចេញ: <strong>{{ today }}</strong>
+  ថ្ងៃ: <strong>{{ date_filter }}</strong> &nbsp;·&nbsp; ចំនួន: <strong>{{ records|length }}</strong> &nbsp;·&nbsp; ចេញ: <strong>{{ today }}</strong>
 {% endblock %}
-
 {% block content %}
-<!-- Filter (screen only) -->
-<form method="get" class="filter-form no-print">
-  <label>📅 ជ្រើសថ្ងៃ:</label>
+
+<form method="get" class="ff no-print">
+  <label>ជ្រើសថ្ងៃ / Date:</label>
   <input type="date" name="date" value="{{ date_filter }}">
   <button type="submit">ស្វែងរក</button>
 </form>
 
-<!-- Summary -->
-<div class="info-row">
-  <div class="info-box"><div class="v">{{ records|length }}</div><div class="l">សរុប / Total</div></div>
-  <div class="info-box g"><div class="v">{{ present }}</div><div class="l">មានវត្តមាន / Present</div></div>
-  <div class="info-box r"><div class="v">{{ absent }}</div><div class="l">អវត្តមាន / Absent</div></div>
-  <div class="info-box a"><div class="v">{{ late }}</div><div class="l">យឺត / Late</div></div>
-  <div class="info-box p"><div class="v">{{ excused }}</div><div class="l">មានច្បាប់ / Excused</div></div>
+<div class="boxes">
+  <div class="box"><div class="v">{{ records|length }}</div><div class="l">សរុប / Total</div></div>
+  <div class="box g"><div class="v">{{ present }}</div><div class="l">មានវត្តមាន / Present</div></div>
+  <div class="box r"><div class="v">{{ absent }}</div><div class="l">អវត្តមាន / Absent</div></div>
+  <div class="box a"><div class="v">{{ late }}</div><div class="l">យឺត / Late</div></div>
+  <div class="box p"><div class="v">{{ excused }}</div><div class="l">មានច្បាប់ / Excused</div></div>
   {% if records|length > 0 %}
-  <div class="info-box g">
-    <div class="v">{% widthratio present records|length 100 %}%</div>
-    <div class="l">អត្រាវត្តមាន / Rate</div>
-  </div>
+  <div class="box g"><div class="v">{% widthratio present records|length 100 %}%</div><div class="l">អត្រា / Rate</div></div>
   {% endif %}
 </div>
 
-<!-- Table -->
 <table>
   <thead>
     <tr>
-      <th style="width:24px;text-align:center;">#</th>
+      <th style="width:22px;text-align:center;">#</th>
       <th>លេខ / ID</th>
       <th>ឈ្មោះ / Name</th>
       <th>ថ្នាក់ / Class</th>
       <th>ថ្ងៃ / Date</th>
       <th style="text-align:center;">ស្ថានភាព / Status</th>
-      <th>កំណត់ចំណាំ / Note</th>
+      <th>កំណត់ចំណាំ</th>
     </tr>
   </thead>
   <tbody>
     {% for r in records %}
     <tr>
-      <td style="text-align:center;">{{ forloop.counter }}</td>
+      <td style="text-align:center;color:#888;">{{ forloop.counter }}</td>
       <td><strong>{{ r.student.student_id }}</strong></td>
       <td>{{ r.student.first_name }} {{ r.student.last_name }}</td>
       <td>{{ r.student.classroom|default:"—" }}</td>
       <td>{{ r.date }}</td>
       <td style="text-align:center;">
-        {% if r.status == 'P' %}<span class="b b-P">✓ មានវត្តមាន</span>
-        {% elif r.status == 'A' %}<span class="b b-A">✗ អវត្តមាន</span>
-        {% elif r.status == 'L' %}<span class="b b-L">⚠ យឺត</span>
-        {% else %}<span class="b b-E">📋 មានច្បាប់</span>{% endif %}
+        {% if r.status == 'P' %}<span class="b b-P">Present</span>
+        {% elif r.status == 'A' %}<span class="b b-A">Absent</span>
+        {% elif r.status == 'L' %}<span class="b b-L">Late</span>
+        {% else %}<span class="b b-E">Excused</span>{% endif %}
       </td>
       <td>{{ r.note|default:"—" }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:16px;">គ្មានទិន្នន័យសម្រាប់ថ្ងៃនេះ</td></tr>
+    <tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">គ្មានទិន្នន័យ</td></tr>
     {% endfor %}
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="2" style="text-align:right;">សរុប:</td>
-      <td colspan="5">
-        <strong>{{ records|length }}</strong> &nbsp;|&nbsp;
-        ✓ {{ present }} &nbsp;|&nbsp;
-        ✗ {{ absent }} &nbsp;|&nbsp;
-        ⚠ {{ late }} &nbsp;|&nbsp;
-        📋 {{ excused }}
-      </td>
+      <td colspan="5">សរុប / Total</td>
+      <td colspan="2"><strong>Present: {{ present }} &nbsp; Absent: {{ absent }} &nbsp; Late: {{ late }} &nbsp; Excused: {{ excused }}</strong></td>
     </tr>
   </tfoot>
 </table>
 
-<!-- Signatures -->
 <div class="sigs">
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">គ្រូប្រចាំថ្នាក់ / Class Teacher</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">ត្រួតពិនិត្យ / Supervisor</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">នាយក/នាយិកា / Principal</div>
-  </div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">គ្រូប្រចាំថ្នាក់ / Class Teacher</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">ត្រួតពិនិត្យ / Supervisor</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">នាយក/នាយិកា / Principal</div></div>
 </div>
 {% endblock %}

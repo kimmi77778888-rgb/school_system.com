@@ -2,28 +2,23 @@
 {% block title %}បញ្ជីគ្រូបង្រៀន{% endblock %}
 {% block report_title %}បញ្ជីគ្រូបង្រៀន / Teacher List{% endblock %}
 {% block report_meta %}
-  ចំនួនគ្រូសរុប: <strong>{{ teachers|length }}</strong> នាក់ &nbsp;|&nbsp; ថ្ងៃចេញ: <strong>{{ today }}</strong>
+  ចំនួន: <strong>{{ teachers|length }} នាក់</strong> &nbsp;·&nbsp; ថ្ងៃចេញ: <strong>{{ today }}</strong>
 {% endblock %}
-
 {% block content %}
-<!-- Summary -->
-<div class="info-row">
-  <div class="info-box"><div class="v">{{ teachers|length }}</div><div class="l">គ្រូសរុប / Total</div></div>
-  {% with male=0 %}
-  {% for t in teachers %}{% if t.gender == 'M' %}{% endif %}{% endfor %}
-  {% endwith %}
+
+<div class="boxes">
+  <div class="box b"><div class="v">{{ teachers|length }}</div><div class="l">គ្រូសរុប / Total</div></div>
 </div>
 
-<!-- Table -->
 <table>
   <thead>
     <tr>
-      <th style="width:24px;text-align:center;">#</th>
+      <th style="width:22px;text-align:center;">#</th>
       <th>លេខ / ID</th>
       <th>ឈ្មោះ / Name</th>
       <th>ភេទ</th>
       <th>ជំនាញ / Specialty</th>
-      <th>វឌ្ឍនភាព</th>
+      <th>វុឌ្ឍិ / Qualification</th>
       <th>ទូរស័ព្ទ</th>
       <th>អ៊ីម៉ែល</th>
       <th>ចូលបម្រើ</th>
@@ -32,11 +27,11 @@
   <tbody>
     {% for t in teachers %}
     <tr>
-      <td style="text-align:center;">{{ forloop.counter }}</td>
+      <td style="text-align:center;color:#888;">{{ forloop.counter }}</td>
       <td><strong>{{ t.teacher_id }}</strong></td>
       <td>
         {{ t.first_name }} {{ t.last_name }}
-        {% if t.first_name_en %}<br><span style="font-size:9px;color:#64748b;">{{ t.first_name_en }} {{ t.last_name_en }}</span>{% endif %}
+        {% if t.first_name_en %}<br><span style="font-size:9px;color:#888;">{{ t.first_name_en }} {{ t.last_name_en }}</span>{% endif %}
       </td>
       <td style="text-align:center;">{{ t.get_gender_display|default:"—" }}</td>
       <td>{{ t.subject_specialty|default:"—" }}</td>
@@ -46,33 +41,20 @@
       <td>{{ t.hire_date|default:"—" }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:16px;">មិនមានទិន្នន័យ</td></tr>
+    <tr><td colspan="9" style="text-align:center;color:#999;padding:16px;">មិនមានទិន្នន័យ</td></tr>
     {% endfor %}
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="2" style="text-align:right;">សរុប / Total:</td>
+      <td colspan="2">សរុប / Total</td>
       <td colspan="7"><strong>{{ teachers|length }} នាក់</strong></td>
     </tr>
   </tfoot>
 </table>
 
-<!-- Signatures -->
 <div class="sigs">
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">រៀបចំដោយ / Prepared by</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">ត្រួតពិនិត្យដោយ / Checked by</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">នាយក/នាយិកាសាលា / Principal</div>
-  </div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">រៀបចំដោយ / Prepared by</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">ត្រួតពិនិត្យ / Checked by</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">នាយក/នាយិកា / Principal</div></div>
 </div>
 {% endblock %}

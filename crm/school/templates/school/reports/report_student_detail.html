@@ -1,108 +1,89 @@
 {% extends 'school/reports/report_base.html' %}
 {% load school_tags %}
 {% block title %}ប័ណ្ណព័ត៌មានសិស្ស — {{ student.first_name }} {{ student.last_name }}{% endblock %}
-{% block report_title %}ប័ណ្ណព័ត៌មានសិស្ស / Student Profile Report{% endblock %}
+{% block report_title %}ប័ណ្ណព័ត៌មានសិស្ស / Student Profile{% endblock %}
 {% block report_meta %}
-  លេខ: <strong>{{ student.student_id }}</strong> &nbsp;|&nbsp;
-  ថ្ងៃចេញ: <strong>{{ today }}</strong>
+  លេខ: <strong>{{ student.student_id }}</strong> &nbsp;·&nbsp; ថ្ងៃចេញ: <strong>{{ today }}</strong>
 {% endblock %}
-
 {% block content %}
-<!-- Student Info Card -->
-<div class="s-card">
-  <div class="s-card-head">📋 ព័ត៌មានសិស្ស / Student Information</div>
+
+<!-- Info Card -->
+<div class="ic">
+  <div class="ic-head">ព័ត៌មានសិស្ស / Student Information</div>
   <table>
     <tr>
-      <td>លេខសិស្ស / ID</td>
-      <td><strong>{{ student.student_id }}</strong></td>
-      <td>ថ្នាក់ / Class</td>
-      <td><strong>{{ student.classroom|default:"—" }}</strong></td>
+      <td>លេខ / ID</td><td><strong>{{ student.student_id }}</strong></td>
+      <td>ថ្នាក់ / Class</td><td><strong>{{ student.classroom|default:"—" }}</strong></td>
     </tr>
     <tr>
-      <td>ឈ្មោះ (ខ្មែរ) / Khmer Name</td>
-      <td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
-      <td>ឈ្មោះ (អង់គ្លេស) / English Name</td>
-      <td>{{ student.first_name_en|default:"—" }} {{ student.last_name_en|default:"" }}</td>
+      <td>ឈ្មោះ (ខ្មែរ)</td><td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
+      <td>ឈ្មោះ (English)</td><td>{{ student.first_name_en|default:"—" }} {{ student.last_name_en|default:"" }}</td>
     </tr>
     <tr>
-      <td>ភេទ / Gender</td>
-      <td>{{ student.get_gender_display|default:"—" }}</td>
-      <td>ថ្ងៃខែឆ្នាំ / Date of Birth</td>
-      <td>{{ student.date_of_birth|default:"—" }}</td>
+      <td>ភេទ / Gender</td><td>{{ student.get_gender_display|default:"—" }}</td>
+      <td>ថ្ងៃខែឆ្នាំ / DOB</td><td>{{ student.date_of_birth|default:"—" }}</td>
     </tr>
     <tr>
-      <td>ឈ្មោះមាតាបិតា / Parent</td>
-      <td>{{ student.parent_name|default:"—" }}</td>
-      <td>ទ.មាតាបិតា / Parent Phone</td>
-      <td>{{ student.parent_phone|default:"—" }}</td>
+      <td>ឈ្មោះមាតាបិតា</td><td>{{ student.parent_name|default:"—" }}</td>
+      <td>ទ.មាតាបិតា</td><td>{{ student.parent_phone|default:"—" }}</td>
     </tr>
     <tr>
-      <td>ទូរស័ព្ទ / Phone</td>
-      <td>{{ student.phone|default:"—" }}</td>
-      <td>ចូលរៀន / Enrolled</td>
-      <td>{{ student.enrolled_date }}</td>
+      <td>ទូរស័ព្ទ / Phone</td><td>{{ student.phone|default:"—" }}</td>
+      <td>ចូលរៀន / Enrolled</td><td>{{ student.enrolled_date }}</td>
     </tr>
     <tr>
-      <td>អាសយដ្ឋាន / Address</td>
-      <td colspan="3">{{ student.address|default:"—" }}</td>
+      <td>អាសយដ្ឋាន / Address</td><td colspan="3">{{ student.address|default:"—" }}</td>
     </tr>
   </table>
 </div>
 
 <!-- Attendance Summary -->
-<div class="info-row">
-  <div class="info-box"><div class="v">{{ attendances|length }}</div><div class="l">កំណត់ត្រាសរុប</div></div>
-  <div class="info-box g"><div class="v">{{ present_count }}</div><div class="l">មានវត្តមាន / Present</div></div>
-  <div class="info-box r"><div class="v">{{ absent_count }}</div><div class="l">អវត្តមាន / Absent</div></div>
+<div class="boxes">
+  <div class="box"><div class="v">{{ attendances|length }}</div><div class="l">សរុប / Total</div></div>
+  <div class="box g"><div class="v">{{ present_count }}</div><div class="l">Present</div></div>
+  <div class="box r"><div class="v">{{ absent_count }}</div><div class="l">Absent</div></div>
   {% if attendances|length > 0 %}
-  <div class="info-box g">
-    <div class="v">{% widthratio present_count attendances|length 100 %}%</div>
-    <div class="l">អត្រា / Rate</div>
-  </div>
+  <div class="box g"><div class="v">{% widthratio present_count attendances|length 100 %}%</div><div class="l">អត្រា / Rate</div></div>
   {% endif %}
 </div>
 
 <!-- Scores -->
-<div class="sec">📊 លទ្ធផលប្រឡង / Exam Results</div>
+<div class="sec">លទ្ធផលប្រឡង / Exam Results</div>
 <table>
   <thead>
     <tr>
-      <th style="width:24px;text-align:center;">#</th>
+      <th style="width:22px;text-align:center;">#</th>
       <th>មុខវិជ្ជា / Subject</th>
       <th>ប្រភេទ / Type</th>
       <th style="text-align:center;">ពិន្ទុ</th>
-      <th style="text-align:center;">អតិបរមា</th>
-      <th style="text-align:center;">%</th>
+      <th style="text-align:center;">/%</th>
       <th style="text-align:center;">ថ្នាក់</th>
-      <th>ឆ្នាំ / Year</th>
-      <th>ថ្ងៃ / Date</th>
+      <th>ឆ្នាំ</th>
     </tr>
   </thead>
   <tbody>
     {% for sc in scores %}
     <tr>
-      <td style="text-align:center;">{{ forloop.counter }}</td>
+      <td style="text-align:center;color:#888;">{{ forloop.counter }}</td>
       <td>{{ sc.subject.name }}</td>
       <td>{{ sc.exam_type.name }}</td>
-      <td style="text-align:center;font-weight:700;{% if sc.percentage >= 80 %}color:#16a34a;{% elif sc.percentage < 50 %}color:#dc2626;{% endif %}">{{ sc.score }}</td>
-      <td style="text-align:center;">{{ sc.max_score }}</td>
+      <td style="text-align:center;font-weight:700;">{{ sc.score }}/{{ sc.max_score }}</td>
       <td style="text-align:center;font-weight:700;">{{ sc.percentage }}%</td>
       <td style="text-align:center;"><span class="b b-G{{ sc.grade_letter }}">{{ sc.grade_letter }}</span></td>
       <td>{{ sc.academic_year }}</td>
-      <td>{{ sc.date_recorded }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:12px;">គ្មានលទ្ធផលប្រឡង</td></tr>
+    <tr><td colspan="7" style="text-align:center;color:#999;padding:10px;">គ្មានលទ្ធផល</td></tr>
     {% endfor %}
   </tbody>
 </table>
 
 <!-- Attendance History -->
-<div class="sec">📅 ប្រវត្តិវត្តមាន / Attendance History</div>
+<div class="sec">ប្រវត្តិវត្តមាន / Attendance History</div>
 <table>
   <thead>
     <tr>
-      <th style="width:24px;text-align:center;">#</th>
+      <th style="width:22px;text-align:center;">#</th>
       <th>ថ្ងៃ / Date</th>
       <th style="text-align:center;">ស្ថានភាព / Status</th>
       <th>កំណត់ចំណាំ / Note</th>
@@ -111,38 +92,25 @@
   <tbody>
     {% for a in attendances %}
     <tr>
-      <td style="text-align:center;">{{ forloop.counter }}</td>
+      <td style="text-align:center;color:#888;">{{ forloop.counter }}</td>
       <td>{{ a.date }}</td>
       <td style="text-align:center;">
-        {% if a.status == 'P' %}<span class="b b-P">✓ Present</span>
-        {% elif a.status == 'A' %}<span class="b b-A">✗ Absent</span>
-        {% elif a.status == 'L' %}<span class="b b-L">⚠ Late</span>
-        {% else %}<span class="b b-E">📋 Excused</span>{% endif %}
+        {% if a.status == 'P' %}<span class="b b-P">Present</span>
+        {% elif a.status == 'A' %}<span class="b b-A">Absent</span>
+        {% elif a.status == 'L' %}<span class="b b-L">Late</span>
+        {% else %}<span class="b b-E">Excused</span>{% endif %}
       </td>
       <td>{{ a.note|default:"—" }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:12px;">គ្មានប្រវត្តិវត្តមាន</td></tr>
+    <tr><td colspan="4" style="text-align:center;color:#999;padding:10px;">គ្មានប្រវត្តិ</td></tr>
     {% endfor %}
   </tbody>
 </table>
 
-<!-- Signatures -->
 <div class="sigs">
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">គ្រូប្រចាំថ្នាក់ / Class Teacher</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">មាតាបិតា / Parent</div>
-  </div>
-  <div class="sig">
-    <div class="name"></div>
-    <div class="line"></div>
-    <div class="lbl">នាយក/នាយិកា / Principal</div>
-  </div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">គ្រូប្រចាំថ្នាក់ / Class Teacher</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">មាតាបិតា / Parent</div></div>
+  <div class="sig"><div class="name"></div><div class="line"></div><div class="lbl">នាយក/នាយិកា / Principal</div></div>
 </div>
 {% endblock %}
