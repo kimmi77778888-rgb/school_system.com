@@ -129,6 +129,7 @@ def debug_view(request):
         ('school/users/user_list.html', lambda: {'users': User.objects.select_related('profile').order_by('username')}),
         ('school/student_list.html',    lambda: {'students': Student.objects.filter(is_active=True).select_related('classroom__grade'), 'q': '', 'classrooms': [], 'selected_classroom': '', 'role': 'admin'}),
         ('school/teacher_list.html',    lambda: {'teachers': Teacher.objects.filter(is_active=True), 'q': '', 'role': 'admin'}),
+        ('school/auth/profile.html',    lambda: {'form': __import__('school.forms', fromlist=['ProfileUpdateForm']).ProfileUpdateForm(user=request.user), 'profile': request.user.profile}),
     ]:
         try:
             from django.template import RequestContext
