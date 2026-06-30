@@ -9,49 +9,51 @@
 {% if school.favicon %}<link rel="icon" href="{{ school.favicon|safe_url }}">{% endif %}
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans Khmer','Inter',sans-serif;font-size:11.5px;color:#1e293b;background:#fff;padding:22px 28px;}
-a{text-decoration:none;color:inherit;}
+body{font-family:'Noto Sans Khmer','Inter',sans-serif;font-size:11px;color:#1e293b;background:#fff;padding:20px 26px;}
 
-/* ── HEADER ── */
-.rh{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;margin-bottom:4px;border-bottom:3px solid #0f172a;}
-.rh-logo{width:52px;height:52px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,{{ school.primary_color }},{{ school.secondary_color }});display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0;}
+/* ══ SCHOOL HEADER ══ */
+.rh{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:3px double #0f172a;}
+.rh-logo{width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid #0f172a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:linear-gradient(135deg,{{ school.primary_color }},{{ school.secondary_color }});color:#fff;}
 .rh-logo img{width:100%;height:100%;object-fit:contain;}
-.rh-info{}
-.rh-name{font-size:16px;font-weight:900;color:#0f172a;line-height:1.3;}
-.rh-sub{font-size:9.5px;color:#64748b;margin-top:2px;}
-.rh-right{text-align:right;font-size:9.5px;color:#64748b;line-height:1.7;}
-.rh-right strong{display:block;font-size:11px;color:#0f172a;}
+.rh-center{flex:1;text-align:center;}
+.rh-center .km{font-size:15px;font-weight:900;color:#0f172a;line-height:1.3;}
+.rh-center .en{font-size:10px;color:#475569;font-weight:600;letter-spacing:.3px;margin-top:1px;}
+.rh-center .sub{font-size:9px;color:#64748b;margin-top:3px;line-height:1.5;}
+.rh-right{text-align:center;flex-shrink:0;}
+.rh-stamp{width:60px;height:60px;border:2px dashed #94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#94a3b8;text-align:center;line-height:1.3;}
 
-/* thin color bar below header */
-.rh-bar{height:4px;background:linear-gradient(90deg,{{ school.primary_color }},{{ school.secondary_color }});margin-bottom:12px;border-radius:0 0 4px 4px;}
+/* color bar */
+.rh-bar{height:5px;background:linear-gradient(90deg,{{ school.primary_color }},{{ school.secondary_color }},{{ school.primary_color }});margin:4px 0 14px;border-radius:3px;}
 
-/* ── REPORT TITLE BLOCK ── */
-.rt{text-align:center;margin-bottom:14px;padding:10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;}
-.rt h2{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#0f172a;}
-.rt-meta{font-size:10px;color:#64748b;margin-top:4px;}
+/* ══ REPORT TITLE ══ */
+.rt{text-align:center;margin-bottom:14px;}
+.rt h2{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#0f172a;display:inline-block;border-bottom:2px solid {{ school.primary_color }};padding-bottom:3px;}
+.rt-sub{font-size:10px;color:#64748b;margin-top:5px;}
+.rt-badge{display:inline-block;background:{{ school.primary_color }};color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:12px;margin-top:4px;letter-spacing:.5px;}
 
-/* ── SUMMARY BOXES ── */
-.sum{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
-.sum-box{flex:1;min-width:80px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;text-align:center;}
-.sum-box .v{font-size:20px;font-weight:900;color:#0f172a;line-height:1.1;}
-.sum-box .l{font-size:9.5px;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
-.sum-box.bl .v{color:#2563eb;}
-.sum-box.gr .v{color:#16a34a;}
-.sum-box.rd .v{color:#dc2626;}
-.sum-box.am .v{color:#d97706;}
-.sum-box.pu .v{color:#7c3aed;}
+/* ══ INFO BOX ══ */
+.info-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.info-box{flex:1;min-width:100px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;text-align:center;}
+.info-box .v{font-size:22px;font-weight:900;color:{{ school.primary_color }};line-height:1;}
+.info-box .l{font-size:8.5px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.info-box.g .v{color:#16a34a;}
+.info-box.r .v{color:#dc2626;}
+.info-box.a .v{color:#d97706;}
+.info-box.p .v{color:#7c3aed;}
 
-/* ── TABLE ── */
-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px;}
-thead th{background:#0f172a;color:#fff;padding:7px 9px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:10.5px;}
+thead tr{background:{{ school.primary_color }};}
+thead th{color:#fff;padding:7px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border:1px solid rgba(255,255,255,.15);}
 tbody tr:nth-child(even){background:#f8fafc;}
-tbody td{padding:6px 9px;border-bottom:1px solid #e9edf2;vertical-align:middle;line-height:1.4;}
-tfoot td{padding:6px 9px;font-weight:700;border-top:2px solid #0f172a;background:#f1f5f9;font-size:10.5px;}
+tbody tr:hover{background:#eff6ff;}
+tbody td{padding:6px 8px;border:1px solid #e9edf2;vertical-align:middle;line-height:1.4;}
+tfoot td{padding:6px 8px;font-weight:700;border-top:2px solid #0f172a;background:#f1f5f9;font-size:10px;border:1px solid #e2e8f0;}
 
-/* ── STATUS BADGES ── */
-.b{display:inline-block;padding:1px 7px;border-radius:12px;font-size:9.5px;font-weight:700;}
-.b-P{background:#dcfce7;color:#166534;}
-.b-A{background:#fee2e2;color:#991b1b;}
+/* ══ BADGES ══ */
+.b{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;white-space:nowrap;}
+.b-P,.b-ok{background:#dcfce7;color:#166534;}
+.b-A,.b-fail{background:#fee2e2;color:#991b1b;}
 .b-L{background:#fef9c3;color:#854d0e;}
 .b-E{background:#dbeafe;color:#1e40af;}
 .b-GA{background:#dcfce7;color:#166534;}
@@ -60,37 +62,49 @@ tfoot td{padding:6px 9px;font-weight:700;border-top:2px solid #0f172a;background
 .b-GD{background:#ffedd5;color:#9a3412;}
 .b-GF{background:#fee2e2;color:#991b1b;}
 
-/* ── STUDENT INFO BLOCK ── */
-.s-info{border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:14px;background:#fafbfc;}
-.s-info table{margin:0;}
-.s-info td{padding:3px 8px;border:none;background:transparent;font-size:11px;}
-.s-info td:first-child,.s-info td:nth-child(3){color:#64748b;width:110px;white-space:nowrap;}
-.s-info td:nth-child(2),.s-info td:nth-child(4){font-weight:700;}
+/* ══ STUDENT INFO CARD ══ */
+.s-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.s-card-head{background:{{ school.primary_color }};color:#fff;padding:7px 12px;font-weight:800;font-size:10.5px;letter-spacing:.3px;}
+.s-card table{margin:0;}
+.s-card td{padding:5px 10px;border:1px solid #f1f5f9;background:transparent;font-size:10.5px;}
+.s-card td:first-child,.s-card td:nth-child(3){color:#64748b;width:110px;white-space:nowrap;font-weight:600;}
+.s-card td:nth-child(2),.s-card td:nth-child(4){font-weight:700;}
 
-/* ── SIGNATURES ── */
-.sigs{display:flex;justify-content:space-around;margin-top:40px;gap:20px;}
+/* ══ SECTION TITLE ══ */
+.sec{font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#fff;margin:14px 0 0;padding:5px 10px;background:{{ school.secondary_color }};border-radius:4px 4px 0 0;}
+.sec+table{margin-top:0;border-radius:0 0 4px 4px;}
+
+/* ══ SIGNATURES ══ */
+.sigs{display:flex;justify-content:space-around;margin-top:40px;gap:20px;page-break-inside:avoid;}
 .sig{text-align:center;flex:1;}
-.sig .line{border-top:1px solid #1e293b;margin:0 16px 5px;}
-.sig .lbl{font-size:9.5px;color:#64748b;}
+.sig .line{border-top:1.5px solid #1e293b;margin:0 10px 6px;}
+.sig .name{font-size:10px;font-weight:700;color:#0f172a;min-height:16px;}
+.sig .lbl{font-size:9px;color:#64748b;}
 
-/* ── FOOTER ── */
-.rf{border-top:1px solid #e2e8f0;padding-top:8px;margin-top:16px;display:flex;justify-content:space-between;color:#94a3b8;font-size:9.5px;}
+/* ══ FOOTER ══ */
+.rf{border-top:2px solid #e2e8f0;padding-top:7px;margin-top:16px;display:flex;justify-content:space-between;color:#94a3b8;font-size:9px;}
+.rf span{display:flex;align-items:center;gap:4px;}
 
-/* ── SECTION TITLE ── */
-.sec-title{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#0f172a;margin:14px 0 6px;padding-bottom:4px;border-bottom:2px solid #0f172a;}
+/* ══ PRINT CONTROLS ══ */
+.no-print{position:fixed;top:12px;right:14px;display:flex;gap:8px;z-index:999;}
+.btn-print{background:{{ school.primary_color }};color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+.btn-back{background:#fff;color:#0f172a;border:2px solid #0f172a;border-radius:8px;padding:6px 14px;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:none;}
 
-/* ── PRINT CONTROLS (hidden on print) ── */
-.no-print{position:fixed;top:14px;right:14px;display:flex;gap:8px;z-index:999;}
-.btn-print{background:#0f172a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:background .15s;}
-.btn-print:hover{background:#1e293b;}
-.btn-back{background:#fff;color:#0f172a;border:2px solid #0f172a;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;}
-.btn-back:hover{background:#f1f5f9;}
+/* ══ FILTER FORM ══ */
+.filter-form{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.filter-form label{font-weight:700;font-size:10px;white-space:nowrap;}
+.filter-form select,.filter-form input[type=date]{padding:5px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:10.5px;font-family:'Noto Sans Khmer','Inter',sans-serif;}
+.filter-form button{padding:5px 14px;background:{{ school.primary_color }};color:#fff;border:none;border-radius:6px;font-size:10.5px;cursor:pointer;font-weight:700;}
 
 @media print{
   .no-print{display:none!important;}
-  body{padding:10px 16px;}
-  thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .sum-box,.rh-logo,.rh-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .filter-form{display:none!important;}
+  body{padding:8px 14px;}
+  thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .info-box,.rh-logo,.rh-bar,.sec,.s-card-head{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sigs{page-break-inside:avoid;}
+  table{page-break-inside:auto;}
+  tr{page-break-inside:avoid;}
 }
 </style>
 </head>
@@ -99,39 +113,46 @@ tfoot td{padding:6px 9px;font-weight:700;border-top:2px solid #0f172a;background
 <!-- Print Controls -->
 <div class="no-print">
   <a href="javascript:history.back()" class="btn-back">← ត្រឡប់</a>
-  <button class="btn-print" onclick="window.print()">🖨 បោះពុម្ព</button>
+  <button class="btn-print" onclick="window.print()">🖨&nbsp;បោះពុម្ព</button>
 </div>
 
-<!-- Header -->
+<!-- School Header -->
 <div class="rh">
   <div class="rh-logo">
     {% if school.logo %}<img src="{{ school.logo|safe_url }}" alt="">{% else %}🎓{% endif %}
   </div>
-  <div class="rh-info" style="margin-left:14px;flex:1;">
-    <div class="rh-name">{{ school.school_name }}</div>
-    <div class="rh-sub">{{ school.school_slogan }}{% if school.address %} &nbsp;|&nbsp; {{ school.address }}{% endif %}</div>
-    {% if school.phone or school.email %}
-    <div class="rh-sub">{% if school.phone %}☎ {{ school.phone }}{% endif %}{% if school.email %} &nbsp;|&nbsp; ✉ {{ school.email }}{% endif %}</div>
-    {% endif %}
+  <div class="rh-center">
+    <div class="km">{% if school.school_name %}{{ school.school_name }}{% else %}សាលាបឋមសិក្សា{% endif %}</div>
+    {% if school.school_name_en %}<div class="en">{{ school.school_name_en }}</div>{% endif %}
+    <div class="sub">
+      {% if school.address %}📍 {{ school.address }}{% endif %}
+      {% if school.phone %} &nbsp;|&nbsp; ☎ {{ school.phone }}{% endif %}
+      {% if school.email %} &nbsp;|&nbsp; ✉ {{ school.email }}{% endif %}
+    </div>
   </div>
   <div class="rh-right">
-    <strong>{% block report_title %}របាយការណ៍{% endblock %}</strong>
-    {% block report_meta %}{% endblock %}
+    <div class="rh-stamp">ត្រា<br>សាលា</div>
   </div>
 </div>
 <div class="rh-bar"></div>
+
+<!-- Report Title -->
+<div class="rt">
+  <h2>{% block report_title %}របាយការណ៍{% endblock %}</h2>
+  <div class="rt-sub">{% block report_meta %}{% endblock %}</div>
+</div>
 
 {% block content %}{% endblock %}
 
 <!-- Footer -->
 <div class="rf">
-  <span>{{ school.school_name }}</span>
-  <span>បោះពុម្ព: {{ today }}</span>
+  <span>📄 {{ school.school_name }}</span>
+  <span>🗓 បោះពុម្ព៖ {{ today }}</span>
 </div>
 
 <script>
 if(window.location.search.includes('autoprint=1')){
-  window.onload=()=>setTimeout(()=>window.print(),400);
+  window.onload=()=>setTimeout(()=>window.print(),500);
 }
 </script>
 </body>
