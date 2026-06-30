@@ -120,7 +120,21 @@ def debug_view(request):
     except Exception as e:
         result['teacher_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
 
-    # Test 6: try rendering each failing template
+    # Test Cloudinary configuration
+    try:
+        import cloudinary
+        import cloudinary.uploader
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+        api_key = os.environ.get('CLOUDINARY_API_KEY', '')
+        api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
+        result['cloudinary_cloud_name'] = cloud_name[:4] + '***' if cloud_name else 'NOT SET'
+        result['cloudinary_api_key'] = api_key[:4] + '***' if api_key else 'NOT SET'
+        result['cloudinary_api_secret_set'] = bool(api_secret)
+        result['cloudinary_configured'] = bool(cloud_name and api_key and api_secret)
+        # Check DEFAULT_FILE_STORAGE backend
+        result['media_backend'] = settings.STORAGES.get('default', {}).get('BACKEND', 'unknown')
+    except Exception as e:
+        result['cloudinary_error'] = str(e)
     from django.template.loader import render_to_string
     from django.contrib.auth.models import User
     from school.models import Student, Teacher
