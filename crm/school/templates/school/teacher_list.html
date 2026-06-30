@@ -15,7 +15,7 @@
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>លេខ</th><th>ឈ្មោះ</th><th>ភេទ</th><th>ជំនាញ</th><th>ទូរស័ព្ទ</th><th>ស.ស</th><th>សកម្មភាព</th></tr></thead>
+    <thead><tr><th>#</th><th>លេខ</th><th>ឈ្មោះ</th><th class="hide-xs">ភេទ</th><th class="hide-xs">ជំនាញ</th><th class="hide-xs">ទូរស័ព្ទ</th><th class="hide-xs">ស.ស</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for t in teachers %}
     <tr>
@@ -28,10 +28,10 @@
           <a href="{% url 'school:teacher_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.first_name }} {{ t.last_name }}</a>
         </div>
       </td>
-      <td>{{ t.get_gender_display|default:"—" }}</td>
-      <td>{{ t.subject_specialty|default:"—" }}</td>
-      <td>{{ t.phone|default:"—" }}</td>
-      <td>{% if t.hire_date %}{{ t.hire_date }}{% else %}—{% endif %}</td>
+      <td class="hide-xs">{{ t.get_gender_display|default:"—" }}</td>
+      <td class="hide-xs">{{ t.subject_specialty|default:"—" }}</td>
+      <td class="hide-xs">{{ t.phone|default:"—" }}</td>
+      <td class="hide-xs">{% if t.hire_date %}{{ t.hire_date }}{% else %}—{% endif %}</td>
       <td>
         <a href="{% url 'school:teacher_detail' t.pk %}" class="btn btn-outline-info btn-sm"><i class="bi bi-eye"></i></a>
         <a href="{% url 'school:teacher_edit' t.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>

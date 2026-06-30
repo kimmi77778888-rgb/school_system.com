@@ -288,10 +288,8 @@ a{text-decoration:none;color:inherit;}
   .stat-card .val{font-size:1.8rem;}
 }
 @media(max-width:768px){
-  /* Mobile: sidebar slides off by default, overlay when .mob */
   .sb{transform:translateX(-100%)!important;transition:transform .32s cubic-bezier(.34,1.2,.64,1),width .3s,box-shadow .3s;}
   .sb.mob{transform:translateX(0)!important;box-shadow:4px 0 32px rgba(0,0,0,.45);}
-  /* On mobile: when sidebar is open (.mob), .c still makes it icon-only */
   .sb.mob.c{width:var(--sbc)!important;}
   .top{left:0!important;padding:0 12px;height:52px;}
   .top-title{font-size:.85rem;}
@@ -304,11 +302,47 @@ a{text-decoration:none;color:inherit;}
   .page-header .actions{width:100%;}
   .bot-nav{display:flex;}
   .sb-a{animation:none!important;}
+
+  /* ── Mobile table: horizontal scroll with sticky first col ── */
+  .table-wrap{border-radius:var(--rd);box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  .table thead th{font-size:.62rem;padding:8px 10px;}
+  .table td{padding:8px 10px;font-size:.78rem;}
+
+  /* ── Mobile cards ── */
+  .card{border-radius:10px;}
+
+  /* ── Mobile forms ── */
+  .form-control,.form-select{font-size:16px!important;} /* prevent iOS zoom */
+  .btn{font-size:.8rem;}
+
+  /* ── Mobile page header ── */
+  .page-header h2{font-size:1rem;}
+  .page-header .actions .btn{flex:1;justify-content:center;}
+
+  /* ── Mobile stat cards ── */
+  .stat-card{padding:14px 12px;}
+  .stat-card .val{font-size:1.55rem;}
+
+  /* ── Mobile row/col tweaks ── */
+  .row.g-3>[class*=col-md]{margin-bottom:0;}
 }
-@media(max-width:400px){
+@media(max-width:480px){
   .main{padding:calc(52px+10px) 8px var(--bot);}
-  .stat-card .val{font-size:1.4rem;}
   body{font-size:13px;}
+  .stat-card .val{font-size:1.4rem;}
+  .stat-card{padding:12px 10px;}
+  /* Stack action buttons vertically on small phones */
+  .page-header .actions{flex-direction:column;gap:6px;}
+  .page-header .actions .btn{width:100%;}
+  /* Smaller table text */
+  .table thead th{font-size:.58rem;padding:7px 8px;}
+  .table td{padding:7px 8px;font-size:.74rem;}
+  /* Hide less important table columns */
+  .hide-xs{display:none!important;}
+  /* Top bar compact */
+  .top-title{font-size:.8rem;}
+  /* Logout button hidden on very small screens */
+  .top-right .btn-outline-danger{display:none!important;}
 }
 
 /* ═══ PRINT ═══ */
@@ -450,8 +484,6 @@ a{text-decoration:none;color:inherit;}
         </a>
       </div>
       {% endwith %}{% endwith %}
-
-      <!-- ── ការបង្រៀន (dropdown) ── -->
       <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name %}open{% endif %}"
               onclick="togGrp(this)" data-tip="ការបង្រៀន">
         <span class="sb-grp-left">
