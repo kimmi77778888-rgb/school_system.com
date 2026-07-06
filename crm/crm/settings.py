@@ -167,27 +167,36 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Django 6 STORAGES dict — use StaticFilesStorage (simplest, no manifest crash)
+# ──────────────────────────────────────────────────────
+#  CLOUDINARY — supports both CLOUDINARY_URL and individual vars
+# ──────────────────────────────────────────────────────
+import cloudinary
+
+_CLOUDINARY_URL        = os.environ.get('CLOUDINARY_URL', '')
 _CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
 _CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
 _CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 
-# Configure the official Cloudinary SDK
-if _CLOUDINARY_CLOUD_NAME:
-    import cloudinary
+if _CLOUDINARY_URL:
+    # cloudinary://api_key:api_secret@cloud_name  — SDK parses this automatically
+    cloudinary.config(cloudinary_url=_CLOUDINARY_URL, secure=True)
+    _CLOUDINARY_CONFIGURED = True
+elif _CLOUDINARY_CLOUD_NAME:
     cloudinary.config(
         cloud_name=_CLOUDINARY_CLOUD_NAME,
         api_key=_CLOUDINARY_API_KEY,
         api_secret=_CLOUDINARY_API_SECRET,
         secure=True,
     )
+    _CLOUDINARY_CONFIGURED = True
+else:
+    _CLOUDINARY_CONFIGURED = False
 
 STORAGES = {
     "default": {
-        # Use our custom Cloudinary backend when credentials are present
         "BACKEND": (
             "crm.cloudinary_storage.MediaCloudinaryStorage"
-            if _CLOUDINARY_CLOUD_NAME
+            if _CLOUDINARY_CONFIGURED
             else "django.core.files.storage.FileSystemStorage"
         ),
     },
