@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-xh0+*f#rw+je!r5@@06agyl0#=!8-v*m5oq5gdjh3oo*dg6mr%')
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']  # Render handles host validation via its proxy
 
@@ -89,7 +89,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cloudinary',
-    'cloudinary_storage',
     'accounts',
     'school',
 ]
@@ -170,18 +169,24 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Django 6 STORAGES dict — use StaticFilesStorage (simplest, no manifest crash)
 _CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+_CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
+_CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': _CLOUDINARY_CLOUD_NAME,
-    'API_KEY':    os.environ.get('CLOUDINARY_API_KEY', ''),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
-}
+# Configure the official Cloudinary SDK
+if _CLOUDINARY_CLOUD_NAME:
+    import cloudinary
+    cloudinary.config(
+        cloud_name=_CLOUDINARY_CLOUD_NAME,
+        api_key=_CLOUDINARY_API_KEY,
+        api_secret=_CLOUDINARY_API_SECRET,
+        secure=True,
+    )
 
 STORAGES = {
     "default": {
-        # Use Cloudinary for media if configured, else local filesystem
+        # Use our custom Cloudinary backend when credentials are present
         "BACKEND": (
-            "cloudinary_storage.storage.MediaCloudinaryStorage"
+            "crm.cloudinary_storage.MediaCloudinaryStorage"
             if _CLOUDINARY_CLOUD_NAME
             else "django.core.files.storage.FileSystemStorage"
         ),
@@ -205,9 +210,16 @@ LOGOUT_REDIRECT_URL = '/school/login/'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'root': {
@@ -217,7 +229,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
