@@ -1,6 +1,7 @@
 from functools import wraps
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.urls import reverse
 
 
 def role_required(*roles):
@@ -9,7 +10,8 @@ def role_required(*roles):
         @wraps(view_func)
         def _wrapped(request, *args, **kwargs):
             if not request.user.is_authenticated:
-                return redirect('school:login')
+                login_url = reverse('school:login')
+                return redirect(f'{login_url}?next={request.path}')
             try:
                 role = request.user.profile.role
             except Exception:

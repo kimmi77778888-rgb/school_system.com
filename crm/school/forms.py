@@ -8,6 +8,14 @@ from .models import (
 )
 
 
+class PhotoInput(forms.FileInput):
+    """
+    Plain FileInput — no 'Clear' checkbox, no accidental image deletion.
+    The existing image is preserved when the user submits without choosing a new file.
+    """
+    pass
+
+
 # ── Custom widget mixin ─────────────────────────────────────────
 class BootstrapMixin:
     def __init__(self, *args, **kwargs):
@@ -23,6 +31,8 @@ class BootstrapMixin:
             elif cls == 'CheckboxInput':
                 field.widget.attrs.setdefault('class', 'form-check-input')
             elif cls == 'FileInput':
+                field.widget.attrs.setdefault('class', 'form-control')
+            elif cls == 'PhotoInput':
                 field.widget.attrs.setdefault('class', 'form-control')
 
 
@@ -53,6 +63,7 @@ class ProfileUpdateForm(BootstrapMixin, forms.ModelForm):
         model  = UserProfile
         fields = ['phone', 'photo']
         labels = {'phone': 'ទូរស័ព្ទ', 'photo': 'រូបភាពប្រវត្តិរូប'}
+        widgets = {'photo': PhotoInput()}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -122,6 +133,7 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             'date_of_birth':  forms.DateInput(attrs={'type': 'date'}),
             'address':        forms.Textarea(attrs={'rows': 2}),
             'medical_notes':  forms.Textarea(attrs={'rows': 2}),
+            'photo':          PhotoInput(),
         }
 
 
@@ -145,6 +157,7 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'hire_date': forms.DateInput(attrs={'type': 'date'}),
             'address':   forms.Textarea(attrs={'rows': 2}),
+            'photo':     PhotoInput(),
         }
 
 
@@ -195,8 +208,24 @@ class ExamTypeForm(BootstrapMixin, forms.ModelForm):
 class SubjectForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Subject
-        fields = ['name', 'code', 'teacher', 'grade', 'credit', 'description']
+        fields = ['subject_id', 'name', 'code', 'teacher', 'grade', 'credit', 'description']
         widgets = {'description': forms.Textarea(attrs={'rows': 2})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make subject_id read-only — auto-generated, never edited by user
+        self.fields['subject_id'].required = False
+        self.fields['subject_id'].label = 'Subject ID'
+        self.fields['subject_id'].widget.attrs.update({
+            'readonly':    True,
+            'placeholder': 'Auto-generated',
+            'class':       'form-control',
+            'style':       'background:#f3f4f6;color:#6b7280;cursor:not-allowed;',
+        })
+
+    def clean_subject_id(self):
+        # Ignore user input — preserve existing value or leave blank for new records
+        return self.instance.subject_id if self.instance.pk else None
 
 
 # ── Grade / Academic Year ────────────────────────────────────────
@@ -281,4 +310,6 @@ class SchoolSettingsForm(BootstrapMixin, forms.ModelForm):
             'primary_color':   forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
             'secondary_color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
             'sidebar_bg':      forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
+            'logo':            PhotoInput(),
+            'favicon':         PhotoInput(),
         }

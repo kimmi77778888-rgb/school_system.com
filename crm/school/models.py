@@ -95,6 +95,7 @@ class Teacher(models.Model):
 #  CLASSROOM
 # ══════════════════════════════════════════════════════
 class Classroom(models.Model):
+    classroom_id     = models.CharField(max_length=20, unique=True, blank=True, null=True)
     grade            = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='classrooms')
     homeroom_teacher = models.ForeignKey(
         Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='homeroom_classes'
@@ -102,6 +103,14 @@ class Classroom(models.Model):
     academic_year    = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='classrooms')
     room_number      = models.CharField(max_length=20, blank=True)
     capacity         = models.PositiveIntegerField(default=30)
+
+    def save(self, *args, **kwargs):
+        if not self.classroom_id:
+            super().save(*args, **kwargs)
+            self.classroom_id = f"CLS-{self.pk:04d}"
+            Classroom.objects.filter(pk=self.pk).update(classroom_id=self.classroom_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.grade} | {self.academic_year}"
@@ -154,12 +163,21 @@ class Student(models.Model):
 #  SUBJECT
 # ══════════════════════════════════════════════════════
 class Subject(models.Model):
+    subject_id  = models.CharField(max_length=20, unique=True, blank=True, null=True)
     name    = models.CharField(max_length=100)
     code    = models.CharField(max_length=20, blank=True)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='subjects')
     grade   = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='subjects')
     credit  = models.PositiveSmallIntegerField(default=1)
     description = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.subject_id:
+            super().save(*args, **kwargs)
+            self.subject_id = f"SUB-{self.pk:04d}"
+            Subject.objects.filter(pk=self.pk).update(subject_id=self.subject_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.grade})"
@@ -239,6 +257,7 @@ class ExamType(models.Model):
 
 
 class Exam(models.Model):
+    exam_id       = models.CharField(max_length=20, unique=True, blank=True, null=True)
     name          = models.CharField(max_length=200)
     exam_type     = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name='exams')
     subject       = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
@@ -247,6 +266,14 @@ class Exam(models.Model):
     date          = models.DateField()
     max_score     = models.DecimalField(max_digits=5, decimal_places=2, default=100)
     description   = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.exam_id:
+            super().save(*args, **kwargs)
+            self.exam_id = f"EXM-{self.pk:04d}"
+            Exam.objects.filter(pk=self.pk).update(exam_id=self.exam_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} – {self.subject} ({self.classroom})"
@@ -313,6 +340,7 @@ class Notification(models.Model):
         ('students', 'Students Only'),
         ('admin',    'Admin Only'),
     ]
+    notification_id   = models.CharField(max_length=20, unique=True, blank=True, null=True)
     title         = models.CharField(max_length=255)
     message       = models.TextField()
     notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='announcement')
@@ -324,6 +352,14 @@ class Notification(models.Model):
     # optional targets
     classroom     = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
     student       = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+
+    def save(self, *args, **kwargs):
+        if not self.notification_id:
+            super().save(*args, **kwargs)
+            self.notification_id = f"NOT-{self.pk:04d}"
+            Notification.objects.filter(pk=self.pk).update(notification_id=self.notification_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -349,6 +385,7 @@ class ReportCard(models.Model):
         ('draft',     'Draft'),
         ('published', 'Published'),
     ]
+    report_id       = models.CharField(max_length=20, unique=True, blank=True, null=True)
     student         = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='report_cards')
     academic_year   = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='report_cards')
     term            = models.CharField(max_length=50, default='Term 1')
@@ -360,6 +397,14 @@ class ReportCard(models.Model):
     conduct         = models.CharField(max_length=50, blank=True, help_text="e.g. Excellent / Good / Fair")
     attendance_days = models.PositiveIntegerField(default=0)
     absent_days     = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.report_id:
+            super().save(*args, **kwargs)
+            self.report_id = f"RPT-{self.pk:04d}"
+            ReportCard.objects.filter(pk=self.pk).update(report_id=self.report_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Report: {self.student} | {self.academic_year} | {self.term}"
@@ -381,12 +426,21 @@ class SchoolEvent(models.Model):
         ('activity', 'Activity'),
         ('other',    'Other'),
     ]
+    event_id    = models.CharField(max_length=20, unique=True, blank=True, null=True)
     title       = models.CharField(max_length=255)
     event_type  = models.CharField(max_length=20, choices=TYPE_CHOICES, default='activity')
     start_date  = models.DateField()
     end_date    = models.DateField(null=True, blank=True)
     description = models.TextField(blank=True)
     created_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.event_id:
+            super().save(*args, **kwargs)
+            self.event_id = f"EVT-{self.pk:04d}"
+            SchoolEvent.objects.filter(pk=self.pk).update(event_id=self.event_id)
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title} ({self.start_date})"
@@ -406,12 +460,18 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.get_or_create(user=instance, defaults={'role': role})
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    try:
-        instance.profile.save()
-    except UserProfile.DoesNotExist:
-        role = 'admin' if instance.is_superuser else 'student'
-        UserProfile.objects.create(user=instance, role=role)
+def save_user_profile(sender, instance, created, **kwargs):
+    # Only sync on updates (not creates — handled by create_user_profile above).
+    # Use update() instead of save() to avoid triggering this signal again.
+    if not created:
+        try:
+            profile = instance.profile
+            # Sync only if the profile already exists — no save() call to avoid
+            # re-triggering post_save and causing infinite recursion.
+            UserProfile.objects.filter(pk=profile.pk).update()
+        except UserProfile.DoesNotExist:
+            role = 'admin' if instance.is_superuser else 'student'
+            UserProfile.objects.create(user=instance, role=role)
 
 
 # ══════════════════════════════════════════════════════

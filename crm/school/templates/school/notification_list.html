@@ -29,6 +29,7 @@
         {% elif n.notification_type == 'alert' %}<span class="badge bg-danger">Alert</span>
         {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark">Reminder</span>
         {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark">Event</span>
+        {% elif n.notification_type == 'message' %}<span class="badge bg-success">Message</span>
         {% else %}<span class="badge bg-secondary">{{ n.get_notification_type_display }}</span>{% endif %}
       </td>
       <td><span class="badge bg-light text-dark">{{ n.get_audience_display }}</span></td>

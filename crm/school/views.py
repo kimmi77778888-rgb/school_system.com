@@ -179,19 +179,17 @@ def dashboard(request):
 #  USER MANAGEMENT (Admin only)
 # ══════════════════════════════════════════════
 @admin_required
-@admin_required
 def user_list(request):
-    # Ensure all users have profiles before rendering
-    from school.models import UserProfile
+    # select_related avoids N+1 queries; profiles are guaranteed by the
+    # ensure_user_profile context processor and post_save signal.
     users = User.objects.select_related('profile').order_by('username')
-    for u in users:
-        try:
-            _ = u.profile
-        except Exception:
+    # Safety net: create any missing profiles in a single pass
+    missing = [u for u in users if not hasattr(u, 'profile') or u.profile is None]
+    if missing:
+        for u in missing:
             role = 'admin' if u.is_superuser else 'student'
-            UserProfile.objects.create(user=u, role=role)
-    # Re-fetch with profiles guaranteed
-    users = User.objects.select_related('profile').order_by('username')
+            UserProfile.objects.get_or_create(user=u, defaults={'role': role})
+        users = User.objects.select_related('profile').order_by('username')
     return render(request, 'school/users/user_list.html', {'users': users})
 
 @admin_required

@@ -11,11 +11,11 @@
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>ឈ្មោះ</th><th>លេខកូដ</th><th>ថ្នាក់</th><th>គ្រូ</th><th>ក្រេឌីត</th><th>សកម្មភាព</th></tr></thead>
+    <thead><tr><th>ID</th><th>ឈ្មោះ</th><th>លេខកូដ</th><th>ថ្នាក់</th><th>គ្រូ</th><th>ក្រេឌីត</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for s in subjects %}
     <tr>
-      <td>{{ forloop.counter }}</td>
+      <td><span class="badge bg-secondary">{{ s.subject_id|default:"—" }}</span></td>
       <td><strong>{{ s.name }}</strong></td>
       <td><span class="badge bg-secondary">{{ s.code|default:"—" }}</span></td>
       <td>{{ s.grade }}</td>

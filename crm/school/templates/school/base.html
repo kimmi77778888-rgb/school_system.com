@@ -13,8 +13,8 @@
 <style>
 :root{
   --sb:260px;--sbc:60px;
-  --bg-sb:{{ school.sidebar_bg }};
-  --ac:{{ school.primary_color }};--ac2:{{ school.secondary_color }};
+  --bg-sb:{{ school.sidebar_bg|default:"#1e293b" }};
+  --ac:{{ school.primary_color|default:"#2563eb" }};--ac2:{{ school.secondary_color|default:"#7c3aed" }};
   --top:56px;--bot:58px;
   --bg:#f1f5f9;--card:#fff;--tx:#1e293b;--mu:#64748b;--br:#e2e8f0;--rd:12px;
 }

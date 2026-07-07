@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 import sys, os, traceback
 
 def health_check(request):
@@ -60,10 +61,15 @@ def health_check(request):
     return JsonResponse(info)
 
 
+@login_required
 def debug_view(request):
-    """Try to simulate the failing page and capture the exact error."""
+    """Diagnostic view — staff only."""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
     result = {}
-    # Test 1: school settings context processor
+
+    # School settings context processor
     try:
         from school.context_processors import school_settings
         ctx = school_settings(request)
@@ -78,85 +84,32 @@ def debug_view(request):
     except Exception as e:
         result['school_settings_cp'] = f"ERROR: {traceback.format_exc()}"
 
-    # Test 2: user profile access
-    if request.user.is_authenticated:
-        try:
-            role = request.user.profile.role
-            result['user_profile_role'] = role
-        except Exception as e:
-            result['user_profile_error'] = f"{type(e).__name__}: {e}"
-
-    # Test 3: user list query
+    # User profile access
     try:
-        from django.contrib.auth.models import User
-        users = list(User.objects.select_related('profile').order_by('username'))
-        result['user_list_count'] = len(users)
-        for u in users:
-            try:
-                p = u.profile
-                if p.photo and p.photo.name:
-                    try:
-                        _ = p.photo.url
-                    except Exception as e:
-                        result[f'user_{u.username}_photo_error'] = f"{type(e).__name__}: {e}"
-            except Exception as e:
-                result[f'user_{u.username}_profile_error'] = f"{type(e).__name__}: {e}"
+        role = request.user.profile.role
+        result['user_profile_role'] = role
     except Exception as e:
-        result['user_list_error'] = f"{type(e).__name__}: {e}"
+        result['user_profile_error'] = f"{type(e).__name__}: {e}"
 
-    # Test 4: student list query
+    # DB counts
     try:
-        from school.models import Student
-        students = list(Student.objects.filter(is_active=True).select_related('classroom__grade')[:5])
-        result['student_list_count'] = len(students)
+        from django.contrib.auth.models import User as _User
+        from school.models import Student, Teacher, UserProfile
+        result['db_users'] = _User.objects.count()
+        result['db_profiles'] = UserProfile.objects.count()
+        result['db_students'] = Student.objects.filter(is_active=True).count()
+        result['db_teachers'] = Teacher.objects.filter(is_active=True).count()
+        result['db_ok'] = True
     except Exception as e:
-        result['student_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
+        result['db_ok'] = False
+        result['db_error'] = str(e)
 
-    # Test 5: teacher list query
-    try:
-        from school.models import Teacher
-        teachers = list(Teacher.objects.filter(is_active=True)[:5])
-        result['teacher_list_count'] = len(teachers)
-    except Exception as e:
-        result['teacher_list_error'] = f"{type(e).__name__}: {traceback.format_exc()}"
-
-    # Test Cloudinary configuration + actual API ping
-    try:
-        import cloudinary
-        import cloudinary.api
-        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
-        api_key = os.environ.get('CLOUDINARY_API_KEY', '')
-        api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
-        result['cloudinary_cloud_name'] = cloud_name[:4] + '***' if cloud_name else 'NOT SET'
-        result['cloudinary_api_key'] = api_key[:4] + '***' if api_key else 'NOT SET'
-        result['cloudinary_api_secret_set'] = bool(api_secret)
-        result['cloudinary_configured'] = bool(cloud_name and api_key and api_secret)
-        result['media_backend'] = settings.STORAGES.get('default', {}).get('BACKEND', 'unknown')
-        # Actually ping Cloudinary API to verify credentials work
-        if cloud_name and api_key and api_secret:
-            cloudinary.config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
-            ping = cloudinary.api.ping()
-            result['cloudinary_ping'] = ping.get('status', 'unknown')
-    except Exception as e:
-        result['cloudinary_error'] = f"{type(e).__name__}: {e}"
-    except Exception as e:
-        result['cloudinary_error'] = str(e)
-    from django.template.loader import render_to_string
-    from django.contrib.auth.models import User
-    from school.models import Student, Teacher
-
-    for tpl, ctx_fn in [
-        ('school/users/user_list.html', lambda: {'users': User.objects.select_related('profile').order_by('username')}),
-        ('school/student_list.html',    lambda: {'students': Student.objects.filter(is_active=True).select_related('classroom__grade'), 'q': '', 'classrooms': [], 'selected_classroom': '', 'role': 'admin'}),
-        ('school/teacher_list.html',    lambda: {'teachers': Teacher.objects.filter(is_active=True), 'q': '', 'role': 'admin'}),
-        ('school/auth/profile.html',    lambda: {'form': __import__('school.forms', fromlist=['ProfileUpdateForm']).ProfileUpdateForm(user=request.user), 'profile': request.user.profile}),
-    ]:
-        try:
-            from django.template import RequestContext
-            render_to_string(tpl, ctx_fn(), request=request)
-            result[f'render_{tpl}'] = 'ok'
-        except Exception as e:
-            result[f'render_{tpl}_ERROR'] = traceback.format_exc()
+    # Cloudinary config status (no secrets exposed)
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+    api_key    = os.environ.get('CLOUDINARY_API_KEY', '')
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
+    result['cloudinary_configured'] = bool(cloud_name and api_key and api_secret)
+    result['media_backend'] = settings.STORAGES.get('default', {}).get('BACKEND', 'unknown')
 
     return JsonResponse(result, json_dumps_params={'indent': 2})
 
@@ -169,6 +122,8 @@ urlpatterns = [
     path('school/', include('school.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files locally (dev) and as fallback in production without Cloudinary.
+# When CLOUDINARY_CLOUD_NAME is set, media URLs come directly from Cloudinary so
+# this route is never hit — it is safe to always register it.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
