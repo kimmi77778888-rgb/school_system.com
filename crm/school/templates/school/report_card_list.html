@@ -1,19 +1,19 @@
 {% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}Report Cards{% endblock %}
-{% block page_title %}Report Cards{% endblock %}
+{% block title %}សៀវភៅប័ណ្ណ{% endblock %}
+{% block page_title %}សៀវភៅប័ណ្ណ{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h2><i class="bi bi-journal-text me-2 text-primary"></i>Report Cards</h2>
+  <h2><i class="bi bi-journal-text me-2 text-primary"></i>សៀវភៅប័ណ្ណ</h2>
   <div class="actions">
     <a href="{% url 'school:report_card_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>Generate Report Card
+      <i class="bi bi-plus-lg me-1"></i>បង្កើតសៀវភៅប័ណ្ណ
     </a>
   </div>
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>Student</th><th>Classroom</th><th>Year</th><th>Term</th><th>Status</th><th>Generated</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>សិស្ស</th><th>ថ្នាក់</th><th>ឆ្នាំ</th><th>វគ្គ</th><th>ស្ថានភាព</th><th>បង្កើតនៅ</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for card in cards %}
     <tr>
@@ -26,8 +26,8 @@
       <td>{{ card.academic_year }}</td>
       <td>{{ card.term }}</td>
       <td>
-        {% if card.status == 'published' %}<span class="badge bg-success">Published</span>
-        {% else %}<span class="badge bg-warning text-dark">Draft</span>{% endif %}
+        {% if card.status == 'published' %}<span class="badge bg-success">បានផ្សាយ</span>
+        {% else %}<span class="badge bg-warning text-dark">សេចក្តីព្រាង</span>{% endif %}
       </td>
       <td>{{ card.generated_at|date:"d M Y" }}</td>
       <td>
@@ -40,7 +40,7 @@
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="8" class="text-center text-muted py-4">No report cards generated yet.</td></tr>
+    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>មិនទាន់មានសៀវភៅប័ណ្ណ</td></tr>
     {% endfor %}
     </tbody>
   </table>

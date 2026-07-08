@@ -1,25 +1,25 @@
 {% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}Bulk Attendance{% endblock %}
-{% block page_title %}Bulk Attendance{% endblock %}
+{% block title %}វត្តមានក្រុម{% endblock %}
+{% block page_title %}វត្តមានក្រុម{% endblock %}
 
 {% block content %}
 <div class="page-header">
-  <h2><i class="bi bi-list-check me-2 text-primary"></i>Bulk Attendance</h2>
+  <h2><i class="bi bi-list-check me-2 text-primary"></i>វត្តមានក្រុម</h2>
   <a href="{% url 'school:attendance_list' %}" class="btn btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i>Back
+    <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
   </a>
 </div>
 
-<!-- Step 1: Select classroom + date -->
+<!-- ជំហានទី១ -->
 <div class="card mb-4 p-4" style="max-width:500px;">
-  <h6 class="fw-bold mb-3">Step 1 — Select Classroom & Date</h6>
+  <h6 class="fw-bold mb-3">ជំហានទី ១ — ជ្រើសរើសថ្នាក់ និងកាលបរិច្ឆេទ</h6>
   <form method="post">
     {% csrf_token %}
     <div class="mb-3">
-      <label class="form-label fw-medium">Classroom <span class="text-danger">*</span></label>
+      <label class="form-label fw-medium">ថ្នាក់ <span class="text-danger">*</span></label>
       <select name="classroom" class="form-select" required>
-        <option value="">— Select classroom —</option>
+        <option value="">— ជ្រើសរើសថ្នាក់ —</option>
         {% for c in classrooms %}
           <option value="{{ c.pk }}" {% if classroom and classroom.pk == c.pk %}selected{% endif %}>
             {{ c }}
@@ -28,22 +28,22 @@
       </select>
     </div>
     <div class="mb-3">
-      <label class="form-label fw-medium">Date <span class="text-danger">*</span></label>
+      <label class="form-label fw-medium">កាលបរិច្ឆេទ <span class="text-danger">*</span></label>
       <input type="date" name="date" value="{{ date_val }}" class="form-control" required>
     </div>
     <button type="submit" class="btn btn-primary">
-      <i class="bi bi-search me-1"></i>Load Students
+      <i class="bi bi-search me-1"></i>ផ្ទុកសិស្ស
     </button>
   </form>
 </div>
 
-<!-- Step 2: Mark attendance -->
+<!-- ជំហានទី២ -->
 {% if classroom and students %}
 <div class="card">
   <div class="card-header">
     <i class="bi bi-people-fill me-1"></i>
     <strong>{{ classroom }}</strong> — {{ date_val }}
-    <span class="badge bg-primary ms-2">{{ students|length }} students</span>
+    <span class="badge bg-primary ms-2">{{ students|length }} នាក់</span>
   </div>
   <form method="post">
     {% csrf_token %}
@@ -54,9 +54,9 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Student</th>
-            <th>Status</th>
-            <th>Note</th>
+            <th>សិស្ស</th>
+            <th>ស្ថានភាព</th>
+            <th>កំណត់ចំណាំ</th>
           </tr>
         </thead>
         <tbody>
@@ -75,7 +75,7 @@
               </select>
             </td>
             <td>
-              <input type="text" name="note_{{ s.pk }}" class="form-control form-control-sm" placeholder="Optional note" style="min-width:180px;">
+              <input type="text" name="note_{{ s.pk }}" class="form-control form-control-sm" placeholder="កំណត់ចំណាំ..." style="min-width:180px;">
             </td>
           </tr>
           {% endfor %}
@@ -84,14 +84,14 @@
     </div>
     <div class="p-3 border-top">
       <button type="submit" name="save_attendance" class="btn btn-success px-4">
-        <i class="bi bi-check-circle me-1"></i>Save Attendance
+        <i class="bi bi-check-circle me-1"></i>រក្សាទុកវត្តមាន
       </button>
     </div>
   </form>
 </div>
 {% elif classroom and not students %}
 <div class="alert alert-warning">
-  <i class="bi bi-exclamation-triangle me-1"></i>No active students found in this classroom.
+  <i class="bi bi-exclamation-triangle me-1"></i>មិនមានសិស្សសកម្មក្នុងថ្នាក់នេះទេ
 </div>
 {% endif %}
 {% endblock %}

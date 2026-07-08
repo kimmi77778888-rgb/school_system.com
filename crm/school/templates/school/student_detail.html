@@ -1,15 +1,15 @@
 ﻿{% extends 'school/base.html' %}
 {% load school_tags %}
 {% block title %}{{ student.first_name }} {{ student.last_name }}{% endblock %}
-{% block page_title %}Student Detail{% endblock %}
+{% block page_title %}ព័ត៌មានសិស្ស{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <h2><i class="bi bi-person-circle me-2 text-primary"></i>{{ student.first_name }} {{ student.last_name }}</h2>
   <div class="d-flex gap-2">
-    <a href="{% url 'school:report_student_detail' student.pk %}" target="_blank" class="btn btn-outline-dark"><i class="bi bi-printer me-1"></i>Print Report</a>
-    <a href="{% url 'school:student_edit' student.pk %}" class="btn btn-warning text-white"><i class="bi bi-pencil me-1"></i>Edit</a>
-    <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    <a href="{% url 'school:report_student_detail' student.pk %}" target="_blank" class="btn btn-outline-dark"><i class="bi bi-printer me-1"></i>បោះពុម្ព</a>
+    <a href="{% url 'school:student_edit' student.pk %}" class="btn btn-warning text-white"><i class="bi bi-pencil me-1"></i>កែប្រែ</a>
+    <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>ត្រឡប់</a>
   </div>
 </div>
 
@@ -28,24 +28,24 @@
       <code class="text-muted">{{ student.student_id }}</code>
       <div class="mt-3 text-start">
         <table class="table table-sm mb-0">
-          <tr><td class="text-muted">Gender</td><td>{{ student.get_gender_display|default:"—" }}</td></tr>
-          <tr><td class="text-muted">DOB</td><td>{{ student.date_of_birth|default:"—" }}</td></tr>
-          <tr><td class="text-muted">Phone</td><td>{{ student.phone|default:"—" }}</td></tr>
-          <tr><td class="text-muted">Address</td><td>{{ student.address|default:"—" }}</td></tr>
-          <tr><td class="text-muted">Classroom</td><td>{{ student.classroom|default:"—" }}</td></tr>
-          <tr><td class="text-muted">Enrolled</td><td>{{ student.enrolled_date }}</td></tr>
-          <tr><td class="text-muted">Status</td>
-            <td>{% if student.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+          <tr><td class="text-muted">ភេទ</td><td>{{ student.get_gender_display|default:"—" }}</td></tr>
+          <tr><td class="text-muted">ថ្ងៃខែឆ្នាំកំណើត</td><td>{{ student.date_of_birth|default:"—" }}</td></tr>
+          <tr><td class="text-muted">ទូរស័ព្ទ</td><td>{{ student.phone|default:"—" }}</td></tr>
+          <tr><td class="text-muted">អាសយដ្ឋាន</td><td>{{ student.address|default:"—" }}</td></tr>
+          <tr><td class="text-muted">ថ្នាក់</td><td>{{ student.classroom|default:"—" }}</td></tr>
+          <tr><td class="text-muted">ថ្ងៃចុះឈ្មោះ</td><td>{{ student.enrolled_date }}</td></tr>
+          <tr><td class="text-muted">ស្ថានភាព</td>
+            <td>{% if student.is_active %}<span class="b-P">សកម្ម</span>{% else %}<span class="b-A">អសកម្ម</span>{% endif %}</td>
           </tr>
         </table>
       </div>
     </div>
     <!-- Parent info -->
     <div class="card p-3 mt-3">
-      <div class="fw-semibold mb-2"><i class="bi bi-people me-1 text-primary"></i>Parent / Guardian</div>
-      <div class="small text-muted">Name</div>
+      <div class="fw-semibold mb-2"><i class="bi bi-people me-1 text-primary"></i>មាតាបិតា / អាណាព្យាបាល</div>
+      <div class="small text-muted">ឈ្មោះ</div>
       <div>{{ student.parent_name|default:"—" }}</div>
-      <div class="small text-muted mt-2">Phone</div>
+      <div class="small text-muted mt-2">ទូរស័ព្ទ</div>
       <div>{{ student.parent_phone|default:"—" }}</div>
     </div>
   </div>
@@ -54,10 +54,10 @@
   <div class="col-md-8">
     <!-- Recent Attendance -->
     <div class="card mb-4">
-      <div class="card-header"><i class="bi bi-calendar-check me-1 text-success"></i>Recent Attendance</div>
+      <div class="card-header"><i class="bi bi-calendar-check me-1 text-success"></i>វត្តមានថ្មីៗ</div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead><tr><th>Date</th><th>Status</th><th>Note</th></tr></thead>
+          <thead><tr><th>ថ្ងៃ</th><th>ស្ថានភាព</th><th>កំណត់ចំណាំ</th></tr></thead>
           <tbody>
             {% for a in attendances %}
             <tr>
@@ -66,7 +66,7 @@
               <td>{{ a.note|default:"—" }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="3" class="text-center text-muted">No attendance records.</td></tr>
+            <tr><td colspan="3" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនមានទិន្នន័យវត្តមាន</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -75,10 +75,10 @@
 
     <!-- Scores -->
     <div class="card">
-      <div class="card-header"><i class="bi bi-bar-chart me-1 text-warning"></i>Scores</div>
+      <div class="card-header"><i class="bi bi-bar-chart me-1 text-warning"></i>ពិន្ទុប្រឡង</div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead><tr><th>Subject</th><th>Exam</th><th>Score</th><th>%</th><th>Grade</th><th>Year</th></tr></thead>
+          <thead><tr><th>មុខវិជ្ជា</th><th>ការប្រឡង</th><th>ពិន្ទុ</th><th>%</th><th>ថ្នាក់</th><th>ឆ្នាំ</th></tr></thead>
           <tbody>
             {% for sc in scores %}
             <tr>
@@ -90,7 +90,7 @@
               <td>{{ sc.academic_year }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center text-muted">No scores yet.</td></tr>
+            <tr><td colspan="6" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនទាន់មានពិន្ទុ</td></tr>
             {% endfor %}
           </tbody>
         </table>

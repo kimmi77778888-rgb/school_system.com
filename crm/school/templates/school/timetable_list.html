@@ -1,13 +1,13 @@
 {% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}Timetable{% endblock %}
-{% block page_title %}Timetable{% endblock %}
+{% block title %}តារាងម៉ោង{% endblock %}
+{% block page_title %}តារាងម៉ោង{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h2><i class="bi bi-calendar3-week-fill me-2 text-primary"></i>Timetable</h2>
+  <h2><i class="bi bi-calendar3-week-fill me-2 text-primary"></i>តារាងម៉ោង</h2>
   <div class="actions">
     <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>Add Entry
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែម
     </a>
   </div>
 </div>
@@ -15,24 +15,24 @@
 <div class="card mb-3 p-3">
   <form method="get" class="row g-2 align-items-end">
     <div class="col-auto">
-      <label class="form-label mb-1">Classroom</label>
+      <label class="form-label mb-1">ថ្នាក់</label>
       <select name="classroom" class="form-select form-select-sm">
-        <option value="">All Classrooms</option>
+        <option value="">ថ្នាក់ទាំងអស់</option>
         {% for c in classrooms %}
         <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label mb-1">Year</label>
+      <label class="form-label mb-1">ឆ្នាំ</label>
       <select name="year" class="form-select form-select-sm">
-        <option value="">All Years</option>
+        <option value="">ឆ្នាំទាំងអស់</option>
         {% for y in years %}
         <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-auto"><button type="submit" class="btn btn-secondary btn-sm">Filter</button></div>
+    <div class="col-auto"><button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-funnel-fill me-1"></i>ត្រង</button></div>
   </form>
 </div>
 
@@ -42,11 +42,11 @@
     <i class="bi bi-calendar-day me-2"></i><strong>{{ day_names|get_item:day_num }}</strong>
   </div>
   <table class="table table-hover mb-0">
-    <thead><tr><th>Period</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Classroom</th><th>Room</th><th>Actions</th></tr></thead>
+    <thead><tr><th>វេន</th><th>ម៉ោង</th><th>មុខវិជ្ជា</th><th>គ្រូ</th><th>ថ្នាក់</th><th>បន្ទប់</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for tt in entries %}
     <tr>
-      <td><span class="badge bg-primary">P{{ tt.time_slot.period }}</span></td>
+      <td><span class="badge bg-primary">វ{{ tt.time_slot.period }}</span></td>
       <td>{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</td>
       <td><strong>{{ tt.subject.name }}</strong></td>
       <td>{{ tt.teacher|default:"—" }}</td>
@@ -62,6 +62,6 @@
   </table>
 </div>
 {% empty %}
-<div class="card p-4 text-center text-muted">No timetable entries found. Add one to get started.</div>
+<div class="card p-4 text-center text-muted"><i class="bi bi-inbox me-2"></i>មិនទាន់មានតារាងម៉ោង</div>
 {% endfor %}
 {% endblock %}

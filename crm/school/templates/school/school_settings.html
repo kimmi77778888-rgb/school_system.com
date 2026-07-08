@@ -44,7 +44,7 @@
             {{ form.school_name }}
           </div>
           <div class="col-md-6">
-            <label class="form-label">School Name (English)</label>
+            <label class="form-label">ឈ្មោះសាលា (អង់គ្លេស)</label>
             {{ form.school_name_en }}
           </div>
           <div class="col-12">
@@ -53,7 +53,7 @@
           </div>
           <div class="col-md-6">
             <label class="form-label">
-              <i class="bi bi-image me-1"></i>Logo
+              <i class="bi bi-image me-1"></i>រូបភាពសាលា
               {% if settings.logo and settings.logo.name %}
                 <a href="{{ settings.logo|safe_url }}" target="_blank" class="text-primary ms-2" style="font-size:.75rem;">(មើល)</a>
               {% endif %}
@@ -66,7 +66,7 @@
             {% endif %}
           </div>
           <div class="col-md-6">
-            <label class="form-label">Favicon</label>
+            <label class="form-label">រូបតំណាង (Favicon)</label>
             {{ form.favicon }}
             {% if settings.favicon and settings.favicon.name %}
             <div class="mt-2">
@@ -93,7 +93,7 @@
             {{ form.email }}
           </div>
           <div class="col-md-4">
-            <label class="form-label">Website</label>
+            <label class="form-label">គេហទំព័រ</label>
             {{ form.website }}
           </div>
         </div>
@@ -117,7 +117,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <label class="form-label">ពណ៌ Sidebar</label>
+            <label class="form-label">ពណ៌ Sidebar (ម្ខាង)</label>
             <div class="d-flex align-items-center gap-2">
               {{ form.sidebar_bg }}
               <input type="text" id="sb-txt" class="form-control" value="{{ settings.sidebar_bg }}" style="width:100px;font-family:monospace;">

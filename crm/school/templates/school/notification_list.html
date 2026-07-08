@@ -1,21 +1,21 @@
 {% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}Notifications{% endblock %}
-{% block page_title %}Notifications{% endblock %}
+{% block title %}ជូនដំណឹង{% endblock %}
+{% block page_title %}ជូនដំណឹង{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h2><i class="bi bi-bell-fill me-2 text-warning"></i>Notifications</h2>
+  <h2><i class="bi bi-bell-fill me-2 text-warning"></i>ជូនដំណឹង</h2>
   <div class="actions">
     {% if role == 'admin' or role == 'teacher' %}
     <a href="{% url 'school:notification_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-send-fill me-1"></i>Send Notification
+      <i class="bi bi-send-fill me-1"></i>ផ្ញើជូនដំណឹង
     </a>
     {% endif %}
   </div>
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>Title</th><th>Type</th><th>Audience</th><th>Sent By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>ចំណងជើង</th><th>ប្រភេទ</th><th>ទស្សនិកជន</th><th>ផ្ញើដោយ</th><th>កាលបរិច្ឆេទ</th><th>ស្ថានភាព</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for n in notifications %}
     <tr>
@@ -25,17 +25,17 @@
         <div class="text-muted" style="font-size:.78rem;">{{ n.message|truncatechars:60 }}</div>
       </td>
       <td>
-        {% if n.notification_type == 'announcement' %}<span class="badge bg-primary">Announcement</span>
-        {% elif n.notification_type == 'alert' %}<span class="badge bg-danger">Alert</span>
-        {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark">Reminder</span>
-        {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark">Event</span>
-        {% elif n.notification_type == 'message' %}<span class="badge bg-success">Message</span>
+        {% if n.notification_type == 'announcement' %}<span class="badge bg-primary">សេចក្តីប្រកាស</span>
+        {% elif n.notification_type == 'alert' %}<span class="badge bg-danger">ការព្រមាន</span>
+        {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark">រំលឹក</span>
+        {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark">ព្រឹត្តិការណ៍</span>
+        {% elif n.notification_type == 'message' %}<span class="badge bg-success">សារ</span>
         {% else %}<span class="badge bg-secondary">{{ n.get_notification_type_display }}</span>{% endif %}
       </td>
       <td><span class="badge bg-light text-dark">{{ n.get_audience_display }}</span></td>
-      <td>{{ n.created_by|default:"System" }}</td>
+      <td>{{ n.created_by|default:"ប្រព័ន្ធ" }}</td>
       <td>{{ n.created_at|date:"d M Y" }}</td>
-      <td>{% if n.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+      <td>{% if n.is_active %}<span class="b-P">សកម្ម</span>{% else %}<span class="b-A">អសកម្ម</span>{% endif %}</td>
       <td>
         {% if role == 'admin' or role == 'teacher' %}
         <a href="{% url 'school:notification_edit' n.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
@@ -44,7 +44,7 @@
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="8" class="text-center text-muted py-4">No notifications yet.</td></tr>
+    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>មិនទាន់មានជូនដំណឹង</td></tr>
     {% endfor %}
     </tbody>
   </table>
