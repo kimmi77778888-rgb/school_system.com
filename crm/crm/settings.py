@@ -177,10 +177,8 @@ _CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
 _CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '').strip()
 _CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
 
-if _CLOUDINARY_URL:
-    cloudinary.config(cloudinary_url=_CLOUDINARY_URL, secure=True)
-    _CLOUDINARY_CONFIGURED = True
-elif _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET:
+# Always prefer individual vars — more reliable across SDK versions
+if _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET:
     cloudinary.config(
         cloud_name=_CLOUDINARY_CLOUD_NAME,
         api_key=_CLOUDINARY_API_KEY,
@@ -188,6 +186,20 @@ elif _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET:
         secure=True,
     )
     _CLOUDINARY_CONFIGURED = True
+elif _CLOUDINARY_URL:
+    # fallback: parse from URL format
+    import re
+    m = re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', _CLOUDINARY_URL)
+    if m:
+        cloudinary.config(
+            api_key=m.group(1),
+            api_secret=m.group(2),
+            cloud_name=m.group(3),
+            secure=True,
+        )
+        _CLOUDINARY_CONFIGURED = True
+    else:
+        _CLOUDINARY_CONFIGURED = False
 else:
     _CLOUDINARY_CONFIGURED = False
 
