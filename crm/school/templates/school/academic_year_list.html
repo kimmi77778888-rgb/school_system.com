@@ -7,64 +7,114 @@
 <style>
 .ay-card{
   background:#fff;border:1px solid var(--br);border-radius:var(--rd);
-  padding:18px 20px;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;transition:box-shadow .18s;
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;transition:box-shadow .18s,border-color .18s;
 }
-.ay-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.ay-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);border-color:#c7d2fe;}
+.ay-card.active-year{border-color:#86efac;background:linear-gradient(90deg,#f0fdf4,#fff);}
 .ay-badge-active{
   display:inline-flex;align-items:center;gap:5px;
   background:#dcfce7;color:#166534;
-  font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+  font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;
 }
 .ay-badge-inactive{
   display:inline-flex;align-items:center;gap:5px;
-  background:#f1f5f9;color:#64748b;
-  font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;
+  background:#f1f5f9;color:#94a3b8;
+  font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:20px;
 }
-.ay-name{font-size:1.05rem;font-weight:800;color:#0f172a;}
-.ay-meta{font-size:.75rem;color:var(--mu);margin-top:2px;}
-.ay-actions{display:flex;gap:6px;flex-wrap:nowrap;}
+.ay-name{font-size:.98rem;font-weight:800;color:#0f172a;}
+.ay-actions{display:flex;gap:5px;}
 .ay-actions .btn{
-  width:32px;height:32px;padding:0;
+  width:30px;height:30px;padding:0;
   display:flex;align-items:center;justify-content:center;
-  border-radius:8px;font-size:.82rem;
+  border-radius:7px;font-size:.8rem;
 }
 .set-active-btn{
   display:inline-flex;align-items:center;gap:5px;
-  padding:5px 12px;border-radius:8px;font-size:.75rem;font-weight:600;
+  padding:4px 11px;border-radius:7px;font-size:.72rem;font-weight:600;
   border:1.5px solid #10b981;color:#059669;background:transparent;
-  cursor:pointer;transition:background .15s,color .15s;
+  cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;
 }
 .set-active-btn:hover{background:#059669;color:#fff;}
+/* generate panel */
+.gen-panel{
+  background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(124,58,237,.04));
+  border:1.5px dashed #c7d2fe;border-radius:var(--rd);padding:18px 20px;
+  margin-bottom:20px;
+}
+.gen-panel h6{font-weight:800;color:#1e40af;font-size:.85rem;margin-bottom:12px;}
+.gen-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.gen-chip{
+  padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;
+  background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;
+}
+.gen-chip.exists{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;text-decoration:line-through;}
+.qty-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.qty-btn{
+  width:30px;height:30px;border-radius:7px;border:1.5px solid var(--br);
+  background:#fff;color:var(--tx);font-size:1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.qty-btn:hover{background:var(--ac);color:#fff;border-color:var(--ac);}
+.qty-display{
+  min-width:36px;text-align:center;font-size:.95rem;font-weight:800;color:var(--ac);
+}
 </style>
 
 <div class="page-header">
   <h2><i class="bi bi-calendar2-range-fill me-2 text-primary"></i>ឆ្នាំសិក្សា</h2>
   <div class="actions">
-    <a href="{% url 'school:academic_year_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>បន្ថែមឆ្នាំសិក្សា
+    <a href="{% url 'school:academic_year_add' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែមមួយ
     </a>
   </div>
 </div>
 
+<!-- Quick Generate Panel -->
+<div class="gen-panel">
+  <h6><i class="bi bi-magic me-2"></i>បង្កើតឆ្នាំសិក្សាច្រើន</h6>
+  <form method="post" action="{% url 'school:academic_year_generate' %}" id="genForm">
+    {% csrf_token %}
+    <input type="hidden" name="count" id="genCount" value="5">
+    <input type="hidden" name="start_year" id="genStart" value="">
+
+    <div class="qty-row mb-3">
+      <span style="font-size:.8rem;color:var(--mu);font-weight:600;">ចាប់ផ្តើមពី​ឆ្នាំ:</span>
+      <input type="number" name="base_year" id="baseYear" class="form-control form-control-sm"
+             style="width:90px;" value="" placeholder="ឆ្នាំ...">
+      <span style="font-size:.8rem;color:var(--mu);font-weight:600;">ចំនួន:</span>
+      <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span class="qty-display" id="qtyDisplay">5</span>
+      <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="gen-chips" id="previewChips"></div>
+
+    <button type="submit" class="btn btn-primary btn-sm">
+      <i class="bi bi-calendar2-plus me-1"></i>បង្កើតឆ្នាំទាំងនេះ
+    </button>
+  </form>
+</div>
+
+<!-- Year list -->
 {% if years %}
-<div class="d-flex flex-column gap-3">
+<div class="d-flex flex-column gap-2">
   {% for y in years %}
-  <div class="ay-card">
-    <div class="d-flex align-items-center gap-14" style="gap:14px;">
-      <!-- icon -->
-      <div style="width:46px;height:46px;border-radius:12px;flex-shrink:0;
-                  background:linear-gradient(135deg,var(--ac),var(--ac2));
-                  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;">
-        <i class="bi bi-calendar2-week-fill"></i>
+  <div class="ay-card {% if y.is_active %}active-year{% endif %}">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;
+                  background:{% if y.is_active %}linear-gradient(135deg,#059669,#065f46){% else %}linear-gradient(135deg,var(--ac),var(--ac2)){% endif %};
+                  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;">
+        <i class="bi bi-{% if y.is_active %}calendar2-check-fill{% else %}calendar2-week-fill{% endif %}"></i>
       </div>
       <div>
         <div class="ay-name">{{ y.year }}</div>
-        <div class="ay-meta">
+        <div class="mt-1">
           {% if y.is_active %}
-          <span class="ay-badge-active"><i class="bi bi-circle-fill" style="font-size:.45rem;"></i>ឆ្នាំបច្ចុប្បន្ន</span>
+          <span class="ay-badge-active"><i class="bi bi-circle-fill" style="font-size:.4rem;"></i>ឆ្នាំបច្ចុប្បន្ន</span>
           {% else %}
-          <span class="ay-badge-inactive"><i class="bi bi-circle" style="font-size:.45rem;"></i>មិនសកម្ម</span>
+          <span class="ay-badge-inactive"><i class="bi bi-circle" style="font-size:.4rem;"></i>មិនសកម្ម</span>
           {% endif %}
         </div>
       </div>
@@ -91,17 +141,44 @@
   </div>
   {% endfor %}
 </div>
-
 {% else %}
 <div class="card p-5 text-center">
   <i class="bi bi-calendar2-x" style="font-size:3rem;color:#cbd5e1;display:block;margin-bottom:12px;"></i>
   <div style="color:var(--mu);font-size:.9rem;">មិនទាន់មានឆ្នាំសិក្សា</div>
-  <div class="mt-3">
-    <a href="{% url 'school:academic_year_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>បន្ថែមឆ្នាំសិក្សា
-    </a>
-  </div>
 </div>
 {% endif %}
 
+<script>
+const existingYears = [{% for y in years %}"{{ y.year }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+let qty = 5;
+
+function getBaseYear(){
+  const v = document.getElementById('baseYear').value;
+  return v ? parseInt(v) : new Date().getFullYear();
+}
+
+function buildPreview(){
+  const base = getBaseYear();
+  const chips = document.getElementById('previewChips');
+  chips.innerHTML = '';
+  for(let i = 0; i < qty; i++){
+    const label = `${base + i}-${base + i + 1}`;
+    const exists = existingYears.includes(label);
+    const span = document.createElement('span');
+    span.className = 'gen-chip' + (exists ? ' exists' : '');
+    span.textContent = label + (exists ? ' (មានហើយ)' : '');
+    chips.appendChild(span);
+  }
+  document.getElementById('genCount').value = qty;
+}
+
+function changeQty(delta){
+  qty = Math.max(1, Math.min(20, qty + delta));
+  document.getElementById('qtyDisplay').textContent = qty;
+  buildPreview();
+}
+
+document.getElementById('baseYear').addEventListener('input', buildPreview);
+buildPreview();
+</script>
 {% endblock %}

@@ -35,6 +35,7 @@ urlpatterns = [
     # Academic Years
     path('academic-years/',                     views.academic_year_list,       name='academic_year_list'),
     path('academic-years/add/',                 views.academic_year_add,        name='academic_year_add'),
+    path('academic-years/generate/',            views.academic_year_generate,   name='academic_year_generate'),
     path('academic-years/<int:pk>/edit/',       views.academic_year_edit,       name='academic_year_edit'),
     path('academic-years/<int:pk>/delete/',     views.academic_year_delete,     name='academic_year_delete'),
     path('academic-years/<int:pk>/set-active/', views.academic_year_set_active, name='academic_year_set_active'),

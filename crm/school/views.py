@@ -406,6 +406,44 @@ def academic_year_set_active(request, pk):
     messages.success(request, 'ឆ្នាំសិក្សាសកម្មបានកំណត់។')
     return redirect('school:academic_year_list')
 
+@admin_required
+def academic_year_generate(request):
+    """Generate multiple academic years at once."""
+    if request.method == 'POST':
+        base_year = int(request.POST.get('base_year', timezone.now().year))
+        count = int(request.POST.get('count', 5))
+        count = max(1, min(20, count))  # limit 1-20
+        
+        created_count = 0
+        existing_count = 0
+        
+        for i in range(count):
+            year_str = f"{base_year + i}-{base_year + i + 1}"
+            obj, created = AcademicYear.objects.get_or_create(
+                year=year_str,
+                defaults={'is_active': False}
+            )
+            if created:
+                created_count += 1
+            else:
+                existing_count += 1
+        
+        # Set first year as active if no active year exists
+        if not AcademicYear.objects.filter(is_active=True).exists():
+            first_year = AcademicYear.objects.order_by('year').first()
+            if first_year:
+                first_year.is_active = True
+                first_year.save()
+        
+        if created_count > 0:
+            messages.success(request, f'បានបង្កើតឆ្នាំសិក្សា {created_count} ឆ្នាំ។')
+        if existing_count > 0:
+            messages.info(request, f'{existing_count} ឆ្នាំមានរួចហើយ។')
+        
+        return redirect('school:academic_year_list')
+    
+    return redirect('school:academic_year_list')
+
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def classroom_list(request):    classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
