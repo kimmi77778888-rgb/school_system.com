@@ -492,6 +492,9 @@ a{text-decoration:none;color:inherit;}
       <a class="sb-a {% if 'user' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:user_list' %}" data-tip="អ្នកប្រើ">
         <i class="bi bi-people-fill"></i><span class="t">អ្នកប្រើប្រាស់</span>
       </a>
+      <a class="sb-a {% if 'academic_year' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:academic_year_list' %}" data-tip="ឆ្នាំសិក្សា">
+        <i class="bi bi-calendar2-range-fill"></i><span class="t">ឆ្នាំសិក្សា</span>
+      </a>
       {% endif %}
 
       <!-- ── សិក្សា (dropdown) ── -->

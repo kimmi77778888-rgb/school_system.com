@@ -1,0 +1,107 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}ឆ្នាំសិក្សា{% endblock %}
+{% block page_title %}ឆ្នាំសិក្សា{% endblock %}
+
+{% block content %}
+<style>
+.ay-card{
+  background:#fff;border:1px solid var(--br);border-radius:var(--rd);
+  padding:18px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;transition:box-shadow .18s;
+}
+.ay-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.ay-badge-active{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#dcfce7;color:#166534;
+  font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+}
+.ay-badge-inactive{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#f1f5f9;color:#64748b;
+  font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;
+}
+.ay-name{font-size:1.05rem;font-weight:800;color:#0f172a;}
+.ay-meta{font-size:.75rem;color:var(--mu);margin-top:2px;}
+.ay-actions{display:flex;gap:6px;flex-wrap:nowrap;}
+.ay-actions .btn{
+  width:32px;height:32px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;font-size:.82rem;
+}
+.set-active-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:8px;font-size:.75rem;font-weight:600;
+  border:1.5px solid #10b981;color:#059669;background:transparent;
+  cursor:pointer;transition:background .15s,color .15s;
+}
+.set-active-btn:hover{background:#059669;color:#fff;}
+</style>
+
+<div class="page-header">
+  <h2><i class="bi bi-calendar2-range-fill me-2 text-primary"></i>ឆ្នាំសិក្សា</h2>
+  <div class="actions">
+    <a href="{% url 'school:academic_year_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែមឆ្នាំសិក្សា
+    </a>
+  </div>
+</div>
+
+{% if years %}
+<div class="d-flex flex-column gap-3">
+  {% for y in years %}
+  <div class="ay-card">
+    <div class="d-flex align-items-center gap-14" style="gap:14px;">
+      <!-- icon -->
+      <div style="width:46px;height:46px;border-radius:12px;flex-shrink:0;
+                  background:linear-gradient(135deg,var(--ac),var(--ac2));
+                  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;">
+        <i class="bi bi-calendar2-week-fill"></i>
+      </div>
+      <div>
+        <div class="ay-name">{{ y.year }}</div>
+        <div class="ay-meta">
+          {% if y.is_active %}
+          <span class="ay-badge-active"><i class="bi bi-circle-fill" style="font-size:.45rem;"></i>ឆ្នាំបច្ចុប្បន្ន</span>
+          {% else %}
+          <span class="ay-badge-inactive"><i class="bi bi-circle" style="font-size:.45rem;"></i>មិនសកម្ម</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      {% if not y.is_active %}
+      <form method="post" action="{% url 'school:academic_year_set_active' y.pk %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="set-active-btn">
+          <i class="bi bi-check-circle"></i>កំណត់ជាបច្ចុប្បន្ន
+        </button>
+      </form>
+      {% endif %}
+      <div class="ay-actions">
+        <a href="{% url 'school:academic_year_edit' y.pk %}" class="btn btn-outline-primary btn-sm" title="កែប្រែ">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <a href="{% url 'school:academic_year_delete' y.pk %}" class="btn btn-outline-danger btn-sm" title="លុប">
+          <i class="bi bi-trash"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card p-5 text-center">
+  <i class="bi bi-calendar2-x" style="font-size:3rem;color:#cbd5e1;display:block;margin-bottom:12px;"></i>
+  <div style="color:var(--mu);font-size:.9rem;">មិនទាន់មានឆ្នាំសិក្សា</div>
+  <div class="mt-3">
+    <a href="{% url 'school:academic_year_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែមឆ្នាំសិក្សា
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

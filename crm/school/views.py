@@ -353,9 +353,62 @@ def teacher_delete(request, pk):
 # ══════════════════════════════════════════════
 #  CLASSROOMS & SUBJECTS (Admin only)
 # ══════════════════════════════════════════════
+
+# ══════════════════════════════════════════════
+#  ACADEMIC YEAR
+# ══════════════════════════════════════════════
+@admin_required
+def academic_year_list(request):
+    years = AcademicYear.objects.all()
+    return render(request, 'school/academic_year_list.html', {'years': years})
+
+@admin_required
+def academic_year_add(request):
+    form = AcademicYearForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'ឆ្នាំសិក្សាបានបន្ថែម។')
+        return redirect('school:academic_year_list')
+    return render(request, 'school/form.html', {
+        'form': form, 'title': 'បន្ថែមឆ្នាំសិក្សា',
+        'back_url': reverse('school:academic_year_list')
+    })
+
+@admin_required
+def academic_year_edit(request, pk):
+    year = get_object_or_404(AcademicYear, pk=pk)
+    form = AcademicYearForm(request.POST or None, instance=year)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'ឆ្នាំសិក្សាបានកែប្រែ។')
+        return redirect('school:academic_year_list')
+    return render(request, 'school/form.html', {
+        'form': form, 'title': 'កែប្រែឆ្នាំសិក្សា',
+        'back_url': reverse('school:academic_year_list')
+    })
+
+@admin_required
+def academic_year_delete(request, pk):
+    year = get_object_or_404(AcademicYear, pk=pk)
+    if request.method == 'POST':
+        year.delete()
+        messages.success(request, 'ឆ្នាំសិក្សាបានលុប។')
+        return redirect('school:academic_year_list')
+    return render(request, 'school/confirm_delete.html', {
+        'object': year, 'title': 'លុបឆ្នាំសិក្សា',
+        'back_url': reverse('school:academic_year_list')
+    })
+
+@admin_required
+def academic_year_set_active(request, pk):
+    AcademicYear.objects.all().update(is_active=False)
+    AcademicYear.objects.filter(pk=pk).update(is_active=True)
+    messages.success(request, 'ឆ្នាំសិក្សាសកម្មបានកំណត់។')
+    return redirect('school:academic_year_list')
+
+# ══════════════════════════════════════════════
 @admin_or_teacher
-def classroom_list(request):
-    classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
+def classroom_list(request):    classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
     return render(request, 'school/classroom_list.html', {'classrooms': classrooms, 'role': request.user.profile.role})
 
 @admin_required

@@ -32,6 +32,13 @@ urlpatterns = [
     path('teachers/<int:pk>/edit/',     views.teacher_edit,   name='teacher_edit'),
     path('teachers/<int:pk>/delete/',   views.teacher_delete, name='teacher_delete'),
 
+    # Academic Years
+    path('academic-years/',                     views.academic_year_list,       name='academic_year_list'),
+    path('academic-years/add/',                 views.academic_year_add,        name='academic_year_add'),
+    path('academic-years/<int:pk>/edit/',       views.academic_year_edit,       name='academic_year_edit'),
+    path('academic-years/<int:pk>/delete/',     views.academic_year_delete,     name='academic_year_delete'),
+    path('academic-years/<int:pk>/set-active/', views.academic_year_set_active, name='academic_year_set_active'),
+
     # Classrooms
     path('classrooms/',                 views.classroom_list,   name='classroom_list'),
     path('classrooms/add/',             views.classroom_add,    name='classroom_add'),
