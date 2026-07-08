@@ -345,6 +345,36 @@ a{text-decoration:none;color:inherit;}
   .top-right .btn-outline-danger{display:none!important;}
 }
 
+/* ═══ PAGE LOADING OVERLAY ═══ */
+#page-loader{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg-sb);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s ease;
+}
+#page-loader.show{opacity:1;pointer-events:all;}
+.pl-logo{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:#fff;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:pl-pulse 1.4s ease-in-out infinite;
+}
+.pl-logo img{width:100%;height:100%;object-fit:contain;}
+@keyframes pl-pulse{0%,100%{transform:scale(1);box-shadow:0 8px 32px rgba(0,0,0,.4);}50%{transform:scale(1.06);box-shadow:0 12px 40px rgba(0,0,0,.55);}}
+.pl-bar{
+  width:160px;height:3px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;
+}
+.pl-bar-inner{
+  height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--ac),var(--ac2));
+  animation:pl-fill 1.2s ease-in-out infinite;
+}
+@keyframes pl-fill{0%{width:0;margin-left:0;}60%{width:75%;margin-left:0;}100%{width:0;margin-left:100%;}}
+.pl-text{color:rgba(255,255,255,.5);font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;}
+
 /* ═══ PRINT ═══ */
 @media print{
   .sb,.top,.no-print,.sb-ov,.bot-nav{display:none!important;}
@@ -415,6 +445,16 @@ a{text-decoration:none;color:inherit;}
 </style>
 </head>
 <body>
+<!-- ═══ PAGE LOADING OVERLAY ═══ -->
+<div id="page-loader">
+  <div class="pl-logo">
+    {% if school.logo %}<img src="{{ school.logo|safe_url }}" alt="">
+    {% else %}<i class="bi bi-mortarboard-fill"></i>{% endif %}
+  </div>
+  <div class="pl-bar"><div class="pl-bar-inner"></div></div>
+  <div class="pl-text">កំពុងផ្ទុក…</div>
+</div>
+
 <div class="sb-ov" id="sbOv" onclick="mbClose()"></div>
 
 <!-- ═══ SIDEBAR ═══ -->
@@ -771,6 +811,35 @@ document.querySelectorAll('.sb-a').forEach(el=>{  el.addEventListener('click',fu
 /* Resize: on mobile clear collapsed state from layout */
 window.addEventListener('resize',()=>{if(window.innerWidth>768) mbClose();});
 </script>
+/* ─── Page loader ─── */
+const loader=document.getElementById('page-loader');
+function showLoader(){if(loader)loader.classList.add('show');}
+function hideLoader(){if(loader)loader.classList.remove('show');}
+
+/* Show on every internal link click (skip anchors, targets, print) */
+document.addEventListener('click',function(e){
+  const a=e.target.closest('a[href]');
+  if(!a) return;
+  const href=a.getAttribute('href')||'';
+  if(href.startsWith('#')||href.startsWith('javascript')||href===''||a.target==='_blank') return;
+  if(a.classList.contains('no-print')) return;
+  showLoader();
+});
+
+/* Show on form submit */
+document.addEventListener('submit',function(e){
+  if(e.target.method && e.target.method.toLowerCase()==='get') return; // search forms – skip if needed
+  showLoader();
+});
+
+/* Hide when page becomes visible again (back/forward navigation) */
+window.addEventListener('pageshow',function(e){
+  hideLoader();
+});
+
+/* Safety: always hide on full load */
+window.addEventListener('load',hideLoader);
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

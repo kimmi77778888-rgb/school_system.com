@@ -34,6 +34,28 @@
     .role-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
     .role-chip { padding: 5px 14px; border-radius: 20px; font-size: .75rem; font-weight: 600; background: #f1f5f9; color: #475569; display: flex; align-items: center; gap: 5px; }
     .error-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; color: #dc2626; font-size: .85rem; display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+    /* Page loader */
+    #pg-load{
+      position:fixed;inset:0;z-index:9999;
+      background:linear-gradient(135deg,var(--sbg) 0%,#1e3a5f 60%,var(--sbg) 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+      opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    #pg-load.show{opacity:1;pointer-events:all;}
+    .pl-logo2{
+      width:72px;height:72px;border-radius:20px;overflow:hidden;
+      background:linear-gradient(135deg,var(--ac),var(--ac2));
+      display:flex;align-items:center;justify-content:center;
+      font-size:2.2rem;color:#fff;
+      box-shadow:0 10px 40px rgba(0,0,0,.5);
+      animation:pulse2 1.4s ease-in-out infinite;
+    }
+    .pl-logo2 img{width:100%;height:100%;object-fit:contain;}
+    @keyframes pulse2{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+    .pl-bar2{width:160px;height:3px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;}
+    .pl-bar2-inner{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;animation:pfill2 1.2s ease-in-out infinite;}
+    @keyframes pfill2{0%{width:0;margin-left:0;}60%{width:75%;margin-left:0;}100%{width:0;margin-left:100%;}}
+    .pl-txt2{color:rgba(255,255,255,.45);font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;}
     /* Eye toggle button */
     .eye-btn {
       position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
@@ -49,6 +71,16 @@
   </style>
 </head>
 <body>
+<!-- Page loader -->
+<div id="pg-load">
+  <div class="pl-logo2">
+    {% if school.logo %}<img src="{{ school.logo|safe_url }}" alt="">
+    {% else %}<i class="bi bi-mortarboard-fill"></i>{% endif %}
+  </div>
+  <div class="pl-bar2"><div class="pl-bar2-inner"></div></div>
+  <div class="pl-txt2">កំពុងផ្ទុក…</div>
+</div>
+
 <div class="login-wrap">
   <div class="login-card">
     <div class="logo-wrap">
@@ -116,6 +148,16 @@ function togglePwd(){
   }
   inp.focus();
 }
+
+/* Show loader on form submit */
+document.querySelector('form').addEventListener('submit',function(){
+  document.getElementById('pg-load').classList.add('show');
+});
+
+/* Hide if back-navigated */
+window.addEventListener('pageshow',function(){
+  document.getElementById('pg-load').classList.remove('show');
+});
 </script>
 </body>
 </html>
