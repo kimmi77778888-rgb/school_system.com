@@ -131,6 +131,26 @@ def test_upload(request):
     if not request.user.is_staff:
         return JsonResponse({'error': 'forbidden'}, status=403)
     
+    result = {'method': request.method}
+    
+    # Show config status
+    import os, cloudinary
+    cfg = cloudinary.config()
+    result['cloudinary_cloud_name'] = cfg.cloud_name or None
+    result['cloudinary_api_key_set'] = bool(cfg.api_key)
+    result['env_vars'] = {
+        'CLOUDINARY_CLOUD_NAME': bool(os.environ.get('CLOUDINARY_CLOUD_NAME')),
+        'CLOUDINARY_API_KEY': bool(os.environ.get('CLOUDINARY_API_KEY')),
+        'CLOUDINARY_API_SECRET': bool(os.environ.get('CLOUDINARY_API_SECRET')),
+    }
+    
+    # Test ping
+    try:
+        ping_result = cloudinary.api.ping()
+        result['cloudinary_ping'] = ping_result
+    except Exception as e:
+        result['cloudinary_ping_error'] = f'{type(e).__name__}: {str(e)}'
+    
     if request.method == 'POST' and request.FILES.get('test_file'):
         try:
             from django.core.files.storage import default_storage
@@ -140,37 +160,62 @@ def test_upload(request):
             path = default_storage.save(f'test/{file.name}', file)
             url = default_storage.url(path)
             
-            return JsonResponse({
+            result['upload'] = {
                 'status': 'success',
                 'path': path,
                 'url': url,
                 'backend': settings.STORAGES.get('default', {}).get('BACKEND', 'unknown'),
-            })
+            }
         except Exception as e:
-            return JsonResponse({
+            result['upload'] = {
                 'status': 'error',
                 'error': str(e),
                 'traceback': traceback.format_exc(),
-            }, status=500)
+            }
+        
+        return JsonResponse(result, json_dumps_params={'indent': 2})
     
-    # GET: show form
-    html = '''
+    # GET: show form with diagnostic info
+    from django.http import HttpResponse
+    from django.middleware.csrf import get_token
+    csrf_token = get_token(request)
+    
+    html = f'''
     <!DOCTYPE html>
     <html>
-    <head><title>Test Upload</title></head>
+    <head>
+        <title>Test Upload</title>
+        <style>
+            body {{ font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px; }}
+            h2 {{ color: #2563eb; }}
+            .status {{ background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin: 16px 0; }}
+            .ok {{ background: #dcfce7; border-color: #86efac; }}
+            .error {{ background: #fee2e2; border-color: #fca5a5; }}
+            pre {{ background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; }}
+            button {{ background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }}
+            button:hover {{ background: #1d4ed8; }}
+        </style>
+    </head>
     <body>
-    <h2>Test Image Upload</h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="csrfmiddlewaretoken" value="%s">
-        <input type="file" name="test_file" accept="image/*" required>
-        <button type="submit">Upload Test Image</button>
-    </form>
-    <hr>
-    <a href="/debug/">← Back to Debug Info</a>
+        <h2>🧪 Test Image Upload</h2>
+        
+        <div class="status {('ok' if result.get('cloudinary_ping') else 'error')}">
+            <strong>Cloudinary Status:</strong><br>
+            <pre>{repr(result)}</pre>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
+            <input type="file" name="test_file" accept="image/*" required style="margin: 10px 0;">
+            <button type="submit">📤 Upload Test Image</button>
+        </form>
+        
+        <hr style="margin: 30px 0;">
+        <a href="/debug/">← Back to Debug Info</a> | 
+        <a href="/school/">← Back to Dashboard</a>
     </body>
     </html>
-    ''' % request.META.get('CSRF_COOKIE', '')
-    from django.http import HttpResponse
+    '''
     return HttpResponse(html)
 
 
