@@ -4,6 +4,7 @@ Replaces django-cloudinary-storage which is not compatible with Django 6.
 """
 import os
 import logging
+import traceback
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -25,9 +26,20 @@ class MediaCloudinaryStorage(Storage):
 
     def _save(self, name, content):
         try:
+            # Log every upload attempt so we can see it in Render logs
+            logger.warning("=== CLOUDINARY UPLOAD ATTEMPT: %s ===", name)
+
+            # Verify cloudinary is configured
+            cfg = cloudinary.config()
+            if not cfg.cloud_name:
+                raise RuntimeError(
+                    "Cloudinary cloud_name is not set. "
+                    "Check CLOUDINARY_CLOUD_NAME environment variable on Render."
+                )
+            logger.warning("Cloudinary cloud_name: %s", cfg.cloud_name)
+
             # Normalise path separators
             name = name.replace('\\', '/')
-            folder, filename = os.path.split(name)
             # Use full name (without extension) as public_id so folder is embedded
             public_id = name.rsplit('.', 1)[0]  # e.g. "school/logo/myfile"
 
@@ -39,25 +51,31 @@ class MediaCloudinaryStorage(Storage):
                 'public_id': public_id,
             }
 
+            # Reset file pointer in case it was already read
+            if hasattr(content, 'seek'):
+                content.seek(0)
+
             result = cloudinary.uploader.upload(content, **options)
-            # Cloudinary may adjust the public_id; use what it returns
             saved_public_id = result.get('public_id', public_id)
-            fmt = result.get('format', filename.rsplit('.', 1)[-1] if '.' in filename else 'jpg')
-            return f"{saved_public_id}.{fmt}"
+            fmt = result.get('format', name.rsplit('.', 1)[-1] if '.' in name else 'jpg')
+            saved_name = f"{saved_public_id}.{fmt}"
+            logger.warning("=== CLOUDINARY UPLOAD SUCCESS: %s → %s ===", name, saved_name)
+            return saved_name
+
         except Exception as e:
-            logger.error("Cloudinary upload failed: %s", e)
+            logger.error(
+                "=== CLOUDINARY UPLOAD FAILED for '%s' ===\n%s",
+                name, traceback.format_exc()
+            )
             raise
 
     def url(self, name):
         if not name:
             return ''
         try:
-            # Already a full URL
             if name.startswith('http://') or name.startswith('https://'):
                 return name
-            # Normalise separators
             name = name.replace('\\', '/')
-            # Strip extension to get public_id
             public_id = name.rsplit('.', 1)[0]
             return cloudinary.CloudinaryImage(public_id).build_url(secure=True)
         except Exception as e:

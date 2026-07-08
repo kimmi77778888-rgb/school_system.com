@@ -109,15 +109,76 @@ def debug_view(request):
     api_key    = os.environ.get('CLOUDINARY_API_KEY', '')
     api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
     result['cloudinary_configured'] = bool(cloud_name and api_key and api_secret)
+    result['cloudinary_cloud_name'] = cloud_name if cloud_name else None
     result['media_backend'] = settings.STORAGES.get('default', {}).get('BACKEND', 'unknown')
+    
+    # Test cloudinary connection
+    if cloud_name:
+        try:
+            import cloudinary
+            # Try to ping cloudinary
+            test_result = cloudinary.api.ping()
+            result['cloudinary_ping'] = 'ok'
+        except Exception as e:
+            result['cloudinary_ping'] = f'ERROR: {type(e).__name__}: {e}'
 
     return JsonResponse(result, json_dumps_params={'indent': 2})
+
+
+@login_required
+def test_upload(request):
+    """Test image upload endpoint."""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'forbidden'}, status=403)
+    
+    if request.method == 'POST' and request.FILES.get('test_file'):
+        try:
+            from django.core.files.storage import default_storage
+            file = request.FILES['test_file']
+            
+            # Save to storage backend
+            path = default_storage.save(f'test/{file.name}', file)
+            url = default_storage.url(path)
+            
+            return JsonResponse({
+                'status': 'success',
+                'path': path,
+                'url': url,
+                'backend': settings.STORAGES.get('default', {}).get('BACKEND', 'unknown'),
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'error': str(e),
+                'traceback': traceback.format_exc(),
+            }, status=500)
+    
+    # GET: show form
+    html = '''
+    <!DOCTYPE html>
+    <html>
+    <head><title>Test Upload</title></head>
+    <body>
+    <h2>Test Image Upload</h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrfmiddlewaretoken" value="%s">
+        <input type="file" name="test_file" accept="image/*" required>
+        <button type="submit">Upload Test Image</button>
+    </form>
+    <hr>
+    <a href="/debug/">← Back to Debug Info</a>
+    </body>
+    </html>
+    ''' % request.META.get('CSRF_COOKIE', '')
+    from django.http import HttpResponse
+    return HttpResponse(html)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health'),
     path('debug/', debug_view, name='debug'),
+    path('test-upload/', test_upload, name='test_upload'),
     path('', lambda request: redirect('school:dashboard'), name='root'),
     path('school/', include('school.urls')),
 ]

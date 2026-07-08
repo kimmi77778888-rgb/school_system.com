@@ -238,12 +238,17 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'level': 'DEBUG' if DEBUG else 'WARNING',
             'propagate': False,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'crm.cloudinary_storage': {
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': False,
         },
     },
