@@ -172,16 +172,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # ──────────────────────────────────────────────────────
 import cloudinary
 
-_CLOUDINARY_URL        = os.environ.get('CLOUDINARY_URL', '')
-_CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
-_CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
-_CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
+_CLOUDINARY_URL        = os.environ.get('CLOUDINARY_URL', '').strip()
+_CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
+_CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '').strip()
+_CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
 
 if _CLOUDINARY_URL:
-    # cloudinary://api_key:api_secret@cloud_name  — SDK parses this automatically
     cloudinary.config(cloudinary_url=_CLOUDINARY_URL, secure=True)
     _CLOUDINARY_CONFIGURED = True
-elif _CLOUDINARY_CLOUD_NAME:
+elif _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET:
     cloudinary.config(
         cloud_name=_CLOUDINARY_CLOUD_NAME,
         api_key=_CLOUDINARY_API_KEY,
