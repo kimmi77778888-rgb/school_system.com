@@ -446,7 +446,8 @@ def academic_year_generate(request):
 
 # ══════════════════════════════════════════════
 @admin_or_teacher
-def classroom_list(request):    classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
+def classroom_list(request):
+    classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
     return render(request, 'school/classroom_list.html', {'classrooms': classrooms, 'role': request.user.profile.role})
 
 @admin_required
