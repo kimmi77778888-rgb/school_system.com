@@ -116,6 +116,9 @@ def debug_view(request):
     if cloud_name:
         try:
             import cloudinary
+            cfg = cloudinary.config()
+            result['cloudinary_sdk_cloud'] = cfg.cloud_name
+            result['cloudinary_sdk_key'] = cfg.api_key
             # Try to ping cloudinary
             test_result = cloudinary.api.ping()
             result['cloudinary_ping'] = 'ok'
