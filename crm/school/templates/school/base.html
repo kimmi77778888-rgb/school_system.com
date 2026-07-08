@@ -810,7 +810,7 @@ document.querySelectorAll('.sb-a').forEach(el=>{  el.addEventListener('click',fu
 
 /* Resize: on mobile clear collapsed state from layout */
 window.addEventListener('resize',()=>{if(window.innerWidth>768) mbClose();});
-</script>
+
 /* ─── Page loader ─── */
 const loader=document.getElementById('page-loader');
 function showLoader(){if(loader)loader.classList.add('show');}
@@ -828,18 +828,18 @@ document.addEventListener('click',function(e){
 
 /* Show on form submit */
 document.addEventListener('submit',function(e){
-  if(e.target.method && e.target.method.toLowerCase()==='get') return; // search forms – skip if needed
+  if(e.target.method && e.target.method.toLowerCase()==='get') return;
   showLoader();
 });
 
 /* Hide when page becomes visible again (back/forward navigation) */
-window.addEventListener('pageshow',function(e){
+window.addEventListener('pageshow',function(){
   hideLoader();
 });
 
 /* Safety: always hide on full load */
 window.addEventListener('load',hideLoader);
-
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>
