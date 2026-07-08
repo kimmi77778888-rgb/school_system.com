@@ -55,11 +55,16 @@ def profile_update(request):
         instance=profile,
         user=request.user
     )
-    if form.is_valid():
-        form.save_user(request.user)
-        form.save()
-        messages.success(request, 'ប្រវត្តិរូបបានធ្វើបច្ចុប្បន្នភាព។')
-        return redirect('school:profile_update')
+    if request.method == 'POST' and form.is_valid():
+        try:
+            form.save_user(request.user)
+            form.save()
+            messages.success(request, 'ប្រវត្តិរូបបានធ្វើបច្ចុប្បន្នភាព។')
+            return redirect('school:profile_update')
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("profile_update failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/auth/profile.html', {
         'form': form, 'profile': profile
     })
@@ -76,10 +81,20 @@ def school_settings_view(request):
         request.FILES or None,
         instance=settings_obj
     )
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'ការកំណត់សាលាបានរក្សាទុក។')
-        return redirect('school:school_settings')
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'ការកំណត់សាលាបានរក្សាទុក។')
+                return redirect('school:school_settings')
+            except Exception as e:
+                import traceback, logging
+                logging.getLogger(__name__).error(
+                    "school_settings_view save failed: %s\n%s",
+                    e, traceback.format_exc()
+                )
+                messages.error(request, f'មានបញ្ហាក្នុងការរក្សាទុក: {e}')
+        # If form invalid or save failed, fall through to re-render with errors
     return render(request, 'school/school_settings.html', {
         'form': form, 'settings': settings_obj
     })
@@ -255,10 +270,15 @@ def student_detail(request, pk):
 @admin_required
 def student_add(request):
     form = StudentForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'សិស្សបានបន្ថែមរួច។')
-        return redirect('school:student_list')
+    if request.method == 'POST' and form.is_valid():
+        try:
+            form.save()
+            messages.success(request, 'សិស្សបានបន្ថែមរួច។')
+            return redirect('school:student_list')
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("student_add failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/form.html', {
         'form': form, 'title': 'បន្ថែមសិស្ស', 'back_url': reverse('school:student_list')
     })
@@ -267,10 +287,15 @@ def student_add(request):
 def student_edit(request, pk):
     student = get_object_or_404(Student, pk=pk)
     form = StudentForm(request.POST or None, request.FILES or None, instance=student)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'សិស្សបានកែប្រែ។')
-        return redirect('school:student_detail', pk=pk)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            form.save()
+            messages.success(request, 'សិស្សបានកែប្រែ។')
+            return redirect('school:student_detail', pk=pk)
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("student_edit failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/form.html', {
         'form': form, 'title': 'កែប្រែសិស្ស',
         'subtitle': f'ID: {student.student_id}',
@@ -317,10 +342,15 @@ def teacher_detail(request, pk):
 @admin_required
 def teacher_add(request):
     form = TeacherForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'គ្រូបានបន្ថែមរួច។')
-        return redirect('school:teacher_list')
+    if request.method == 'POST' and form.is_valid():
+        try:
+            form.save()
+            messages.success(request, 'គ្រូបានបន្ថែមរួច។')
+            return redirect('school:teacher_list')
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("teacher_add failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/form.html', {
         'form': form, 'title': 'បន្ថែមគ្រូ', 'back_url': reverse('school:teacher_list')
     })
@@ -329,10 +359,15 @@ def teacher_add(request):
 def teacher_edit(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)
     form = TeacherForm(request.POST or None, request.FILES or None, instance=teacher)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'គ្រូបានកែប្រែ។')
-        return redirect('school:teacher_detail', pk=pk)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            form.save()
+            messages.success(request, 'គ្រូបានកែប្រែ។')
+            return redirect('school:teacher_detail', pk=pk)
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("teacher_edit failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/form.html', {
         'form': form, 'title': 'កែប្រែគ្រូ',
         'subtitle': f'ID: {teacher.teacher_id}',
