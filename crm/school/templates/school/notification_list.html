@@ -3,6 +3,21 @@
 {% block title %}ជូនដំណឹង{% endblock %}
 {% block page_title %}ជូនដំណឹង{% endblock %}
 {% block content %}
+<style>
+/* ── Notification action buttons ── */
+.notif-actions{display:flex;gap:4px;flex-wrap:nowrap;}
+.notif-actions .btn{
+  width:30px;height:30px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:7px;font-size:.82rem;
+}
+/* ── Mobile card view for notifications ── */
+@media(max-width:576px){
+  .notif-title{font-size:.82rem;}
+  .notif-msg{font-size:.72rem;}
+}
+</style>
+
 <div class="page-header">
   <h2><i class="bi bi-bell-fill me-2 text-warning"></i>ជូនដំណឹង</h2>
   <div class="actions">
@@ -13,41 +28,72 @@
     {% endif %}
   </div>
 </div>
-<div class="card table-card">
-  <table class="table table-hover">
-    <thead><tr><th>#</th><th>ចំណងជើង</th><th>ប្រភេទ</th><th>ទស្សនិកជន</th><th>ផ្ញើដោយ</th><th>កាលបរិច្ឆេទ</th><th>ស្ថានភាព</th><th>សកម្មភាព</th></tr></thead>
-    <tbody>
-    {% for n in notifications %}
-    <tr>
-      <td>{{ forloop.counter }}</td>
-      <td>
-        <strong>{{ n.title }}</strong>
-        <div class="text-muted" style="font-size:.78rem;">{{ n.message|truncatechars:60 }}</div>
-      </td>
-      <td>
-        {% if n.notification_type == 'announcement' %}<span class="badge bg-primary">សេចក្តីប្រកាស</span>
-        {% elif n.notification_type == 'alert' %}<span class="badge bg-danger">ការព្រមាន</span>
-        {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark">រំលឹក</span>
-        {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark">ព្រឹត្តិការណ៍</span>
-        {% elif n.notification_type == 'message' %}<span class="badge bg-success">សារ</span>
-        {% else %}<span class="badge bg-secondary">{{ n.get_notification_type_display }}</span>{% endif %}
-      </td>
-      <td><span class="badge bg-light text-dark">{{ n.get_audience_display }}</span></td>
-      <td>{{ n.created_by|default:"ប្រព័ន្ធ" }}</td>
-      <td>{{ n.created_at|date:"d M Y" }}</td>
-      <td>{% if n.is_active %}<span class="b-P">សកម្ម</span>{% else %}<span class="b-A">អសកម្ម</span>{% endif %}</td>
-      <td>
-        {% if role == 'admin' or role == 'teacher' %}
-        <a href="{% url 'school:notification_edit' n.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
-        <a href="{% url 'school:notification_delete' n.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
-        {% else %}—{% endif %}
-      </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>មិនទាន់មានជូនដំណឹង</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th style="width:36px;">#</th>
+          <th>ចំណងជើង</th>
+          <th class="hide-xs">ប្រភេទ</th>
+          <th class="hide-xs">ទស្សនិកជន</th>
+          <th class="d-none d-md-table-cell">ផ្ញើដោយ</th>
+          <th class="d-none d-md-table-cell">កាលបរិច្ឆេទ</th>
+          <th>ស្ថានភាព</th>
+          <th style="width:90px;">សកម្មភាព</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for n in notifications %}
+      <tr>
+        <td style="color:var(--mu);font-size:.75rem;">{{ forloop.counter }}</td>
+        <td>
+          <div class="notif-title fw-bold">{{ n.title }}</div>
+          <div class="text-muted notif-msg" style="font-size:.75rem;margin-top:2px;">{{ n.message|truncatechars:60 }}</div>
+          <!-- Show type + audience inline on mobile -->
+          <div class="d-flex gap-1 mt-1 d-sm-none flex-wrap">
+            {% if n.notification_type == 'announcement' %}<span class="badge bg-primary" style="font-size:.6rem;">សេចក្តីប្រកាស</span>
+            {% elif n.notification_type == 'alert' %}<span class="badge bg-danger" style="font-size:.6rem;">ការព្រមាន</span>
+            {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark" style="font-size:.6rem;">រំលឹក</span>
+            {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark" style="font-size:.6rem;">ព្រឹត្តិការណ៍</span>
+            {% elif n.notification_type == 'message' %}<span class="badge bg-success" style="font-size:.6rem;">សារ</span>
+            {% else %}<span class="badge bg-secondary" style="font-size:.6rem;">{{ n.get_notification_type_display }}</span>{% endif %}
+            <span class="badge bg-light text-dark border" style="font-size:.6rem;">{{ n.get_audience_display }}</span>
+          </div>
+        </td>
+        <td class="hide-xs">
+          {% if n.notification_type == 'announcement' %}<span class="badge bg-primary">សេចក្តីប្រកាស</span>
+          {% elif n.notification_type == 'alert' %}<span class="badge bg-danger">ការព្រមាន</span>
+          {% elif n.notification_type == 'reminder' %}<span class="badge bg-warning text-dark">រំលឹក</span>
+          {% elif n.notification_type == 'event' %}<span class="badge bg-info text-dark">ព្រឹត្តិការណ៍</span>
+          {% elif n.notification_type == 'message' %}<span class="badge bg-success">សារ</span>
+          {% else %}<span class="badge bg-secondary">{{ n.get_notification_type_display }}</span>{% endif %}
+        </td>
+        <td class="hide-xs"><span class="badge bg-light text-dark border">{{ n.get_audience_display }}</span></td>
+        <td class="d-none d-md-table-cell" style="font-size:.8rem;">{{ n.created_by|default:"ប្រព័ន្ធ" }}</td>
+        <td class="d-none d-md-table-cell" style="font-size:.8rem;color:var(--mu);">{{ n.created_at|date:"d M Y" }}</td>
+        <td>{% if n.is_active %}<span class="b-P">សកម្ម</span>{% else %}<span class="b-A">អសកម្ម</span>{% endif %}</td>
+        <td>
+          {% if role == 'admin' or role == 'teacher' %}
+          <div class="notif-actions">
+            <a href="{% url 'school:notification_edit' n.pk %}" class="btn btn-outline-primary btn-sm" title="កែ"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'school:notification_delete' n.pk %}" class="btn btn-outline-danger btn-sm" title="លុប"><i class="bi bi-trash"></i></a>
+          </div>
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="text-center py-5">
+          <i class="bi bi-inbox" style="font-size:2rem;color:#cbd5e1;display:block;margin-bottom:8px;"></i>
+          <span style="color:var(--mu);font-size:.85rem;">មិនទាន់មានជូនដំណឹង</span>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
 

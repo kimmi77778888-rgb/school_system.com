@@ -62,6 +62,17 @@
   border-radius:20px;padding:3px 10px;white-space:nowrap;
 }
 
+/* ── Mobile filter adjustments ── */
+@media(max-width:576px){
+  .filter-bar{padding:10px 10px;gap:6px;}
+  .filter-search{min-width:0;max-width:100%;flex:1 1 100%;}
+  .filter-sep{display:none;}
+  .filter-select{flex:1;min-width:0;}
+  .filter-select select{width:100%;}
+  .filter-btn-search{padding:7px 12px;}
+  .filter-count{margin-left:0;width:100%;justify-content:center;display:flex;}
+}
+
 /* ── Table card ── */
 .student-table thead th{font-size:.68rem;}
 .s-avatar{
