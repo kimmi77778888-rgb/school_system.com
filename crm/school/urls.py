@@ -57,6 +57,11 @@ urlpatterns = [
     path('attendance/add/',     views.attendance_add,  name='attendance_add'),
     path('attendance/bulk/',    views.attendance_bulk, name='attendance_bulk'),
 
+    # Teacher Attendance
+    path('teacher-attendance/',        views.teacher_attendance_list,  name='teacher_attendance_list'),
+    path('teacher-attendance/add/',    views.teacher_attendance_add,   name='teacher_attendance_add'),
+    path('teacher-attendance/bulk/',   views.teacher_attendance_bulk,  name='teacher_attendance_bulk'),
+
     # Exams
     path('exams/',                  views.exam_list,   name='exam_list'),
     path('exams/add/',              views.exam_add,    name='exam_add'),

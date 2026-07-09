@@ -323,6 +323,29 @@ class Score(models.Model):
 
 
 # ══════════════════════════════════════════════════════
+#  TEACHER ATTENDANCE
+# ══════════════════════════════════════════════════════
+class TeacherAttendance(models.Model):
+    STATUS_CHOICES = [
+        ('P', 'Present'),
+        ('A', 'Absent'),
+        ('L', 'Late'),
+        ('E', 'Excused'),
+    ]
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='attendances')
+    date    = models.DateField()
+    status  = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
+    note    = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.teacher} | {self.date} | {self.get_status_display()}"
+
+    class Meta:
+        unique_together = ('teacher', 'date')
+        ordering = ['-date']
+
+
+# ══════════════════════════════════════════════════════
 #  NOTIFICATION
 # ══════════════════════════════════════════════════════
 class Notification(models.Model):

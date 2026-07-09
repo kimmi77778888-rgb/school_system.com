@@ -1,0 +1,107 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}វត្តមានគ្រូ{% endblock %}
+{% block page_title %}គ្រប់គ្រងវត្តមានគ្រូ{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-calendar-check-fill me-2 text-success"></i>វត្តមានគ្រូ</h2>
+  <div class="actions">
+    <form method="get" class="d-flex gap-2 flex-wrap">
+      <input type="date" name="date" value="{{ date_filter }}" class="form-control form-control-sm" style="width:160px;"/>
+      <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
+    </form>
+    {% if role == 'admin' %}
+    <a href="{% url 'school:teacher_attendance_bulk' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-list-check me-1"></i>វត្តមានក្រុម
+    </a>
+    <a href="{% url 'school:teacher_attendance_add' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែម
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-4">
+    <div class="card p-3 text-center">
+      <div class="fs-3 fw-bold text-success">{{ present }}</div>
+      <div class="text-muted small">មានវត្តមាន</div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card p-3 text-center">
+      <div class="fs-3 fw-bold text-danger">{{ absent }}</div>
+      <div class="text-muted small">អវត្តមាន</div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card p-3 text-center">
+      <div class="fs-3 fw-bold text-warning">{{ late }}</div>
+      <div class="text-muted small">យឺត</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>គ្រូ</th>
+          <th class="hide-xs">លេខ</th>
+          <th>ថ្ងៃ</th>
+          <th>ស្ថានភាព</th>
+          <th class="hide-xs">កំណត់ចំណាំ</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in records %}
+      <tr>
+        <td style="color:var(--mu);font-size:.75rem;">{{ forloop.counter }}</td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="s-avatar" style="width:32px;height:32px;min-width:32px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.12);">
+              {% if r.teacher.photo %}<img src="{{ r.teacher.photo|safe_url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}{{ r.teacher.first_name|first|upper }}{% endif %}
+            </div>
+            <div>
+              <a href="{% url 'school:teacher_detail' r.teacher.pk %}" class="fw-bold" style="font-size:.82rem;color:#0f172a;">
+                {{ r.teacher.first_name }} {{ r.teacher.last_name }}
+              </a>
+              {% if r.teacher.subject_specialty %}
+              <div style="font-size:.68rem;color:var(--mu);">{{ r.teacher.subject_specialty }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+        <td class="hide-xs"><span style="font-size:.72rem;background:#f1f5f9;color:#475569;border:1px solid var(--br);border-radius:6px;padding:2px 7px;font-weight:700;">{{ r.teacher.teacher_id }}</span></td>
+        <td style="font-size:.82rem;">{{ r.date }}</td>
+        <td>
+          {% if r.status == 'P' %}<span class="b-P">មានវត្តមាន</span>
+          {% elif r.status == 'A' %}<span class="b-A">អវត្តមាន</span>
+          {% elif r.status == 'L' %}<span class="b-L">យឺត</span>
+          {% else %}<span class="b-E">មានច្បាប់</span>{% endif %}
+        </td>
+        <td class="hide-xs" style="font-size:.8rem;color:var(--mu);">{{ r.note|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center py-5">
+          <i class="bi bi-inbox" style="font-size:2rem;color:#cbd5e1;display:block;margin-bottom:8px;"></i>
+          <span style="color:var(--mu);font-size:.85rem;">មិនមានទិន្នន័យវត្តមានសម្រាប់ថ្ងៃនេះ</span>
+          {% if role == 'admin' %}
+          <div class="mt-2">
+            <a href="{% url 'school:teacher_attendance_bulk' %}" class="btn btn-sm btn-primary">
+              <i class="bi bi-list-check me-1"></i>កត់ត្រាវត្តមានគ្រូ
+            </a>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

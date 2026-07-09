@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import (
-    Student, Teacher, Classroom, Attendance, Score, Subject,
+    Student, Teacher, Classroom, Attendance, TeacherAttendance, Score, Subject,
     Grade, AcademicYear, ExamType, Exam, Timetable, TimeSlot,
     Notification, ReportCard, SchoolEvent, UserProfile
 )
@@ -179,6 +179,18 @@ class AttendanceForm(BootstrapMixin, forms.ModelForm):
 class BulkAttendanceForm(BootstrapMixin, forms.Form):
     classroom = forms.ModelChoiceField(queryset=Classroom.objects.all())
     date      = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+
+# ── Teacher Attendance Forms ────────────────────────────────────
+class TeacherAttendanceForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model  = TeacherAttendance
+        fields = ['teacher', 'date', 'status', 'note']
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
+
+
+class BulkTeacherAttendanceForm(BootstrapMixin, forms.Form):
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
 
 # ── Score / Exam Forms ──────────────────────────────────────────

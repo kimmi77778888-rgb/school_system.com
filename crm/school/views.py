@@ -9,13 +9,14 @@ from django.urls import reverse
 from .decorators import admin_required, admin_or_teacher, all_roles, role_required
 from .models import (
     Student, Teacher, Classroom, Grade, Subject,
-    Attendance, Score, AcademicYear, ExamType, Exam,
+    Attendance, TeacherAttendance, Score, AcademicYear, ExamType, Exam,
     Timetable, TimeSlot, Notification, NotificationRead,
     ReportCard, SchoolEvent, UserProfile, SchoolSettings
 )
 from .forms import (
     StudentForm, TeacherForm, ClassroomForm, AttendanceForm,
-    BulkAttendanceForm, ScoreForm, SubjectForm, GradeForm,
+    BulkAttendanceForm, TeacherAttendanceForm, BulkTeacherAttendanceForm,
+    ScoreForm, SubjectForm, GradeForm,
     AcademicYearForm, ExamTypeForm, ExamForm, TimetableForm,
     TimeSlotForm, NotificationForm, ReportCardForm,
     SchoolEventForm, LoginForm, UserCreateForm, ProfileUpdateForm,
@@ -629,6 +630,71 @@ def student_my_attendance(request):
     attendances = student.attendances.order_by('-date') if student else []
     return render(request, 'school/student/my_attendance.html', {
         'student': student, 'attendances': attendances,
+    })
+
+
+# ══════════════════════════════════════════════
+#  TEACHER ATTENDANCE (Admin: full | Teacher: view own)
+# ══════════════════════════════════════════════
+@admin_or_teacher
+def teacher_attendance_list(request):
+    today       = timezone.now().date()
+    date_filter = request.GET.get('date', str(today))
+    role        = request.user.profile.role
+    records = TeacherAttendance.objects.filter(date=date_filter).select_related('teacher')
+    if role == 'teacher':
+        try:
+            teacher = request.user.profile.teacher
+            records = records.filter(teacher=teacher)
+        except Exception:
+            records = TeacherAttendance.objects.none()
+    return render(request, 'school/teacher_attendance_list.html', {
+        'records':      records,
+        'date_filter':  date_filter,
+        'present':      records.filter(status='P').count(),
+        'absent':       records.filter(status='A').count(),
+        'late':         records.filter(status='L').count(),
+        'role':         role,
+    })
+
+
+@admin_required
+def teacher_attendance_add(request):
+    form = TeacherAttendanceForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'វត្តមានគ្រូបានកត់ត្រា។')
+        return redirect('school:teacher_attendance_list')
+    return render(request, 'school/form.html', {
+        'form': form, 'title': 'កត់ត្រាវត្តមានគ្រូ',
+        'back_url': reverse('school:teacher_attendance_list')
+    })
+
+
+@admin_required
+def teacher_attendance_bulk(request):
+    """Record attendance for all active teachers at once."""
+    date_val = timezone.now().date()
+    teachers = []
+    if request.method == 'POST':
+        date_val = request.POST.get('date', str(date_val))
+        if 'save_attendance' in request.POST:
+            active_teachers = Teacher.objects.filter(is_active=True).order_by('last_name', 'first_name')
+            for teacher in active_teachers:
+                status = request.POST.get(f'status_{teacher.pk}', 'P')
+                note   = request.POST.get(f'note_{teacher.pk}', '')
+                TeacherAttendance.objects.update_or_create(
+                    teacher=teacher, date=date_val,
+                    defaults={'status': status, 'note': note}
+                )
+            messages.success(request, f'វត្តមានគ្រូបានរក្សាទុក — {date_val}')
+            return redirect('school:teacher_attendance_list')
+        else:
+            teachers = Teacher.objects.filter(is_active=True).order_by('last_name', 'first_name')
+    return render(request, 'school/teacher_attendance_bulk.html', {
+        'teachers':       teachers,
+        'date_val':       date_val,
+        'status_choices': TeacherAttendance.STATUS_CHOICES,
     })
 
 # ══════════════════════════════════════════════

@@ -1,0 +1,99 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}វត្តមានគ្រូក្រុម{% endblock %}
+{% block page_title %}វត្តមានគ្រូក្រុម{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-list-check me-2 text-primary"></i>វត្តមានគ្រូក្រុម</h2>
+  <a href="{% url 'school:teacher_attendance_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
+  </a>
+</div>
+
+<!-- ជំហានទី១ — choose date -->
+<div class="card mb-4 p-4" style="max-width:500px;">
+  <h6 class="fw-bold mb-3">ជំហានទី ១ — ជ្រើសរើសកាលបរិច្ឆេទ</h6>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label fw-medium">កាលបរិច្ឆេទ <span class="text-danger">*</span></label>
+      <input type="date" name="date" value="{{ date_val }}" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-people-fill me-1"></i>ផ្ទុកបញ្ជីគ្រូ
+    </button>
+  </form>
+</div>
+
+<!-- ជំហានទី២ — fill attendance -->
+{% if teachers %}
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-mortarboard-fill me-1"></i>
+    <strong>គ្រូទាំងអស់</strong> — {{ date_val }}
+    <span class="badge bg-primary ms-2">{{ teachers|length }} នាក់</span>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ date_val }}">
+    <div class="table-wrap">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th>គ្រូ</th>
+            <th class="hide-xs">ជំនាញ</th>
+            <th>ស្ថានភាព</th>
+            <th>កំណត់ចំណាំ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in teachers %}
+          <tr>
+            <td class="text-muted" style="font-size:.75rem;">{{ forloop.counter }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;min-width:32px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));flex-shrink:0;">
+                  {% if t.photo %}<img src="{{ t.photo|safe_url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                  {% else %}{{ t.first_name|first|upper }}{% endif %}
+                </div>
+                <div>
+                  <div class="fw-bold" style="font-size:.82rem;">{{ t.first_name }} {{ t.last_name }}</div>
+                  <code class="text-muted" style="font-size:.7rem;">{{ t.teacher_id }}</code>
+                </div>
+              </div>
+            </td>
+            <td class="hide-xs" style="font-size:.8rem;color:var(--mu);">{{ t.subject_specialty|default:"—" }}</td>
+            <td>
+              <select name="status_{{ t.pk }}" class="form-select form-select-sm" style="width:140px;">
+                {% for code, label in status_choices %}
+                  <option value="{{ code }}" {% if code == 'P' %}selected{% endif %}>
+                    {% if code == 'P' %}មានវត្តមាន
+                    {% elif code == 'A' %}អវត្តមាន
+                    {% elif code == 'L' %}យឺត
+                    {% else %}មានច្បាប់{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="text" name="note_{{ t.pk }}" class="form-control form-control-sm" placeholder="កំណត់ចំណាំ..." style="min-width:160px;">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="p-3 border-top d-flex gap-2">
+      <button type="submit" name="save_attendance" class="btn btn-success px-4">
+        <i class="bi bi-check-circle me-1"></i>រក្សាទុកវត្តមាន
+      </button>
+      <a href="{% url 'school:teacher_attendance_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-x-lg me-1"></i>បោះបង់
+      </a>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
