@@ -4,22 +4,60 @@
 {% block page_title %}ផ្ទាំងគ្រប់គ្រង{% endblock %}
 {% block content %}
 <style>
-/* ── Quick Action Grid ── */
+/* ══ STAT CARDS ══ */
+/* Compact on mobile — tighter padding, smaller value font */
+@media(max-width:575px){
+  .stat-card{padding:10px 12px!important;}
+  .stat-card .lbl{font-size:.62rem!important;}
+  .stat-card .val{font-size:1.45rem!important;margin-top:2px!important;}
+  .stat-card .bg-icon{font-size:2.8rem!important;}
+}
+
+/* ══ ATTENDANCE + QUICK ACTIONS ROW ══ */
+/* On mobile: side-by-side instead of stacked */
+.dash-mid-row{display:flex;gap:10px;margin-bottom:16px;}
+.dash-mid-row>.dash-att,
+.dash-mid-row>.dash-qa{flex:1;min-width:0;}
+
+.dash-att,.dash-qa{
+  background:#fff;border:1px solid var(--br);
+  border-radius:var(--rd);padding:12px 10px;
+}
+.dash-section-title{
+  font-size:.78rem;font-weight:800;color:#0f172a;
+  margin-bottom:8px;display:flex;align-items:center;gap:5px;
+}
+.dash-section-title .text-muted{font-size:.65rem;font-weight:400;}
+
+/* Attendance stats */
+.att-row{display:flex;gap:6px;margin-bottom:8px;}
+.att-stat{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;padding:8px 4px;border-radius:8px;gap:1px;
+}
+.att-stat .att-val{font-size:1.5rem;font-weight:900;line-height:1.1;}
+.att-stat .att-lbl{font-size:.6rem;font-weight:600;opacity:.85;text-align:center;}
+.att-present{background:#dcfce7;color:#16a34a;}
+.att-absent {background:#fee2e2;color:#dc2626;}
+.att-late   {background:#fef9c3;color:#ca8a04;}
+
+/* Quick action grid — 3 cols always, compact on mobile */
 .qa-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:8px;
+  gap:5px;
 }
 .qa-item{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;padding:14px 8px;border-radius:10px;
-  font-size:.74rem;font-weight:700;color:#fff;
-  text-decoration:none;transition:transform .15s,box-shadow .15s,filter .15s;
-  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  gap:4px;padding:9px 4px;border-radius:8px;
+  font-size:.62rem;font-weight:700;color:#fff;
+  text-decoration:none;
+  transition:transform .15s,box-shadow .15s,filter .15s;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
-.qa-item i{font-size:1.35rem;line-height:1;}
-.qa-item:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18);filter:brightness(1.07);color:#fff;}
-.qa-item:active{transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.qa-item i{font-size:1.1rem;line-height:1;}
+.qa-item:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.18);filter:brightness(1.07);color:#fff;}
+.qa-item:active{transform:translateY(0);}
 .qa-blue  {background:linear-gradient(135deg,#2563eb,#1d4ed8);}
 .qa-green {background:linear-gradient(135deg,#059669,#047857);}
 .qa-amber {background:linear-gradient(135deg,#d97706,#b45309);}
@@ -27,26 +65,23 @@
 .qa-purple{background:linear-gradient(135deg,#7c3aed,#6d28d9);}
 .qa-rose  {background:linear-gradient(135deg,#e11d48,#be123c);}
 
-/* ── Attendance mini stats ── */
-.att-stat{
-  display:flex;flex-direction:column;align-items:center;
-  flex:1;padding:12px 8px;border-radius:10px;
-  gap:2px;
+/* Desktop: revert to stacked col layout */
+@media(min-width:768px){
+  .dash-mid-row{display:none!important;}   /* hide mobile layout */
+  .dash-desktop-mid{display:flex!important;}
 }
-.att-stat .att-val{font-size:1.9rem;font-weight:900;line-height:1.1;}
-.att-stat .att-lbl{font-size:.7rem;font-weight:600;opacity:.8;}
-.att-present{background:#dcfce7;color:#16a34a;}
-.att-absent {background:#fee2e2;color:#dc2626;}
-.att-late   {background:#fef9c3;color:#ca8a04;}
-
-@media(max-width:480px){
-  .qa-grid{grid-template-columns:repeat(2,1fr);}
-  .qa-item{padding:12px 6px;font-size:.7rem;}
-  .qa-item i{font-size:1.2rem;}
+@media(max-width:767px){
+  .dash-desktop-mid{display:none!important;} /* hide desktop layout */
+  .dash-mid-row{display:flex!important;}
+  /* larger att val on bigger phones */
+  .att-stat .att-val{font-size:1.6rem;}
+  .qa-item{padding:10px 4px;font-size:.65rem;}
+  .qa-item i{font-size:1.15rem;}
 }
 </style>
 
-<div class="row g-3 mb-4">
+<!-- ── Stat Cards ── -->
+<div class="row g-2 g-sm-3 mb-3">
   <div class="col-6 col-xl-3">
     <div class="card stat-card sc-blue">
       <div class="lbl">សិស្សទាំងអស់</div>
@@ -81,14 +116,70 @@
   </div>
 </div>
 
-<div class="row g-3 mb-4">
+<!-- ── Mobile: Attendance + Quick Actions side by side ── -->
+<div class="dash-mid-row">
+  <!-- Attendance -->
+  <div class="dash-att">
+    <div class="dash-section-title">
+      <i class="bi bi-calendar-check text-success"></i>វត្តមានថ្ងៃនេះ
+      <span class="text-muted ms-auto">{{ today }}</span>
+    </div>
+    <div class="att-row">
+      <div class="att-stat att-present">
+        <div class="att-val">{{ today_present }}</div>
+        <div class="att-lbl">មានវត្តមាន</div>
+      </div>
+      <div class="att-stat att-absent">
+        <div class="att-val">{{ today_absent }}</div>
+        <div class="att-lbl">អវត្តមាន</div>
+      </div>
+      <div class="att-stat att-late">
+        <div class="att-val">{{ today_late }}</div>
+        <div class="att-lbl">យឺត</div>
+      </div>
+    </div>
+    <a href="{% url 'school:attendance_bulk' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:.68rem;">
+      <i class="bi bi-list-check me-1"></i>កត់ត្រា
+    </a>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="dash-qa">
+    <div class="dash-section-title">
+      <i class="bi bi-lightning-charge-fill text-warning"></i>សកម្មភាពរហ័ស
+    </div>
+    <div class="qa-grid">
+      <a href="{% url 'school:student_add' %}" class="qa-item qa-blue">
+        <i class="bi bi-person-plus-fill"></i><span>បន្ថែមសិស្ស</span>
+      </a>
+      <a href="{% url 'school:teacher_add' %}" class="qa-item qa-green">
+        <i class="bi bi-mortarboard-fill"></i><span>បន្ថែមគ្រូ</span>
+      </a>
+      <a href="{% url 'school:score_add' %}" class="qa-item qa-amber">
+        <i class="bi bi-bar-chart-fill"></i><span>បញ្ចូលពិន្ទុ</span>
+      </a>
+      <a href="{% url 'school:attendance_bulk' %}" class="qa-item qa-cyan">
+        <i class="bi bi-list-check"></i><span>វត្តមានក្រុម</span>
+      </a>
+      <a href="{% url 'school:notification_add' %}" class="qa-item qa-purple">
+        <i class="bi bi-bell-fill"></i><span>ជូនដំណឹង</span>
+      </a>
+      <a href="{% url 'school:report_card_add' %}" class="qa-item qa-rose">
+        <i class="bi bi-journal-text"></i><span>ប័ណ្ណផ្ទាល់</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Desktop: Attendance + Quick Actions (original layout) ── -->
+<div class="row g-3 mb-4 dash-desktop-mid">
   <div class="col-md-6">
     <div class="card p-3 h-100">
       <div class="fw-bold mb-3" style="font-size:.95rem;">
         <i class="bi bi-calendar-check text-success me-1"></i>វត្តមានថ្ងៃនេះ
         <span class="text-muted fw-normal" style="font-size:.8rem;"> ({{ today }})</span>
       </div>
-      <div class="d-flex gap-3 mb-3">
+      <div class="att-row mb-3">
         <div class="att-stat att-present">
           <div class="att-val">{{ today_present }}</div>
           <div class="att-lbl">មានវត្តមាន</div>
@@ -114,28 +205,22 @@
       </div>
       <div class="qa-grid">
         <a href="{% url 'school:student_add' %}" class="qa-item qa-blue">
-          <i class="bi bi-person-plus-fill"></i>
-          <span>បន្ថែមសិស្ស</span>
+          <i class="bi bi-person-plus-fill"></i><span>បន្ថែមសិស្ស</span>
         </a>
         <a href="{% url 'school:teacher_add' %}" class="qa-item qa-green">
-          <i class="bi bi-mortarboard-fill"></i>
-          <span>បន្ថែមគ្រូ</span>
+          <i class="bi bi-mortarboard-fill"></i><span>បន្ថែមគ្រូ</span>
         </a>
         <a href="{% url 'school:score_add' %}" class="qa-item qa-amber">
-          <i class="bi bi-bar-chart-fill"></i>
-          <span>បញ្ចូលពិន្ទុ</span>
+          <i class="bi bi-bar-chart-fill"></i><span>បញ្ចូលពិន្ទុ</span>
         </a>
         <a href="{% url 'school:attendance_bulk' %}" class="qa-item qa-cyan">
-          <i class="bi bi-list-check"></i>
-          <span>វត្តមានក្រុម</span>
+          <i class="bi bi-list-check"></i><span>វត្តមានក្រុម</span>
         </a>
         <a href="{% url 'school:notification_add' %}" class="qa-item qa-purple">
-          <i class="bi bi-bell-fill"></i>
-          <span>ជូនដំណឹង</span>
+          <i class="bi bi-bell-fill"></i><span>ជូនដំណឹង</span>
         </a>
         <a href="{% url 'school:report_card_add' %}" class="qa-item qa-rose">
-          <i class="bi bi-journal-text"></i>
-          <span>ប័ណ្ណផ្ទាល់</span>
+          <i class="bi bi-journal-text"></i><span>ប័ណ្ណផ្ទាល់</span>
         </a>
       </div>
     </div>
