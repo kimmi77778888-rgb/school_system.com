@@ -20,7 +20,7 @@ from .forms import (
     AcademicYearForm, ExamTypeForm, ExamForm, TimetableForm,
     TimeSlotForm, NotificationForm, ReportCardForm,
     SchoolEventForm, LoginForm, UserCreateForm, ProfileUpdateForm,
-    SchoolSettingsForm
+    SchoolSettingsForm, StudentRegisterForm, ParentRegisterForm
 )
 
 # ══════════════════════════════════════════════
@@ -42,6 +42,38 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'អ្នកបានចាកចេញពីប្រព័ន្ធ។')
     return redirect('school:login')
+
+
+# ══════════════════════════════════════════════
+#  REGISTER — Student
+# ══════════════════════════════════════════════
+def register_student(request):
+    """Public view: a student creates their own login account."""
+    if request.user.is_authenticated:
+        return redirect('school:dashboard')
+    form = StudentRegisterForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.success(request, f'ស្វាគមន៍, {user.get_full_name() or user.username}! គណនីសិស្សត្រូវបានបង្កើតដោយជោគជ័យ។')
+        return redirect('school:dashboard')
+    return render(request, 'school/auth/register_student.html', {'form': form})
+
+
+# ══════════════════════════════════════════════
+#  REGISTER — Parent (Mom / Dad)
+# ══════════════════════════════════════════════
+def register_parent(request):
+    """Public view: a mom or dad creates their own login account."""
+    if request.user.is_authenticated:
+        return redirect('school:dashboard')
+    form = ParentRegisterForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.success(request, f'ស្វាគមន៍, {user.get_full_name() or user.username}! គណនីមាតាបិតាត្រូវបានបង្កើតដោយជោគជ័យ។')
+        return redirect('school:dashboard')
+    return render(request, 'school/auth/register_parent.html', {'form': form})
 
 
 # ══════════════════════════════════════════════

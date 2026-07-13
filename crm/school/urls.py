@@ -5,10 +5,12 @@ app_name = 'school'
 
 urlpatterns = [
     # Auth
-    path('login/',    views.login_view,        name='login'),
-    path('logout/',   views.logout_view,       name='logout'),
-    path('profile/',  views.profile_update,    name='profile_update'),
-    path('settings/', views.school_settings_view, name='school_settings'),
+    path('login/',              views.login_view,        name='login'),
+    path('logout/',             views.logout_view,       name='logout'),
+    path('register/student/',   views.register_student,  name='register_student'),
+    path('register/parent/',    views.register_parent,   name='register_parent'),
+    path('profile/',            views.profile_update,    name='profile_update'),
+    path('settings/',           views.school_settings_view, name='school_settings'),
 
     # Dashboard
     path('', views.dashboard, name='dashboard'),

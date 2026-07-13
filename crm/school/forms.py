@@ -308,6 +308,119 @@ class SchoolEventForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+# ── Student Self-Registration Form ──────────────────────────────
+class StudentRegisterForm(BootstrapMixin, forms.Form):
+    """Public form: a student creates their own login account."""
+    username   = forms.CharField(max_length=150, label='ឈ្មោះអ្នកប្រើ')
+    password1  = forms.CharField(label='ពាក្យសម្ងាត់', widget=forms.PasswordInput)
+    password2  = forms.CharField(label='បញ្ជាក់ពាក្យសម្ងាត់', widget=forms.PasswordInput)
+    student_id = forms.CharField(max_length=20, label='លេខសម្គាល់សិស្ស (ឧ. STU-0001)')
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('ឈ្មោះអ្នកប្រើនេះត្រូវបានប្រើរួចហើយ។')
+        return username
+
+    def clean_student_id(self):
+        sid = self.cleaned_data['student_id'].strip().upper()
+        from .models import Student
+        try:
+            student = Student.objects.get(student_id=sid)
+        except Student.DoesNotExist:
+            raise forms.ValidationError('រកមិនឃើញលេខសម្គាល់សិស្សនេះទេ។')
+        # Prevent duplicate accounts
+        from .models import UserProfile
+        if UserProfile.objects.filter(student=student).exists():
+            raise forms.ValidationError('គណនីសម្រាប់សិស្សនេះត្រូវបានបង្កើតរួចហើយ។')
+        return sid
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError('ពាក្យសម្ងាត់មិនត្រូវគ្នា។')
+        return cleaned
+
+    def save(self):
+        from .models import Student, UserProfile
+        data    = self.cleaned_data
+        student = Student.objects.get(student_id=data['student_id'].upper())
+        user    = User.objects.create_user(
+            username   = data['username'],
+            password   = data['password1'],
+            first_name = student.first_name,
+            last_name  = student.last_name,
+            email      = student.parent_email,
+        )
+        UserProfile.objects.update_or_create(
+            user=user,
+            defaults={'role': 'student', 'student': student}
+        )
+        return user
+
+
+# ── Parent Self-Registration Form ────────────────────────────────
+class ParentRegisterForm(BootstrapMixin, forms.Form):
+    """Public form: a mom or dad creates their own login account."""
+    RELATIONSHIP_CHOICES = [
+        ('mom', 'ម្ដាយ (Mom)'),
+        ('dad', 'ឪពុក (Dad)'),
+    ]
+    username      = forms.CharField(max_length=150, label='ឈ្មោះអ្នកប្រើ')
+    first_name    = forms.CharField(max_length=150, label='ឈ្មោះ')
+    last_name     = forms.CharField(max_length=150, label='នាមត្រកូល')
+    email         = forms.EmailField(required=False, label='អ៊ីម៉ែល')
+    phone         = forms.CharField(max_length=20, required=False, label='លេខទូរស័ព្ទ')
+    relationship  = forms.ChoiceField(choices=RELATIONSHIP_CHOICES, label='ទំនាក់ទំនង')
+    password1     = forms.CharField(label='ពាក្យសម្ងាត់', widget=forms.PasswordInput)
+    password2     = forms.CharField(label='បញ្ជាក់ពាក្យសម្ងាត់', widget=forms.PasswordInput)
+    student_id    = forms.CharField(max_length=20, label='លេខសម្គាល់កូន (ឧ. STU-0001)')
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('ឈ្មោះអ្នកប្រើនេះត្រូវបានប្រើរួចហើយ។')
+        return username
+
+    def clean_student_id(self):
+        sid = self.cleaned_data['student_id'].strip().upper()
+        from .models import Student
+        if not Student.objects.filter(student_id=sid).exists():
+            raise forms.ValidationError('រកមិនឃើញលេខសម្គាល់សិស្សនេះទេ។')
+        return sid
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError('ពាក្យសម្ងាត់មិនត្រូវគ្នា។')
+        return cleaned
+
+    def save(self):
+        from .models import Student, UserProfile
+        data    = self.cleaned_data
+        student = Student.objects.get(student_id=data['student_id'].upper())
+        user    = User.objects.create_user(
+            username   = data['username'],
+            password   = data['password1'],
+            first_name = data['first_name'],
+            last_name  = data['last_name'],
+            email      = data.get('email', ''),
+        )
+        UserProfile.objects.update_or_create(
+            user=user,
+            defaults={
+                'role':    'parent',
+                'phone':   data.get('phone', ''),
+                'student': student,   # link to the child
+            }
+        )
+        return user
+
+
 # ── School Settings Form ─────────────────────────────────────────
 from .models import SchoolSettings
 
