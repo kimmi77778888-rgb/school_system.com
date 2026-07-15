@@ -2,467 +2,66 @@
 {% load school_tags %}
 {% block title %}តារាងម៉ោង{% endblock %}
 {% block page_title %}តារាងម៉ោង{% endblock %}
-
-{% block extra_css %}
-<style>
-  .timetable-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-  
-  .filter-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #e5e7eb;
-  }
-  
-  .view-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    background: white;
-    padding: 0.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  
-  .view-tab {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border: none;
-    background: transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  
-  .view-tab:hover {
-    background: #f3f4f6;
-  }
-  
-  .view-tab.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-  }
-  
-  .day-section {
-    background: white;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: 1px solid #e5e7eb;
-  }
-  
-  .day-header {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    padding: 1rem 1.5rem;
-    border-bottom: 2px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  .day-header i {
-    font-size: 1.25rem;
-    color: #667eea;
-  }
-  
-  .day-header h5 {
-    margin: 0;
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 1.1rem;
-  }
-  
-  .schedule-table {
-    width: 100%;
-    margin: 0;
-  }
-  
-  .schedule-table thead th {
-    background: #f8fafc;
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    padding: 0.875rem 1rem;
-    border-bottom: 2px solid #e5e7eb;
-  }
-  
-  .schedule-table tbody tr {
-    transition: all 0.2s;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  
-  .schedule-table tbody tr:hover {
-    background: #f8fafc;
-  }
-  
-  .schedule-table tbody tr:last-child {
-    border-bottom: none;
-  }
-  
-  .schedule-table td {
-    padding: 1rem;
-    vertical-align: middle;
-  }
-  
-  .period-badge {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 50px;
-  }
-  
-  .time-display {
-    color: #64748b;
-    font-weight: 500;
-    font-size: 0.9rem;
-  }
-  
-  .subject-name {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 1rem;
-  }
-  
-  .teacher-name {
-    color: #64748b;
-    font-size: 0.9rem;
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .btn-icon {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #64748b;
-    transition: all 0.2s;
-  }
-  
-  .btn-icon:hover.btn-edit {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-  }
-  
-  .btn-icon:hover.btn-delete {
-    background: #ef4444;
-    color: white;
-    border-color: #ef4444;
-  }
-  
-  .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: #94a3b8;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  
-  .empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-  
-  .grid-view {
-    display: none;
-    gap: 1.5rem;
-  }
-  
-  .grid-view.active {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  }
-  
-  .list-view {
-    display: block;
-  }
-  
-  .list-view.active {
-    display: block;
-  }
-  
-  .day-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: 1px solid #e5e7eb;
-  }
-  
-  .period-item {
-    padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .period-item:last-child {
-    border-bottom: none;
-  }
-  
-  .period-info {
-    flex: 1;
-  }
-  
-  .period-number {
-    background: #3b82f6;
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-    margin-right: 0.75rem;
-  }
-</style>
-{% endblock %}
-
 {% block content %}
-<!-- Header -->
-<div class="timetable-header">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <h2 class="mb-2">
-        <i class="bi bi-calendar3-week-fill me-2"></i>
-        តារាងម៉ោង
-      </h2>
-      <p class="mb-0 opacity-90">កាលវិភាគសិក្សា</p>
-    </div>
-    {% if role == 'admin' %}
-    <a href="{% url 'school:timetable_add' %}" class="btn btn-light btn-lg">
-      <i class="bi bi-plus-lg me-2"></i>បន្ថែមថ្មី
+<div class="page-header">
+  <h2><i class="bi bi-calendar3-week-fill me-2 text-primary"></i>តារាងម៉ោង</h2>
+  <div class="actions">
+    <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>បន្ថែម
     </a>
-    {% endif %}
   </div>
 </div>
 
-<!-- Filters -->
-<div class="filter-card">
-  <form method="get" class="row g-3 align-items-end">
-    <div class="col-md-5">
-      <label class="form-label fw-semibold mb-2">
-        <i class="bi bi-building me-1"></i>ថ្នាក់រៀន
-      </label>
-      <select name="classroom" class="form-select" onchange="this.form.submit()">
+<div class="card mb-3 p-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label mb-1">ថ្នាក់</label>
+      <select name="classroom" class="form-select form-select-sm">
         <option value="">ថ្នាក់ទាំងអស់</option>
         {% for c in classrooms %}
-        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>
-          {{ c }}
-        </option>
+        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-md-5">
-      <label class="form-label fw-semibold mb-2">
-        <i class="bi bi-calendar-range me-1"></i>ឆ្នាំសិក្សា
-      </label>
-      <select name="year" class="form-select" onchange="this.form.submit()">
+    <div class="col-auto">
+      <label class="form-label mb-1">ឆ្នាំ</label>
+      <select name="year" class="form-select form-select-sm">
         <option value="">ឆ្នាំទាំងអស់</option>
         {% for y in years %}
-        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>
-          {{ y }}
-        </option>
+        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">
-        <i class="bi bi-funnel-fill me-1"></i>ត្រង
-      </button>
-    </div>
+    <div class="col-auto"><button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-funnel-fill me-1"></i>ត្រង</button></div>
   </form>
 </div>
 
-<!-- View Tabs -->
-<div class="view-tabs">
-  <button class="view-tab active" onclick="switchView('list')">
-    <i class="bi bi-list-ul"></i>
-    <span>បញ្ជី</span>
-  </button>
-  <button class="view-tab" onclick="switchView('grid')">
-    <i class="bi bi-grid-3x3-gap"></i>
-    <span>ក្រឡា</span>
-  </button>
-</div>
-
-<!-- List View -->
-<div class="list-view active" id="listView">
-  {% if days %}
-    {% for day_num, entries in days.items %}
-    <div class="day-section">
-      <div class="day-header">
-        <i class="bi bi-calendar-day-fill"></i>
-        <h5>{{ day_names|get_item:day_num }}</h5>
-        <span class="ms-auto badge bg-primary rounded-pill">{{ entries|length }} វេលា</span>
-      </div>
-      <table class="schedule-table">
-        <thead>
-          <tr>
-            <th style="width: 80px;">វេន</th>
-            <th style="width: 180px;">ម៉ោង</th>
-            <th>មុខវិជ្ជា</th>
-            <th>គ្រូ</th>
-            <th style="width: 180px;">ថ្នាក់</th>
-            <th style="width: 100px;">បន្ទប់</th>
-            {% if role == 'admin' %}
-            <th style="width: 120px;">សកម្មភាព</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for tt in entries %}
-          <tr>
-            <td>
-              <span class="period-badge">វ{{ tt.time_slot.period }}</span>
-            </td>
-            <td>
-              <span class="time-display">
-                {{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}
-              </span>
-            </td>
-            <td>
-              <div class="subject-name">{{ tt.subject.name }}</div>
-            </td>
-            <td>
-              <div class="teacher-name">
-                {% if tt.teacher %}
-                  <i class="bi bi-person-fill me-1"></i>{{ tt.teacher }}
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </div>
-            </td>
-            <td>{{ tt.classroom }}</td>
-            <td>
-              {% if tt.room %}
-                <i class="bi bi-door-open me-1"></i>{{ tt.room }}
-              {% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
-            </td>
-            {% if role == 'admin' %}
-            <td>
-              <div class="action-buttons">
-                <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn-icon btn-edit" title="កែប្រែ">
-                  <i class="bi bi-pencil-fill"></i>
-                </a>
-                <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn-icon btn-delete" title="លុប">
-                  <i class="bi bi-trash-fill"></i>
-                </a>
-              </div>
-            </td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+{% for day_num, entries in days.items %}
+<div class="card mb-3">
+  <div class="card-header">
+    <i class="bi bi-calendar-day me-2"></i><strong>{{ day_names|get_item:day_num }}</strong>
+  </div>
+  <table class="table table-hover mb-0">
+    <thead><tr><th>វេន</th><th>ម៉ោង</th><th>មុខវិជ្ជា</th><th>គ្រូ</th><th>ថ្នាក់</th><th>បន្ទប់</th><th>សកម្មភាព</th></tr></thead>
+    <tbody>
+    {% for tt in entries %}
+    <tr>
+      <td><span class="badge bg-primary">វ{{ tt.time_slot.period }}</span></td>
+      <td>{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</td>
+      <td><strong>{{ tt.subject.name }}</strong></td>
+      <td>{{ tt.teacher|default:"—" }}</td>
+      <td>{{ tt.classroom }}</td>
+      <td>{{ tt.room|default:"—" }}</td>
+      <td>
+        <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+        <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
     {% endfor %}
-  {% else %}
-    <div class="empty-state">
-      <i class="bi bi-calendar-x"></i>
-      <h5>មិនទាន់មានតារាងម៉ោង</h5>
-      <p class="text-muted mb-0">សូមជ្រើសរើសថ្នាក់រៀន ឬបន្ថែមតារាងម៉ោងថ្មី</p>
-    </div>
-  {% endif %}
+    </tbody>
+  </table>
 </div>
-
-<!-- Grid View -->
-<div class="grid-view" id="gridView">
-  {% if days %}
-    {% for day_num, entries in days.items %}
-    <div class="day-card">
-      <div class="day-header">
-        <i class="bi bi-calendar-day-fill"></i>
-        <h5>{{ day_names|get_item:day_num }}</h5>
-        <span class="ms-auto badge bg-primary rounded-pill">{{ entries|length }}</span>
-      </div>
-      <div>
-        {% for tt in entries %}
-        <div class="period-item">
-          <span class="period-number">{{ tt.time_slot.period }}</span>
-          <div class="period-info">
-            <div class="subject-name mb-1">{{ tt.subject.name }}</div>
-            <div class="time-display small">
-              {{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}
-            </div>
-            <div class="teacher-name small">
-              {% if tt.teacher %}{{ tt.teacher }}{% else %}—{% endif %}
-            </div>
-          </div>
-          {% if role == 'admin' %}
-          <div class="action-buttons">
-            <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn-icon btn-edit">
-              <i class="bi bi-pencil-fill"></i>
-            </a>
-            <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn-icon btn-delete">
-              <i class="bi bi-trash-fill"></i>
-            </a>
-          </div>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% endfor %}
-  {% endif %}
-</div>
-
-<script>
-function switchView(view) {
-  const listView = document.getElementById('listView');
-  const gridView = document.getElementById('gridView');
-  const tabs = document.querySelectorAll('.view-tab');
-  
-  tabs.forEach(tab => tab.classList.remove('active'));
-  
-  if (view === 'list') {
-    listView.classList.add('active');
-    gridView.classList.remove('active');
-    tabs[0].classList.add('active');
-  } else {
-    listView.classList.remove('active');
-    gridView.classList.add('active');
-    tabs[1].classList.add('active');
-  }
-}
-</script>
+{% empty %}
+<div class="card p-4 text-center text-muted"><i class="bi bi-inbox me-2"></i>មិនទាន់មានតារាងម៉ោង</div>
+{% endfor %}
 {% endblock %}
