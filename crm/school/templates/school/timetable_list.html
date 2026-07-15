@@ -2,66 +2,216 @@
 {% load school_tags %}
 {% block title %}តារាងម៉ោង{% endblock %}
 {% block page_title %}តារាងម៉ោង{% endblock %}
+
+{% block extra_css %}
+<style>
+.timetable-header {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+.timetable-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+.filter-section {
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+.filter-section label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+  color: #475569;
+}
+.day-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+.day-card-header {
+  background: #f8fafc;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.timetable-table {
+  margin: 0;
+}
+.timetable-table thead th {
+  background: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+.timetable-table tbody td {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+  color: #334155;
+  font-size: 0.875rem;
+}
+.timetable-table tbody tr:hover {
+  background: #f8fafc;
+}
+.period-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.time-text {
+  color: #64748b;
+  font-weight: 500;
+}
+.subject-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #94a3b8;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.btn-action {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-header">
-  <h2><i class="bi bi-calendar3-week-fill me-2 text-primary"></i>តារាងម៉ោង</h2>
-  <div class="actions">
-    <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>បន្ថែម
-    </a>
-  </div>
+<!-- Header -->
+<div class="timetable-header d-flex justify-content-between align-items-center">
+  <h2>
+    <i class="bi bi-calendar3-week-fill me-2 text-primary"></i>
+    តារាងម៉ោង
+  </h2>
+  {% if role == 'admin' %}
+  <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>បន្ថែម
+  </a>
+  {% endif %}
 </div>
 
-<div class="card mb-3 p-3">
-  <form method="get" class="row g-2 align-items-end">
-    <div class="col-auto">
-      <label class="form-label mb-1">ថ្នាក់</label>
-      <select name="classroom" class="form-select form-select-sm">
+<!-- Filters -->
+<div class="filter-section">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">ថ្នាក់រៀន</label>
+      <select name="classroom" class="form-select" onchange="this.form.submit()">
         <option value="">ថ្នាក់ទាំងអស់</option>
         {% for c in classrooms %}
-        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>
+          {{ c }}
+        </option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-auto">
-      <label class="form-label mb-1">ឆ្នាំ</label>
-      <select name="year" class="form-select form-select-sm">
+    <div class="col-md-4">
+      <label class="form-label">ឆ្នាំសិក្សា</label>
+      <select name="year" class="form-select" onchange="this.form.submit()">
         <option value="">ឆ្នាំទាំងអស់</option>
         {% for y in years %}
-        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>
+          {{ y }}
+        </option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-auto"><button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-funnel-fill me-1"></i>ត្រង</button></div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-secondary w-100">
+        <i class="bi bi-funnel-fill me-1"></i>ត្រង
+      </button>
+    </div>
   </form>
 </div>
 
-{% for day_num, entries in days.items %}
-<div class="card mb-3">
-  <div class="card-header">
-    <i class="bi bi-calendar-day me-2"></i><strong>{{ day_names|get_item:day_num }}</strong>
+<!-- Schedule by Day -->
+{% if days %}
+  {% for day_num, entries in days.items %}
+  <div class="day-card">
+    <div class="day-card-header">
+      <i class="bi bi-calendar-day"></i>
+      <span>{{ day_names|get_item:day_num }}</span>
+      <span class="ms-auto badge bg-secondary">{{ entries|length }} វេលា</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table timetable-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">វេន</th>
+            <th style="width: 150px;">ម៉ោង</th>
+            <th>មុខវិជ្ជា</th>
+            <th>គ្រូ</th>
+            <th>ថ្នាក់</th>
+            <th style="width: 100px;">បន្ទប់</th>
+            {% if role == 'admin' %}
+            <th style="width: 120px;">សកម្មភាព</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for tt in entries %}
+          <tr>
+            <td>
+              <span class="period-badge">វ{{ tt.time_slot.period }}</span>
+            </td>
+            <td>
+              <span class="time-text">{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</span>
+            </td>
+            <td>
+              <span class="subject-name">{{ tt.subject.name }}</span>
+            </td>
+            <td>
+              {% if tt.teacher %}{{ tt.teacher }}{% else %}<span class="text-muted">—</span>{% endif %}
+            </td>
+            <td>{{ tt.classroom }}</td>
+            <td>
+              {% if tt.room %}{{ tt.room }}{% else %}<span class="text-muted">—</span>{% endif %}
+            </td>
+            {% if role == 'admin' %}
+            <td>
+              <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn btn-outline-primary btn-action me-1" title="កែប្រែ">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn btn-outline-danger btn-action" title="លុប">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-  <table class="table table-hover mb-0">
-    <thead><tr><th>វេន</th><th>ម៉ោង</th><th>មុខវិជ្ជា</th><th>គ្រូ</th><th>ថ្នាក់</th><th>បន្ទប់</th><th>សកម្មភាព</th></tr></thead>
-    <tbody>
-    {% for tt in entries %}
-    <tr>
-      <td><span class="badge bg-primary">វ{{ tt.time_slot.period }}</span></td>
-      <td>{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</td>
-      <td><strong>{{ tt.subject.name }}</strong></td>
-      <td>{{ tt.teacher|default:"—" }}</td>
-      <td>{{ tt.classroom }}</td>
-      <td>{{ tt.room|default:"—" }}</td>
-      <td>
-        <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
-        <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
-      </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% empty %}
-<div class="card p-4 text-center text-muted"><i class="bi bi-inbox me-2"></i>មិនទាន់មានតារាងម៉ោង</div>
-{% endfor %}
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <i class="bi bi-calendar-x" style="font-size: 3rem; opacity: 0.3; display: block; margin-bottom: 1rem;"></i>
+    <h5>មិនទាន់មានតារាងម៉ោង</h5>
+    <p class="mb-0">សូមជ្រើសរើសថ្នាក់រៀន ឬបន្ថែមតារាងម៉ោងថ្មី</p>
+  </div>
+{% endif %}
 {% endblock %}
