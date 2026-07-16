@@ -377,8 +377,18 @@ def teacher_add(request):
     form = TeacherForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         try:
-            form.save()
-            messages.success(request, 'គ្រូបានបន្ថែមរួច។')
+            teacher = form.save()
+            # Check if account was created
+            if form.cleaned_data.get('create_account'):
+                try:
+                    profile = UserProfile.objects.get(teacher=teacher)
+                    username = profile.user.username
+                    # Show success message with login credentials
+                    messages.success(request, f'គ្រូបានបន្ថែមរួច។ គណនី: {username} | ពាក្យសម្ងាត់: teacher123')
+                except UserProfile.DoesNotExist:
+                    messages.success(request, 'គ្រូបានបន្ថែមរួច។')
+            else:
+                messages.success(request, 'គ្រូបានបន្ថែមរួច។')
             return redirect('school:teacher_list')
         except Exception as e:
             import traceback, logging

@@ -139,6 +139,26 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
 
 # ── Teacher Form ────────────────────────────────────────────────
 class TeacherForm(BootstrapMixin, forms.ModelForm):
+    # Add fields for creating a user account
+    create_account = forms.BooleanField(
+        required=False, 
+        initial=True,
+        label='បង្កើតគណនីអ្នកប្រើ (Create User Account)',
+        help_text='បើធីកនឹងបង្កើតគណនីដើម្បីឱ្យគ្រូអាចចូលប្រព័ន្ធបាន'
+    )
+    username = forms.CharField(
+        max_length=150, 
+        required=False,
+        label='ឈ្មោះអ្នកប្រើ (Username)',
+        help_text='បើទុកទទេ នឹងប្រើឈ្មោះអ្នកប្រើដោយស្វ័យប្រវត្តិ'
+    )
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput,
+        label='ពាក្យសម្ងាត់ (Password)',
+        help_text='បើទុកទទេ នឹងប្រើពាក្យសម្ងាត់លំនាំដើម: teacher123'
+    )
+    
     class Meta:
         model  = Teacher
         fields = [
@@ -159,6 +179,58 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'address':   forms.Textarea(attrs={'rows': 2}),
             'photo':     PhotoInput(),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If editing existing teacher, check if user account already exists
+        if self.instance.pk:
+            try:
+                profile = UserProfile.objects.get(teacher=self.instance)
+                self.fields['create_account'].initial = False
+                self.fields['create_account'].help_text = f'គណនីមានរួចហើយ: {profile.user.username}'
+                self.fields['username'].widget.attrs['readonly'] = True
+                self.fields['password'].widget.attrs['readonly'] = True
+            except UserProfile.DoesNotExist:
+                pass
+    
+    def save(self, commit=True):
+        teacher = super().save(commit=commit)
+        
+        # Create user account if requested and teacher is being created (not edited)
+        if commit and self.cleaned_data.get('create_account'):
+            # Check if teacher already has a user account
+            existing_profile = UserProfile.objects.filter(teacher=teacher).first()
+            
+            if not existing_profile:
+                # Generate username from teacher name
+                username = self.cleaned_data.get('username') or f"{teacher.first_name_en or teacher.first_name}{teacher.last_name_en or teacher.last_name}".replace(' ', '').lower()
+                
+                # Make username unique if it already exists
+                base_username = username
+                counter = 1
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+                
+                # Get password or use default
+                password = self.cleaned_data.get('password') or 'teacher123'
+                
+                # Create user
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    first_name=teacher.first_name,
+                    last_name=teacher.last_name,
+                    email=teacher.email or ''
+                )
+                
+                # Link user profile to teacher
+                UserProfile.objects.update_or_create(
+                    user=user,
+                    defaults={'role': 'teacher', 'teacher': teacher, 'phone': teacher.phone}
+                )
+        
+        return teacher
 
 
 # ── Classroom Form ──────────────────────────────────────────────
