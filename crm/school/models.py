@@ -21,7 +21,7 @@ class UserProfile(models.Model):
     photo    = models.ImageField(upload_to='images/Users/', null=True, blank=True)
     # links
     teacher  = models.OneToOneField('Teacher', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_profile')
-    student  = models.OneToOneField('Student', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_profile')
+    student  = models.ForeignKey('Student', on_delete=models.SET_NULL, null=True, blank=True, related_name='parent_profiles')
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
