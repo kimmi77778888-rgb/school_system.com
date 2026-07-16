@@ -69,10 +69,13 @@ def register_parent(request):
         return redirect('school:dashboard')
     form = ParentRegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        user = form.save()
-        login(request, user)
-        messages.success(request, f'ស្វាគមន៍, {user.get_full_name() or user.username}! គណនីមាតាបិតាត្រូវបានបង្កើតដោយជោគជ័យ។')
-        return redirect('school:dashboard')
+        try:
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'ស្វាគមន៍, {user.get_full_name() or user.username}! គណនីមាតាបិតាត្រូវបានបង្កើតដោយជោគជ័យ។')
+            return redirect('school:dashboard')
+        except Exception as e:
+            messages.error(request, f'កំហុសក្នុងការបង្កើតគណនី: {str(e)}')
     return render(request, 'school/auth/register_parent.html', {'form': form})
 
 

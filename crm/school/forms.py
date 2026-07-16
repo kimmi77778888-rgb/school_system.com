@@ -472,24 +472,29 @@ class ParentRegisterForm(BootstrapMixin, forms.Form):
         return cleaned
 
     def save(self):
+        from django.db import transaction
         from .models import Student, UserProfile
-        data    = self.cleaned_data
+        
+        data = self.cleaned_data
         student = Student.objects.get(student_id=data['student_id'].upper())
-        user    = User.objects.create_user(
-            username   = data['username'],
-            password   = data['password1'],
-            first_name = data['first_name'],
-            last_name  = data['last_name'],
-            email      = data.get('email', ''),
-        )
-        UserProfile.objects.update_or_create(
-            user=user,
-            defaults={
-                'role':    'parent',
-                'phone':   data.get('phone', ''),
-                'student': student,   # link to the child
-            }
-        )
+        
+        # Use atomic transaction to ensure both User and UserProfile are created together
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username   = data['username'],
+                password   = data['password1'],
+                first_name = data['first_name'],
+                last_name  = data['last_name'],
+                email      = data.get('email', ''),
+            )
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={
+                    'role':    'parent',
+                    'phone':   data.get('phone', ''),
+                    'student': student,   # link to the child
+                }
+            )
         return user
 
 
