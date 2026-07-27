@@ -381,28 +381,79 @@ def teacher_list(request):
 
 @admin_or_teacher
 def teacher_detail(request, pk):
-    teacher    = get_object_or_404(Teacher, pk=pk)
-    subjects   = teacher.subjects.all()
-    classes    = teacher.homeroom_classes.select_related('grade','academic_year')
+    from datetime import datetime, timedelta
+    from django.db.models import Count, Q
+    
+    teacher = get_object_or_404(Teacher, pk=pk)
+    subjects = teacher.subjects.all()
+    classes = teacher.homeroom_classes.select_related('grade','academic_year').prefetch_related('students')
+    
+    # Attendance data
     attendances = teacher.attendances.order_by('-date')[:10]
+    all_attendances = teacher.attendances.order_by('-date')
+    
+    # Timetable data
     timetables = teacher.timetables.select_related('time_slot','subject','classroom').order_by('time_slot__day','time_slot__start_time')
     
-    # Calculate statistics
+    # Calculate attendance statistics
     present_count = teacher.attendances.filter(status='P').count()
     total_attendance = teacher.attendances.count()
     attendance_rate = round((present_count / total_attendance * 100), 1) if total_attendance > 0 else 0
     
+    # Monthly attendance (current month)
+    today = datetime.now()
+    month_start = today.replace(day=1)
+    monthly_present = teacher.attendances.filter(date__gte=month_start, status='P').count()
+    monthly_absent = teacher.attendances.filter(date__gte=month_start, status='A').count()
+    monthly_late = teacher.attendances.filter(date__gte=month_start, status='L').count()
+    monthly_excused = teacher.attendances.filter(date__gte=month_start, status='E').count()
+    
+    # All-time attendance totals
+    total_present = teacher.attendances.filter(status='P').count()
+    total_absent = teacher.attendances.filter(status='A').count()
+    total_late = teacher.attendances.filter(status='L').count()
+    total_excused = teacher.attendances.filter(status='E').count()
+    
     # Count total students across all homeroom classes
     total_students = sum(c.students.count() for c in classes)
+    
+    # Get exams for subjects taught by this teacher
+    teacher_subjects_ids = subjects.values_list('pk', flat=True)
+    teacher_exams = Exam.objects.filter(subject_id__in=teacher_subjects_ids).select_related('subject', 'classroom', 'academic_year', 'exam_type').order_by('-date')[:20]
+    
+    # Timetable data for weekly view
+    from school.models import TimeSlot
+    time_slots = TimeSlot.objects.all().order_by('start_time')
+    weekdays = ['ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ']
+    weekdays_short = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+    
+    # Count total timetable slots
+    total_timetable = timetables.count()
+    total_exams = teacher_exams.count()
     
     return render(request, 'school/teacher_detail.html', {
         'teacher': teacher, 
         'subjects': subjects,
         'classes': classes, 
         'attendances': attendances,
+        'all_attendances': all_attendances,
         'timetables': timetables,
         'attendance_rate': attendance_rate,
         'total_students': total_students,
+        'teacher_exams': teacher_exams,
+        'time_slots': time_slots,
+        'weekdays': weekdays,
+        'weekdays_short': weekdays_short,
+        'total_timetable': total_timetable,
+        'total_exams': total_exams,
+        'monthly_present': monthly_present,
+        'monthly_absent': monthly_absent,
+        'monthly_late': monthly_late,
+        'monthly_excused': monthly_excused,
+        'total_present': total_present,
+        'total_absent': total_absent,
+        'total_late': total_late,
+        'total_excused': total_excused,
         'role': request.user.profile.role,
     })
 

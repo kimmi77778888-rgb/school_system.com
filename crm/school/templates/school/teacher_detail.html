@@ -8,26 +8,48 @@
 .info-card { border-left: 4px solid var(--ac); }
 .info-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .info-value { font-size: 0.95rem; color: #0f172a; font-weight: 500; margin-bottom: 16px; word-break: break-word; }
-.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; text-align: center; }
+.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 .stat-card.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
 .stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
 .stat-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-card.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.stat-card.purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
 .stat-number { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
 .stat-label { font-size: 0.85rem; opacity: 0.95; font-weight: 500; }
 .section-header { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+.timetable-cell { font-size: 0.75rem; padding: 8px 4px; vertical-align: middle; }
+.timetable-cell .subject { font-weight: 600; color: #1e40af; }
+.timetable-cell .classroom { color: #64748b; font-size: 0.7rem; }
+.day-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; }
+.student-mini-card { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+.student-mini-card:hover { background: #f8fafc; }
+.student-mini-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.attendance-chart { display: flex; gap: 4px; margin-top: 8px; }
+.attendance-bar { height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; }
+.nav-tabs .nav-link { color: #64748b; font-weight: 600; }
+.nav-tabs .nav-link.active { color: #2563eb; border-bottom: 3px solid #2563eb; }
+.exam-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
 </style>
 
 <div class="page-header">
   <h2><i class="bi bi-person-badge-fill me-2 text-success"></i>{{ teacher.first_name }} {{ teacher.last_name }}</h2>
   <div class="d-flex gap-2">
-    <a href="{% url 'school:teacher_edit' teacher.pk %}" class="btn btn-warning text-white"><i class="bi bi-pencil me-1"></i>កែប្រែ</a>
-    <a href="{% url 'school:teacher_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>ត្រឡប់</a>
+    <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
+      <i class="bi bi-printer me-1"></i>បោះពុម្ព
+    </button>
+    <a href="{% url 'school:teacher_edit' teacher.pk %}" class="btn btn-warning text-white">
+      <i class="bi bi-pencil me-1"></i>កែប្រែ
+    </a>
+    <a href="{% url 'school:teacher_list' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
+    </a>
   </div>
 </div>
 
 <div class="row g-4">
-  <!-- Profile Card -->
-  <div class="col-lg-4">
+  <!-- Left Column - Profile & Info -->
+  <div class="col-lg-3">
     <div class="card p-4 text-center shadow-sm">
       {% if teacher.photo %}
         <img src="{{ teacher.photo|safe_url }}" class="rounded-circle mx-auto mb-3 shadow" width="120" height="120" style="object-fit:cover; border: 4px solid #e2e8f0;">
@@ -54,7 +76,7 @@
 
     <!-- Contact Information -->
     <div class="card info-card p-3 mt-3 shadow-sm">
-      <div class="section-header"><i class="bi bi-person-vcard me-2 text-primary"></i>ព័ត៌មានទំនាក់ទំនង</div>
+      <div class="section-header"><i class="bi bi-person-vcard me-2 text-primary"></i>ទំនាក់ទំនង</div>
       
       <div class="info-label"><i class="bi bi-telephone me-1"></i>ទូរស័ព្ទ</div>
       <div class="info-value">
@@ -74,14 +96,14 @@
       <div class="info-value">{{ teacher.address|default:"—" }}</div>
     </div>
 
-    <!-- Professional Information -->
+    <!-- Professional Info -->
     <div class="card info-card p-3 mt-3 shadow-sm">
-      <div class="section-header"><i class="bi bi-briefcase me-2 text-success"></i>ព័ត៌មានការងារ</div>
+      <div class="section-header"><i class="bi bi-briefcase me-2 text-success"></i>ការងារ</div>
       
       <div class="info-label"><i class="bi bi-gender-ambiguous me-1"></i>ភេទ</div>
       <div class="info-value">{{ teacher.get_gender_display|default:"—" }}</div>
       
-      <div class="info-label"><i class="bi bi-calendar-check me-1"></i>ថ្ងៃចូលធ្វើការ</div>
+      <div class="info-label"><i class="bi bi-calendar-check me-1"></i>ចូលធ្វើការ</div>
       <div class="info-value">
         {{ teacher.hire_date|default:"—" }}
         {% if teacher.hire_date %}
@@ -94,172 +116,420 @@
       <div class="info-label"><i class="bi bi-award me-1"></i>កម្រិតវប្បធម៌</div>
       <div class="info-value">{{ teacher.qualification|default:"—" }}</div>
       
-      <div class="info-label"><i class="bi bi-book me-1"></i>ជំនាញពិសេស</div>
+      <div class="info-label"><i class="bi bi-book me-1"></i>ជំនាញ</div>
       <div class="info-value">{{ teacher.subject_specialty|default:"—" }}</div>
+    </div>
+
+    <!-- Monthly Attendance Summary -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-calendar3 me-2 text-info"></i>វត្តមានខែនេះ</div>
+      <div class="attendance-chart">
+        {% if monthly_present > 0 %}
+        <div class="attendance-bar bg-success" style="flex: {{ monthly_present }};">{{ monthly_present }}</div>
+        {% endif %}
+        {% if monthly_absent > 0 %}
+        <div class="attendance-bar bg-danger" style="flex: {{ monthly_absent }};">{{ monthly_absent }}</div>
+        {% endif %}
+        {% if monthly_late > 0 %}
+        <div class="attendance-bar bg-warning" style="flex: {{ monthly_late }};">{{ monthly_late }}</div>
+        {% endif %}
+        {% if monthly_excused > 0 %}
+        <div class="attendance-bar bg-info" style="flex: {{ monthly_excused }};">{{ monthly_excused }}</div>
+        {% endif %}
+      </div>
+      <div class="mt-3">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>មានវត្តមាន</span>
+          <strong>{{ monthly_present }} ថ្ងៃ</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-danger"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>អវត្តមាន</span>
+          <strong>{{ monthly_absent }} ថ្ងៃ</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-warning"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>យឺត</span>
+          <strong>{{ monthly_late }} ថ្ងៃ</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-info"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>សុំច្បាប់</span>
+          <strong>{{ monthly_excused }} ថ្ងៃ</strong>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Teaching Information & Statistics -->
-  <div class="col-lg-8">
-    <!-- Statistics Cards -->
+  <!-- Right Column - Detailed Information -->
+  <div class="col-lg-9">
+    <!-- Statistics Cards Row 1 -->
     <div class="row g-3 mb-4">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stat-card">
           <div class="stat-number">{{ subjects|length }}</div>
           <div class="stat-label"><i class="bi bi-book me-1"></i>មុខវិជ្ជា</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stat-card success">
           <div class="stat-number">{{ classes|length }}</div>
-          <div class="stat-label"><i class="bi bi-building me-1"></i>ថ្នាក់រៀន</div>
+          <div class="stat-label"><i class="bi bi-building me-1"></i>ថ្នាក់</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stat-card warning">
           <div class="stat-number">{{ total_students|default:"0" }}</div>
           <div class="stat-label"><i class="bi bi-people me-1"></i>សិស្ស</div>
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="stat-card info">
-          <div class="stat-number">{{ attendance_rate|default:"—" }}</div>
+          <div class="stat-number">{{ attendance_rate|default:"0" }}%</div>
           <div class="stat-label"><i class="bi bi-percent me-1"></i>វត្តមាន</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="stat-card orange">
+          <div class="stat-number">{{ total_timetable }}</div>
+          <div class="stat-label"><i class="bi bi-clock me-1"></i>ម៉ោង/សប្តាហ៍</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="stat-card purple">
+          <div class="stat-number">{{ total_exams }}</div>
+          <div class="stat-label"><i class="bi bi-file-text me-1"></i>ប្រឡង</div>
         </div>
       </div>
     </div>
 
-    <!-- Teaching Subjects -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-white">
-        <i class="bi bi-journal-bookmark me-2 text-primary"></i><strong>មុខវិជ្ជាបង្រៀន</strong>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th><i class="bi bi-book me-1"></i>ឈ្មោះមុខវិជ្ជា</th>
-              <th><i class="bi bi-code-square me-1"></i>លេខកូដ</th>
-              <th><i class="bi bi-layers me-1"></i>កម្រិត</th>
-              <th><i class="bi bi-clock me-1"></i>ម៉ោងសប្តាហ៍</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for sub in subjects %}
-            <tr>
-              <td><strong>{{ sub.name }}</strong></td>
-              <td><code class="bg-light px-2 py-1 rounded">{{ sub.code|default:"—" }}</code></td>
-              <td><span class="badge bg-info text-dark">{{ sub.grade|default:"—" }}</span></td>
-              <td class="text-muted">{{ sub.hours_per_week|default:"—" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center text-muted py-4">
-                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
-                មិនទាន់មានមុខវិជ្ជា
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% if subjects %}
-      <div class="card-footer bg-light text-muted">
-        <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ subjects|length }} មុខវិជ្ជា</small>
-      </div>
-      {% endif %}
-    </div>
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+          <i class="bi bi-house-door me-1"></i>ទិដ្ឋភាពទូទៅ
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#timetable" type="button">
+          <i class="bi bi-calendar-week me-1"></i>កាលវិភាគ
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#students" type="button">
+          <i class="bi bi-people me-1"></i>សិស្ស
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#exams" type="button">
+          <i class="bi bi-clipboard-check me-1"></i>ប្រឡង
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#attendance" type="button">
+          <i class="bi bi-calendar-check me-1"></i>វត្តមាន
+        </button>
+      </li>
+    </ul>
 
-    <!-- Homeroom Classes -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-white">
-        <i class="bi bi-building me-2 text-warning"></i><strong>ថ្នាក់ទទួលខុសត្រូវ</strong>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th><i class="bi bi-layers me-1"></i>កម្រិត</th>
-              <th><i class="bi bi-door-closed me-1"></i>បន្ទប់</th>
-              <th><i class="bi bi-people me-1"></i>ចំនួនសិស្ស</th>
-              <th><i class="bi bi-calendar-range me-1"></i>ឆ្នាំសិក្សា</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in classes %}
-            <tr>
-              <td><span class="badge bg-primary">{{ c.grade }}</span></td>
-              <td><strong>{{ c.room_number|default:"—" }}</strong></td>
-              <td><span class="badge bg-secondary">{{ c.students.count }} នាក់</span></td>
-              <td class="text-muted">{{ c.academic_year }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center text-muted py-4">
-                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
-                មិនទាន់មានថ្នាក់
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% if classes %}
-      <div class="card-footer bg-light text-muted">
-        <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ classes|length }} ថ្នាក់</small>
-      </div>
-      {% endif %}
-    </div>
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- Overview Tab -->
+      <div class="tab-pane fade show active" id="overview" role="tabpanel">
+        <div class="row g-4">
+          <!-- Teaching Subjects -->
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-header bg-white">
+                <i class="bi bi-journal-bookmark me-2 text-primary"></i><strong>មុខវិជ្ជាបង្រៀន</strong>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>មុខវិជ្ជា</th>
+                      <th>កូដ</th>
+                      <th>កម្រិត</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sub in subjects %}
+                    <tr>
+                      <td><strong>{{ sub.name }}</strong></td>
+                      <td><code class="bg-light px-2 py-1 rounded">{{ sub.code|default:"—" }}</code></td>
+                      <td><span class="badge bg-info text-dark">{{ sub.grade|default:"—" }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox"></i> មិនទាន់មានមុខវិជ្ជា
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-    <!-- Recent Attendance -->
-    <div class="card shadow-sm">
-      <div class="card-header bg-white">
-        <i class="bi bi-calendar-check me-2 text-success"></i><strong>វត្តមានថ្មីៗ (10 ថ្ងៃចុងក្រោយ)</strong>
+          <!-- Homeroom Classes -->
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-header bg-white">
+                <i class="bi bi-building me-2 text-warning"></i><strong>ថ្នាក់ទទួលខុសត្រូវ</strong>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>កម្រិត</th>
+                      <th>បន្ទប់</th>
+                      <th>សិស្ស</th>
+                      <th>ឆ្នាំ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for c in classes %}
+                    <tr>
+                      <td><span class="badge bg-primary">{{ c.grade }}</span></td>
+                      <td><strong>{{ c.room_number|default:"—" }}</strong></td>
+                      <td><span class="badge bg-secondary">{{ c.students.count }} នាក់</span></td>
+                      <td class="text-muted small">{{ c.academic_year }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox"></i> មិនទាន់មានថ្នាក់
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th><i class="bi bi-calendar3 me-1"></i>ថ្ងៃ</th>
-              <th><i class="bi bi-check-circle me-1"></i>ស្ថានភាព</th>
-              <th><i class="bi bi-sticky me-1"></i>កំណត់ចំណាំ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for att in attendances %}
-            <tr>
-              <td><strong>{{ att.date }}</strong></td>
-              <td>
-                {% if att.status == 'P' %}
-                  <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>{{ att.get_status_display }}</span>
-                {% elif att.status == 'A' %}
-                  <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ att.get_status_display }}</span>
-                {% elif att.status == 'L' %}
-                  <span class="badge bg-warning text-dark"><i class="bi bi-clock-fill me-1"></i>{{ att.get_status_display }}</span>
-                {% elif att.status == 'E' %}
-                  <span class="badge bg-info text-dark"><i class="bi bi-info-circle-fill me-1"></i>{{ att.get_status_display }}</span>
-                {% else %}
-                  <span class="badge bg-secondary">{{ att.get_status_display }}</span>
-                {% endif %}
-              </td>
-              <td class="text-muted">{{ att.note|default:"—" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="text-center text-muted py-4">
-                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
-                មិនមានទិន្នន័យវត្តមាន
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+      <!-- Timetable Tab -->
+      <div class="tab-pane fade" id="timetable" role="tabpanel">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <i class="bi bi-calendar-week me-2 text-primary"></i><strong>កាលវិភាគសប្តាហ៍</strong>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+              <thead>
+                <tr>
+                  <th class="day-header">ម៉ោង</th>
+                  {% for day in weekdays %}
+                  <th class="day-header text-center">{{ day }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for time_slot in time_slots %}
+                <tr>
+                  <td class="timetable-cell">
+                    <strong>{{ time_slot.start_time|time:"H:i" }}</strong><br>
+                    <span class="text-muted small">{{ time_slot.end_time|time:"H:i" }}</span>
+                  </td>
+                  {% for day in weekdays_short %}
+                  <td class="timetable-cell text-center">
+                    {% for tt in timetables %}
+                      {% if tt.time_slot.pk == time_slot.pk and tt.time_slot.day == day %}
+                        <div class="subject">{{ tt.subject.name }}</div>
+                        <div class="classroom">{{ tt.classroom }}</div>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox"></i> មិនទាន់មានកាលវិភាគ
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if timetables %}
+          <div class="card-footer bg-light text-muted">
+            <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ timetables|length }} ម៉ោងក្នុងមួយសប្តាហ៍</small>
+          </div>
+          {% endif %}
+        </div>
       </div>
-      {% if attendances %}
-      <div class="card-footer bg-light text-end">
-        <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>មើលទាំងអស់</a>
+
+      <!-- Students Tab -->
+      <div class="tab-pane fade" id="students" role="tabpanel">
+        {% for classroom in classes %}
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-white">
+            <i class="bi bi-people me-2 text-success"></i>
+            <strong>សិស្សថ្នាក់ {{ classroom.grade }} - បន្ទប់ {{ classroom.room_number }}</strong>
+            <span class="badge bg-primary ms-2">{{ classroom.students.count }} នាក់</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-2">
+              {% for student in classroom.students.all %}
+              <div class="col-md-6">
+                <div class="student-mini-card">
+                  {% if student.photo %}
+                  <img src="{{ student.photo|safe_url }}" class="student-mini-avatar">
+                  {% else %}
+                  <div class="student-mini-avatar bg-primary text-white d-flex align-items-center justify-content-center" style="font-size: 0.75rem; font-weight: 700;">
+                    {{ student.first_name|first }}
+                  </div>
+                  {% endif %}
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ student.first_name }} {{ student.last_name }}</div>
+                    <div class="text-muted small">{{ student.student_id }}</div>
+                  </div>
+                  <a href="{% url 'school:student_detail' student.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </div>
+              </div>
+              {% empty %}
+              <div class="col-12 text-center text-muted py-3">
+                <i class="bi bi-inbox"></i> មិនមានសិស្ស
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="card shadow-sm">
+          <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 16px;"></i>
+            <p>គ្រូមិនទាន់បានកំណត់ជាប្រធានថ្នាក់</p>
+          </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endif %}
+
+      <!-- Exams Tab -->
+      <div class="tab-pane fade" id="exams" role="tabpanel">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <i class="bi bi-clipboard-check me-2 text-danger"></i><strong>ការប្រឡងដែលបានរៀបចំ</strong>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>ឈ្មោះ</th>
+                  <th>មុខវិជ្ជា</th>
+                  <th>ថ្នាក់</th>
+                  <th>កាលបរិច្ឆេទ</th>
+                  <th>ពិន្ទុអតិបរមា</th>
+                  <th>សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for exam in teacher_exams %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td><strong>{{ exam.name }}</strong></td>
+                  <td><span class="badge bg-info text-dark">{{ exam.subject.name }}</span></td>
+                  <td>{{ exam.classroom }}</td>
+                  <td>{{ exam.date }}</td>
+                  <td><span class="badge bg-success">{{ exam.max_score }}</span></td>
+                  <td>
+                    <a href="{% url 'school:exam_edit' exam.pk %}" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox"></i> មិនទាន់មានការប្រឡង
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if teacher_exams %}
+          <div class="card-footer bg-light text-muted">
+            <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ teacher_exams|length }} ការប្រឡង</small>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Attendance Tab -->
+      <div class="tab-pane fade" id="attendance" role="tabpanel">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <i class="bi bi-calendar-check me-2 text-success"></i><strong>វត្តមានពេញលេញ</strong>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th><i class="bi bi-calendar3 me-1"></i>ថ្ងៃ</th>
+                  <th><i class="bi bi-check-circle me-1"></i>ស្ថានភាព</th>
+                  <th><i class="bi bi-sticky me-1"></i>កំណត់ចំណាំ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for att in all_attendances %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td><strong>{{ att.date }}</strong></td>
+                  <td>
+                    {% if att.status == 'P' %}
+                      <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                    {% elif att.status == 'A' %}
+                      <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                    {% elif att.status == 'L' %}
+                      <span class="badge bg-warning text-dark"><i class="bi bi-clock-fill me-1"></i>{{ att.get_status_display }}</span>
+                    {% elif att.status == 'E' %}
+                      <span class="badge bg-info text-dark"><i class="bi bi-info-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-muted">{{ att.note|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox"></i> មិនមានទិន្នន័យវត្តមាន
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if all_attendances %}
+          <div class="card-footer bg-light">
+            <div class="row text-center">
+              <div class="col-3">
+                <div class="fw-bold text-success">{{ total_present }}</div>
+                <div class="small text-muted">មានវត្តមាន</div>
+              </div>
+              <div class="col-3">
+                <div class="fw-bold text-danger">{{ total_absent }}</div>
+                <div class="small text-muted">អវត្តមាន</div>
+              </div>
+              <div class="col-3">
+                <div class="fw-bold text-warning">{{ total_late }}</div>
+                <div class="small text-muted">យឺត</div>
+              </div>
+              <div class="col-3">
+                <div class="fw-bold text-info">{{ total_excused }}</div>
+                <div class="small text-muted">សុំច្បាប់</div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
