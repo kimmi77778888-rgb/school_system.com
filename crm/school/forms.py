@@ -164,19 +164,45 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'first_name', 'last_name',
             'first_name_en', 'last_name_en',
-            'gender', 'phone', 'email',
-            'address', 'subject_specialty', 'hire_date', 'photo',
-            'qualification', 'is_active'
+            'gender', 'date_of_birth', 'place_of_birth',
+            'phone', 'email', 'address',
+            'national_id', 'teacher_rank', 'teacher_license', 'ministry_id',
+            'subject_specialty', 'qualification', 'hire_date',
+            'university', 'degree', 'graduation_year',
+            'teacher_training', 'certifications',
+            'contract_type', 'salary_scale', 'years_experience',
+            'emergency_contact', 'emergency_phone', 'emergency_relation',
+            'photo', 'is_active'
         ]
         labels = {
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
             'last_name_en':  'Last Name (English)',
+            'date_of_birth': 'ថ្ងៃខែឆ្នាំកំណើត',
+            'place_of_birth': 'ទីកន្លែងកំណើត',
+            'national_id': 'អត្តសញ្ញាណប័ណ្ណ',
+            'teacher_rank': 'ជួរគ្រូ',
+            'teacher_license': 'លេខអាជ្ញាប័ណ្ណគ្រូ',
+            'ministry_id': 'លេខសម្គាល់ក្រសួង',
+            'university': 'សាកលវិទ្យាល័យ',
+            'degree': 'សញ្ញាប័ត្រ',
+            'graduation_year': 'ឆ្នាំបញ្ចប់ការសិក្សា',
+            'teacher_training': 'បណ្តុះបណ្តាល',
+            'certifications': 'វិញ្ញាបនប័ត្រ',
+            'contract_type': 'ប្រភេទកិច្ចសន្យា',
+            'salary_scale': 'ជួរប្រាក់ខែ',
+            'years_experience': 'ឆ្នាំបទពិសោធន៍',
+            'emergency_contact': 'អ្នកទំនាក់ទំនងបន្ទាន់',
+            'emergency_phone': 'ទូរស័ព្ទបន្ទាន់',
+            'emergency_relation': 'ទំនាក់ទំនង',
         }
         widgets = {
             'hire_date': forms.DateInput(attrs={'type': 'date'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'address':   forms.Textarea(attrs={'rows': 2}),
+            'teacher_training': forms.Textarea(attrs={'rows': 3}),
+            'certifications': forms.Textarea(attrs={'rows': 3}),
             'photo':     PhotoInput(),
         }
     
