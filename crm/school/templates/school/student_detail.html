@@ -4,6 +4,19 @@
 {% block page_title %}ព័ត៌មានសិស្ស{% endblock %}
 
 {% block content %}
+<style>
+.info-card { border-left: 4px solid var(--ac); }
+.info-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-value { font-size: 0.95rem; color: #0f172a; font-weight: 500; margin-bottom: 16px; word-break: break-word; }
+.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; text-align: center; }
+.stat-card.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+.stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.stat-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-number { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
+.stat-label { font-size: 0.85rem; opacity: 0.95; font-weight: 500; }
+.section-header { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+</style>
+
 <div class="page-header">
   <h2><i class="bi bi-person-circle me-2 text-primary"></i>{{ student.first_name }} {{ student.last_name }}</h2>
   <div class="d-flex gap-2">
@@ -14,87 +27,225 @@
 </div>
 
 <div class="row g-4">
-  <!-- Info card -->
-  <div class="col-md-4">
-    <div class="card p-4 text-center">
+  <!-- Profile Card -->
+  <div class="col-lg-4">
+    <div class="card p-4 text-center shadow-sm">
       {% if student.photo %}
-        <img src="{{ student.photo|safe_url }}" class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit:cover;">
+        <img src="{{ student.photo|safe_url }}" class="rounded-circle mx-auto mb-3 shadow" width="120" height="120" style="object-fit:cover; border: 4px solid #e2e8f0;">
       {% else %}
-        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:100px;height:100px;font-size:2rem;">
+        <div class="rounded-circle bg-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow" 
+             style="width:120px;height:120px;font-size:2.5rem;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border: 4px solid #e2e8f0;">
           {{ student.first_name.0 }}{{ student.last_name.0 }}
         </div>
       {% endif %}
-      <h5 class="fw-bold mb-1">{{ student.first_name }} {{ student.last_name }}</h5>
-      <code class="text-muted">{{ student.student_id }}</code>
-      <div class="mt-3 text-start">
-        <table class="table table-sm mb-0">
-          <tr><td class="text-muted">ភេទ</td><td>{{ student.get_gender_display|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ថ្ងៃខែឆ្នាំកំណើត</td><td>{{ student.date_of_birth|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ទូរស័ព្ទ</td><td>{{ student.phone|default:"—" }}</td></tr>
-          <tr><td class="text-muted">អាសយដ្ឋាន</td><td>{{ student.address|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ថ្នាក់</td><td>{{ student.classroom|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ថ្ងៃចុះឈ្មោះ</td><td>{{ student.enrolled_date }}</td></tr>
-          <tr><td class="text-muted">ស្ថានភាព</td>
-            <td>{% if student.is_active %}<span class="b-P">សកម្ម</span>{% else %}<span class="b-A">អសកម្ម</span>{% endif %}</td>
-          </tr>
-        </table>
-      </div>
+      <h4 class="fw-bold mb-1">{{ student.first_name }} {{ student.last_name }}</h4>
+      {% if student.first_name_en or student.last_name_en %}
+      <div class="text-muted small mb-2">{{ student.first_name_en }} {{ student.last_name_en }}</div>
+      {% endif %}
+      <span class="badge bg-primary fs-6 mb-3">{{ student.student_id }}</span>
+      {% if student.is_active %}
+        <span class="badge bg-success mb-3"><i class="bi bi-check-circle me-1"></i>សកម្ម</span>
+      {% else %}
+        <span class="badge bg-secondary mb-3"><i class="bi bi-x-circle me-1"></i>អសកម្ម</span>
+      {% endif %}
     </div>
-    <!-- Parent info -->
-    <div class="card p-3 mt-3">
-      <div class="fw-semibold mb-2"><i class="bi bi-people me-1 text-primary"></i>មាតាបិតា / អាណាព្យាបាល</div>
-      <div class="small text-muted">ឈ្មោះ</div>
-      <div>{{ student.parent_name|default:"—" }}</div>
-      <div class="small text-muted mt-2">ទូរស័ព្ទ</div>
-      <div>{{ student.parent_phone|default:"—" }}</div>
+
+    <!-- Basic Information -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-person-vcard me-2 text-primary"></i>ព័ត៌មានបុគ្គល</div>
+      
+      <div class="info-label"><i class="bi bi-gender-ambiguous me-1"></i>ភេទ</div>
+      <div class="info-value">{{ student.get_gender_display|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-calendar-event me-1"></i>ថ្ងៃខែឆ្នាំកំណើត</div>
+      <div class="info-value">
+        {{ student.date_of_birth|default:"—" }}
+        {% if student.date_of_birth %}
+        <span class="text-muted small">(អាយុ: {{ student.date_of_birth|timesince|truncatewords:1 }})</span>
+        {% endif %}
+      </div>
+      
+      <div class="info-label"><i class="bi bi-telephone me-1"></i>ទូរស័ព្ទ</div>
+      <div class="info-value">{{ student.phone|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-geo-alt me-1"></i>អាសយដ្ឋាន</div>
+      <div class="info-value">{{ student.address|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-building me-1"></i>ថ្នាក់</div>
+      <div class="info-value">
+        {% if student.classroom %}
+          <span class="badge bg-info text-dark">{{ student.classroom }}</span>
+        {% else %}—{% endif %}
+      </div>
+      
+      <div class="info-label"><i class="bi bi-calendar-check me-1"></i>ថ្ងៃចុះឈ្មោះ</div>
+      <div class="info-value">{{ student.enrolled_date }}</div>
+    </div>
+
+    <!-- Medical Information -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-heart-pulse me-2 text-danger"></i>ព័ត៌មានសុខភាព</div>
+      
+      <div class="info-label"><i class="bi bi-droplet me-1"></i>ក្រុមឈាម</div>
+      <div class="info-value">
+        {% if student.blood_group %}
+          <span class="badge bg-danger">{{ student.blood_group }}</span>
+        {% else %}—{% endif %}
+      </div>
+      
+      <div class="info-label"><i class="bi bi-clipboard-pulse me-1"></i>កំណត់ចំណាំសុខភាព</div>
+      <div class="info-value" style="font-size: 0.85rem;">{{ student.medical_notes|default:"គ្មាន"|linebreaks }}</div>
+    </div>
+
+    <!-- Parent/Guardian Info -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-people me-2 text-success"></i>មាតាបិតា / អាណាព្យាបាល</div>
+      
+      <div class="info-label"><i class="bi bi-person me-1"></i>ឈ្មោះ</div>
+      <div class="info-value">{{ student.parent_name|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-telephone me-1"></i>ទូរស័ព្ទ</div>
+      <div class="info-value">{{ student.parent_phone|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-envelope me-1"></i>អ៊ីម៉ែល</div>
+      <div class="info-value">{{ student.parent_email|default:"—" }}</div>
     </div>
   </div>
 
-  <!-- Attendance & Scores -->
-  <div class="col-md-8">
-    <!-- Recent Attendance -->
-    <div class="card mb-4">
-      <div class="card-header"><i class="bi bi-calendar-check me-1 text-success"></i>វត្តមានថ្មីៗ</div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>ថ្ងៃ</th><th>ស្ថានភាព</th><th>កំណត់ចំណាំ</th></tr></thead>
-          <tbody>
-            {% for a in attendances %}
-            <tr>
-              <td>{{ a.date }}</td>
-              <td><span class="badge badge-{{ a.status }}">{{ a.get_status_display }}</span></td>
-              <td>{{ a.note|default:"—" }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនមានទិន្នន័យវត្តមាន</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <!-- Academic Data & Statistics -->
+  <div class="col-lg-8">
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number">{{ attendances|length }}</div>
+          <div class="stat-label"><i class="bi bi-calendar-check me-1"></i>វត្តមាន</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card success">
+          <div class="stat-number">{{ scores|length }}</div>
+          <div class="stat-label"><i class="bi bi-trophy me-1"></i>ពិន្ទុ</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card warning">
+          <div class="stat-number">{{ average_score|default:"—" }}</div>
+          <div class="stat-label"><i class="bi bi-graph-up me-1"></i>មធ្យម</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card info">
+          <div class="stat-number">{{ attendance_rate|default:"—" }}</div>
+          <div class="stat-label"><i class="bi bi-percent me-1"></i>វត្តមាន%</div>
+        </div>
       </div>
     </div>
 
-    <!-- Scores -->
-    <div class="card">
-      <div class="card-header"><i class="bi bi-bar-chart me-1 text-warning"></i>ពិន្ទុប្រឡង</div>
+    <!-- Recent Attendance -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-calendar-check me-2 text-success"></i><strong>វត្តមានថ្មីៗ (10 ថ្ងៃចុងក្រោយ)</strong>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead><tr><th>មុខវិជ្ជា</th><th>ការប្រឡង</th><th>ពិន្ទុ</th><th>%</th><th>ថ្នាក់</th><th>ឆ្នាំ</th></tr></thead>
-          <tbody>
-            {% for sc in scores %}
+          <thead class="table-light">
             <tr>
-              <td>{{ sc.subject.name }}</td>
-              <td>{{ sc.exam_type.name }}</td>
-              <td>{{ sc.score }}/{{ sc.max_score }}</td>
-              <td>{{ sc.percentage }}%</td>
-              <td><span class="badge bg-secondary">{{ sc.grade_letter }}</span></td>
-              <td>{{ sc.academic_year }}</td>
+              <th><i class="bi bi-calendar3 me-1"></i>ថ្ងៃ</th>
+              <th><i class="bi bi-check-circle me-1"></i>ស្ថានភាព</th>
+              <th><i class="bi bi-sticky me-1"></i>កំណត់ចំណាំ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in attendances %}
+            <tr>
+              <td><strong>{{ a.date }}</strong></td>
+              <td>
+                {% if a.status == 'P' %}
+                  <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>{{ a.get_status_display }}</span>
+                {% elif a.status == 'A' %}
+                  <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ a.get_status_display }}</span>
+                {% elif a.status == 'L' %}
+                  <span class="badge bg-warning text-dark"><i class="bi bi-clock-fill me-1"></i>{{ a.get_status_display }}</span>
+                {% elif a.status == 'E' %}
+                  <span class="badge bg-info text-dark"><i class="bi bi-info-circle-fill me-1"></i>{{ a.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ a.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="text-muted">{{ a.note|default:"—" }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនទាន់មានពិន្ទុ</td></tr>
+            <tr>
+              <td colspan="3" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                មិនមានទិន្នន័យវត្តមាន
+              </td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      {% if attendances %}
+      <div class="card-footer bg-light text-end">
+        <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>មើលទាំងអស់</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Exam Scores -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-bar-chart me-2 text-warning"></i><strong>ពិន្ទុប្រឡង</strong>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="bi bi-book me-1"></i>មុខវិជ្ជា</th>
+              <th><i class="bi bi-file-earmark-text me-1"></i>ការប្រឡង</th>
+              <th><i class="bi bi-star me-1"></i>ពិន្ទុ</th>
+              <th><i class="bi bi-percent me-1"></i>%</th>
+              <th><i class="bi bi-award me-1"></i>ថ្នាក់</th>
+              <th><i class="bi bi-calendar-range me-1"></i>ឆ្នាំ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sc in scores %}
+            <tr>
+              <td><strong>{{ sc.subject.name }}</strong></td>
+              <td><span class="badge bg-light text-dark border">{{ sc.exam_type.name }}</span></td>
+              <td><strong>{{ sc.score }}</strong> / {{ sc.max_score }}</td>
+              <td>
+                <span class="badge 
+                  {% if sc.percentage >= 90 %}bg-success
+                  {% elif sc.percentage >= 80 %}bg-info
+                  {% elif sc.percentage >= 70 %}bg-primary
+                  {% elif sc.percentage >= 60 %}bg-warning text-dark
+                  {% else %}bg-danger
+                  {% endif %}">
+                  {{ sc.percentage }}%
+                </span>
+              </td>
+              <td><span class="badge bg-secondary fs-6">{{ sc.grade_letter }}</span></td>
+              <td class="text-muted">{{ sc.academic_year }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                មិនទាន់មានពិន្ទុ
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if scores %}
+      <div class="card-footer bg-light text-end">
+        <a href="#" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye me-1"></i>មើលទាំងអស់</a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

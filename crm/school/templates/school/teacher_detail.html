@@ -4,6 +4,19 @@
 {% block page_title %}ព័ត៌មានគ្រូបង្រៀន{% endblock %}
 
 {% block content %}
+<style>
+.info-card { border-left: 4px solid var(--ac); }
+.info-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-value { font-size: 0.95rem; color: #0f172a; font-weight: 500; margin-bottom: 16px; word-break: break-word; }
+.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; text-align: center; }
+.stat-card.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+.stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.stat-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-number { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
+.stat-label { font-size: 0.85rem; opacity: 0.95; font-weight: 500; }
+.section-header { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+</style>
+
 <div class="page-header">
   <h2><i class="bi bi-person-badge-fill me-2 text-success"></i>{{ teacher.first_name }} {{ teacher.last_name }}</h2>
   <div class="d-flex gap-2">
@@ -13,70 +26,240 @@
 </div>
 
 <div class="row g-4">
-  <div class="col-md-4">
-    <div class="card p-4 text-center">
+  <!-- Profile Card -->
+  <div class="col-lg-4">
+    <div class="card p-4 text-center shadow-sm">
       {% if teacher.photo %}
-        <img src="{{ teacher.photo|safe_url }}" class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit:cover;">
+        <img src="{{ teacher.photo|safe_url }}" class="rounded-circle mx-auto mb-3 shadow" width="120" height="120" style="object-fit:cover; border: 4px solid #e2e8f0;">
       {% else %}
-        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:100px;height:100px;font-size:2rem;">
+        <div class="rounded-circle bg-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow" 
+             style="width:120px;height:120px;font-size:2.5rem;background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);border: 4px solid #e2e8f0;">
           {{ teacher.first_name.0 }}{{ teacher.last_name.0 }}
         </div>
       {% endif %}
-      <h5 class="fw-bold mb-1">{{ teacher.first_name }} {{ teacher.last_name }}</h5>
-      <div class="text-muted small">{{ teacher.subject_specialty|default:"គ្រូបង្រៀន" }}</div>
-      <div class="mt-3 text-start">
-        <table class="table table-sm mb-0">
-          <tr><td class="text-muted">ភេទ</td><td>{{ teacher.get_gender_display|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ទូរស័ព្ទ</td><td>{{ teacher.phone|default:"—" }}</td></tr>
-          <tr><td class="text-muted">អ៊ីម៉ែល</td><td>{{ teacher.email|default:"—" }}</td></tr>
-          <tr><td class="text-muted">អាសយដ្ឋាន</td><td>{{ teacher.address|default:"—" }}</td></tr>
-          <tr><td class="text-muted">ថ្ងៃចូលធ្វើការ</td><td>{{ teacher.hire_date|default:"—" }}</td></tr>
-        </table>
+      <h4 class="fw-bold mb-1">{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+      {% if teacher.first_name_en or teacher.last_name_en %}
+      <div class="text-muted small mb-2">{{ teacher.first_name_en }} {{ teacher.last_name_en }}</div>
+      {% endif %}
+      <span class="badge bg-success fs-6 mb-2">{{ teacher.teacher_id }}</span>
+      {% if teacher.subject_specialty %}
+      <div class="badge bg-info text-dark mb-3"><i class="bi bi-mortarboard me-1"></i>{{ teacher.subject_specialty }}</div>
+      {% endif %}
+      {% if teacher.is_active %}
+        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>សកម្ម</span>
+      {% else %}
+        <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i>អសកម្ម</span>
+      {% endif %}
+    </div>
+
+    <!-- Contact Information -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-person-vcard me-2 text-primary"></i>ព័ត៌មានទំនាក់ទំនង</div>
+      
+      <div class="info-label"><i class="bi bi-telephone me-1"></i>ទូរស័ព្ទ</div>
+      <div class="info-value">
+        {% if teacher.phone %}
+          <a href="tel:{{ teacher.phone }}" class="text-decoration-none">{{ teacher.phone }}</a>
+        {% else %}—{% endif %}
       </div>
+      
+      <div class="info-label"><i class="bi bi-envelope me-1"></i>អ៊ីម៉ែល</div>
+      <div class="info-value" style="font-size: 0.85rem;">
+        {% if teacher.email %}
+          <a href="mailto:{{ teacher.email }}" class="text-decoration-none">{{ teacher.email }}</a>
+        {% else %}—{% endif %}
+      </div>
+      
+      <div class="info-label"><i class="bi bi-geo-alt me-1"></i>អាសយដ្ឋាន</div>
+      <div class="info-value">{{ teacher.address|default:"—" }}</div>
+    </div>
+
+    <!-- Professional Information -->
+    <div class="card info-card p-3 mt-3 shadow-sm">
+      <div class="section-header"><i class="bi bi-briefcase me-2 text-success"></i>ព័ត៌មានការងារ</div>
+      
+      <div class="info-label"><i class="bi bi-gender-ambiguous me-1"></i>ភេទ</div>
+      <div class="info-value">{{ teacher.get_gender_display|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-calendar-check me-1"></i>ថ្ងៃចូលធ្វើការ</div>
+      <div class="info-value">
+        {{ teacher.hire_date|default:"—" }}
+        {% if teacher.hire_date %}
+        <div class="text-muted small mt-1">
+          <i class="bi bi-clock-history me-1"></i>បទពិសោធន៍: {{ teacher.hire_date|timesince }}
+        </div>
+        {% endif %}
+      </div>
+      
+      <div class="info-label"><i class="bi bi-award me-1"></i>កម្រិតវប្បធម៌</div>
+      <div class="info-value">{{ teacher.qualification|default:"—" }}</div>
+      
+      <div class="info-label"><i class="bi bi-book me-1"></i>ជំនាញពិសេស</div>
+      <div class="info-value">{{ teacher.subject_specialty|default:"—" }}</div>
     </div>
   </div>
 
-  <div class="col-md-8">
-    <!-- Subjects -->
-    <div class="card mb-4">
-      <div class="card-header"><i class="bi bi-journal-bookmark me-1 text-primary"></i>មុខវិជ្ជាបង្រៀន</div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>មុខវិជ្ជា</th><th>លេខកូដ</th><th>ថ្នាក់</th></tr></thead>
-          <tbody>
-            {% for sub in subjects %}
-            <tr>
-              <td>{{ sub.name }}</td>
-              <td><code>{{ sub.code|default:"—" }}</code></td>
-              <td>{{ sub.grade }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនទាន់មានមុខវិជ្ជា</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <!-- Teaching Information & Statistics -->
+  <div class="col-lg-8">
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number">{{ subjects|length }}</div>
+          <div class="stat-label"><i class="bi bi-book me-1"></i>មុខវិជ្ជា</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card success">
+          <div class="stat-number">{{ classes|length }}</div>
+          <div class="stat-label"><i class="bi bi-building me-1"></i>ថ្នាក់រៀន</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card warning">
+          <div class="stat-number">{{ total_students|default:"0" }}</div>
+          <div class="stat-label"><i class="bi bi-people me-1"></i>សិស្ស</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card info">
+          <div class="stat-number">{{ attendance_rate|default:"—" }}</div>
+          <div class="stat-label"><i class="bi bi-percent me-1"></i>វត្តមាន</div>
+        </div>
       </div>
     </div>
 
-    <!-- Homeroom classes -->
-    <div class="card">
-      <div class="card-header"><i class="bi bi-building me-1"></i>ថ្នាក់ទទួលខុសត្រូវ</div>
+    <!-- Teaching Subjects -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-journal-bookmark me-2 text-primary"></i><strong>មុខវិជ្ជាបង្រៀន</strong>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead><tr><th>ថ្នាក់</th><th>បន្ទប់</th><th>ឆ្នាំសិក្សា</th></tr></thead>
-          <tbody>
-            {% for c in classes %}
+          <thead class="table-light">
             <tr>
-              <td>{{ c.grade }}</td>
-              <td>{{ c.room_number|default:"—" }}</td>
-              <td>{{ c.academic_year }}</td>
+              <th><i class="bi bi-book me-1"></i>ឈ្មោះមុខវិជ្ជា</th>
+              <th><i class="bi bi-code-square me-1"></i>លេខកូដ</th>
+              <th><i class="bi bi-layers me-1"></i>កម្រិត</th>
+              <th><i class="bi bi-clock me-1"></i>ម៉ោងសប្តាហ៍</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in subjects %}
+            <tr>
+              <td><strong>{{ sub.name }}</strong></td>
+              <td><code class="bg-light px-2 py-1 rounded">{{ sub.code|default:"—" }}</code></td>
+              <td><span class="badge bg-info text-dark">{{ sub.grade|default:"—" }}</span></td>
+              <td class="text-muted">{{ sub.hours_per_week|default:"—" }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="3" class="text-center text-muted"><i class="bi bi-inbox me-1"></i>មិនទាន់មានថ្នាក់</td></tr>
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                មិនទាន់មានមុខវិជ្ជា
+              </td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      {% if subjects %}
+      <div class="card-footer bg-light text-muted">
+        <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ subjects|length }} មុខវិជ្ជា</small>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Homeroom Classes -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-building me-2 text-warning"></i><strong>ថ្នាក់ទទួលខុសត្រូវ</strong>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="bi bi-layers me-1"></i>កម្រិត</th>
+              <th><i class="bi bi-door-closed me-1"></i>បន្ទប់</th>
+              <th><i class="bi bi-people me-1"></i>ចំនួនសិស្ស</th>
+              <th><i class="bi bi-calendar-range me-1"></i>ឆ្នាំសិក្សា</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in classes %}
+            <tr>
+              <td><span class="badge bg-primary">{{ c.grade }}</span></td>
+              <td><strong>{{ c.room_number|default:"—" }}</strong></td>
+              <td><span class="badge bg-secondary">{{ c.students.count }} នាក់</span></td>
+              <td class="text-muted">{{ c.academic_year }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                មិនទាន់មានថ្នាក់
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if classes %}
+      <div class="card-footer bg-light text-muted">
+        <small><i class="bi bi-info-circle me-1"></i>សរុប: {{ classes|length }} ថ្នាក់</small>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent Attendance -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-calendar-check me-2 text-success"></i><strong>វត្តមានថ្មីៗ (10 ថ្ងៃចុងក្រោយ)</strong>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="bi bi-calendar3 me-1"></i>ថ្ងៃ</th>
+              <th><i class="bi bi-check-circle me-1"></i>ស្ថានភាព</th>
+              <th><i class="bi bi-sticky me-1"></i>កំណត់ចំណាំ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for att in attendances %}
+            <tr>
+              <td><strong>{{ att.date }}</strong></td>
+              <td>
+                {% if att.status == 'P' %}
+                  <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                {% elif att.status == 'A' %}
+                  <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                {% elif att.status == 'L' %}
+                  <span class="badge bg-warning text-dark"><i class="bi bi-clock-fill me-1"></i>{{ att.get_status_display }}</span>
+                {% elif att.status == 'E' %}
+                  <span class="badge bg-info text-dark"><i class="bi bi-info-circle-fill me-1"></i>{{ att.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ att.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="text-muted">{{ att.note|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+                មិនមានទិន្នន័យវត្តមាន
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if attendances %}
+      <div class="card-footer bg-light text-end">
+        <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>មើលទាំងអស់</a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

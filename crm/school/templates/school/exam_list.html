@@ -6,15 +6,35 @@
 <div class="page-header">
   <h2><i class="bi bi-file-earmark-text-fill me-2 text-primary"></i>ការប្រឡង</h2>
   <div class="actions">
+    <button id="bulkDeleteBtn" class="btn btn-danger btn-sm me-2" style="display: none;">
+      <i class="bi bi-trash me-1"></i>លុបដែលបានជ្រើសរើស (<span id="selectedCount">0</span>)
+    </button>
     <a href="{% url 'school:exam_add' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>បន្ថែមការប្រឡង</a>
   </div>
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>ឈ្មោះ</th><th>ប្រភេទ</th><th>មុខវិជ្ជា</th><th>ថ្នាក់</th><th>កាលបរិច្ឆេទ</th><th>ពិន្ទុអតិបរមា</th><th>សកម្មភាព</th></tr></thead>
+    <thead>
+      <tr>
+        <th>
+          <input type="checkbox" id="selectAll" title="ជ្រើសរើសទាំងអស់">
+        </th>
+        <th>#</th>
+        <th>ឈ្មោះ</th>
+        <th>ប្រភេទ</th>
+        <th>មុខវិជ្ជា</th>
+        <th>ថ្នាក់</th>
+        <th>កាលបរិច្ឆេទ</th>
+        <th>ពិន្ទុអតិបរមា</th>
+        <th>សកម្មភាព</th>
+      </tr>
+    </thead>
     <tbody>
     {% for exam in exams %}
     <tr>
+      <td>
+        <input type="checkbox" class="exam-checkbox" value="{{ exam.pk }}" data-exam-name="{{ exam.name }}">
+      </td>
       <td>{{ forloop.counter }}</td>
       <td><strong>{{ exam.name }}</strong></td>
       <td><span class="badge bg-info text-dark">{{ exam.exam_type }}</span></td>
@@ -28,9 +48,95 @@
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="8" class="text-center text-muted py-4">មិនមានការប្រឡង</td></tr>
+    <tr><td colspan="9" class="text-center text-muted py-4">មិនមានការប្រឡង</td></tr>
     {% endfor %}
     </tbody>
   </table>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const examCheckboxes = document.querySelectorAll('.exam-checkbox');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+  const selectedCountSpan = document.getElementById('selectedCount');
+
+  // Select/Deselect all checkboxes
+  selectAllCheckbox.addEventListener('change', function() {
+    examCheckboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+    updateBulkDeleteButton();
+  });
+
+  // Update select all checkbox based on individual checkboxes
+  examCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const allChecked = Array.from(examCheckboxes).every(cb => cb.checked);
+      const anyChecked = Array.from(examCheckboxes).some(cb => cb.checked);
+      
+      selectAllCheckbox.checked = allChecked;
+      selectAllCheckbox.indeterminate = !allChecked && anyChecked;
+      
+      updateBulkDeleteButton();
+    });
+  });
+
+  // Update bulk delete button visibility and count
+  function updateBulkDeleteButton() {
+    const selectedCheckboxes = document.querySelectorAll('.exam-checkbox:checked');
+    const count = selectedCheckboxes.length;
+    
+    if (count > 0) {
+      bulkDeleteBtn.style.display = 'inline-block';
+      selectedCountSpan.textContent = count;
+    } else {
+      bulkDeleteBtn.style.display = 'none';
+    }
+  }
+
+  // Handle bulk delete
+  bulkDeleteBtn.addEventListener('click', function() {
+    const selectedCheckboxes = document.querySelectorAll('.exam-checkbox:checked');
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+    const selectedNames = Array.from(selectedCheckboxes).map(cb => cb.dataset.examName);
+    
+    if (selectedIds.length === 0) return;
+    
+    const confirmMessage = `តើអ្នកពិតជាចង់លុបការប្រឡង ${selectedIds.length} នេះមែនទេ?\n\n` + 
+                          selectedNames.map((name, i) => `${i + 1}. ${name}`).join('\n');
+    
+    if (confirm(confirmMessage)) {
+      // Create a form to submit the delete request
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{% url "school:exam_bulk_delete" %}';
+      
+      // Add CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+      if (csrfToken) {
+        form.appendChild(csrfToken.cloneNode(true));
+      } else {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        form.appendChild(csrfInput);
+      }
+      
+      // Add selected IDs
+      selectedIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'exam_ids';
+        input.value = id;
+        form.appendChild(input);
+      });
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+});
+</script>
 {% endblock %}

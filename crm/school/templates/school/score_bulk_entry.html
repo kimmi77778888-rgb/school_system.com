@@ -1,0 +1,380 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}បញ្ចូលពិន្ទុជាក្រុម{% endblock %}
+{% block page_title %}បញ្ចូលពិន្ទុជាក្រុម{% endblock %}
+
+{% block content %}
+<style>
+.score-input {
+  width: 100px;
+  padding: 6px 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.score-input:focus {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  outline: none;
+}
+.score-input.invalid {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.grade-display {
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-width: 50px;
+  display: inline-block;
+}
+.percentage-display {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-left: 8px;
+}
+.student-row {
+  transition: background 0.2s;
+}
+.student-row:hover {
+  background: #f8fafc;
+}
+.exam-info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.exam-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.exam-info-label {
+  opacity: 0.9;
+  font-size: 0.85rem;
+}
+.exam-info-value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+</style>
+
+<div class="page-header">
+  <h2><i class="bi bi-list-check me-2 text-primary"></i>បញ្ចូលពិន្ទុជាក្រុម</h2>
+  <div class="actions">
+    <a href="{% url 'school:score_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅបញ្ជី
+    </a>
+  </div>
+</div>
+
+{% if not exam %}
+<!-- Step 1: Select Exam -->
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <h5 class="mb-4"><i class="bi bi-search me-2 text-primary"></i>ជ្រើសរើសការប្រឡង</h5>
+    <form method="get" id="examSelectForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ឆ្នាំសិក្សា</label>
+          <select name="academic_year" class="form-select" required onchange="this.form.submit()">
+            <option value="">-- ជ្រើសរើសឆ្នាំសិក្សា --</option>
+            {% for year in academic_years %}
+            <option value="{{ year.pk }}" {% if selected_year == year.pk|stringformat:"s" %}selected{% endif %}>
+              {{ year }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ថ្នាក់</label>
+          <select name="classroom" class="form-select" required onchange="this.form.submit()">
+            <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
+            {% for cls in classrooms %}
+            <option value="{{ cls.pk }}" {% if selected_classroom == cls.pk|stringformat:"s" %}selected{% endif %}>
+              {{ cls }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ការប្រឡង</label>
+          <select name="exam" class="form-select" required>
+            <option value="">-- ជ្រើសរើសការប្រឡង --</option>
+            {% for ex in exams %}
+            <option value="{{ ex.pk }}">{{ ex.name }} - {{ ex.subject.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-arrow-right-circle me-1"></i>បន្ត
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% else %}
+<!-- Step 2: Enter Scores -->
+<div class="exam-info-card shadow">
+  <h4 class="mb-3"><i class="bi bi-clipboard-check me-2"></i>ព័ត៌មានការប្រឡង</h4>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="exam-info-item">
+        <i class="bi bi-file-text"></i>
+        <div>
+          <div class="exam-info-label">ឈ្មោះការប្រឡង</div>
+          <div class="exam-info-value">{{ exam.name }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="exam-info-item">
+        <i class="bi bi-book"></i>
+        <div>
+          <div class="exam-info-label">មុខវិជ្ជា</div>
+          <div class="exam-info-value">{{ exam.subject.name }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="exam-info-item">
+        <i class="bi bi-building"></i>
+        <div>
+          <div class="exam-info-label">ថ្នាក់</div>
+          <div class="exam-info-value">{{ exam.classroom }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="exam-info-item">
+        <i class="bi bi-trophy"></i>
+        <div>
+          <div class="exam-info-label">ពិន្ទុអតិបរមា</div>
+          <div class="exam-info-value">{{ exam.max_score }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="scoreForm">
+  {% csrf_token %}
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-people me-2 text-success"></i>បញ្ជីសិស្ស ({{ students|length }} នាក់)</h5>
+        <div>
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillAllPresent()">
+            <i class="bi bi-check-all me-1"></i>ពេញលេញទាំងអស់
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAll()">
+            <i class="bi bi-x-circle me-1"></i>សម្អាតទាំងអស់
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 50px;">#</th>
+            <th style="width: 120px;">លេខសិស្ស</th>
+            <th>ឈ្មោះសិស្ស</th>
+            <th style="width: 150px;">ពិន្ទុ</th>
+            <th style="width: 100px;">%</th>
+            <th style="width: 80px;">ថ្នាក់</th>
+            <th style="width: 250px;">កំណត់ចំណាំ</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+        <tr class="student-row">
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td>
+            <span class="badge bg-light text-dark border fw-bold">{{ student.student_id }}</span>
+            <input type="hidden" name="student_ids" value="{{ student.pk }}">
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              {% if student.photo %}
+              <img src="{{ student.photo|safe_url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
+              {% else %}
+              <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                   style="width:32px;height:32px;font-size:0.75rem;font-weight:700;">
+                {{ student.first_name|first }}
+              </div>
+              {% endif %}
+              <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+            </div>
+          </td>
+          <td>
+            <input type="number" 
+                   name="scores" 
+                   class="score-input" 
+                   min="0" 
+                   max="{{ exam.max_score }}" 
+                   step="0.5"
+                   placeholder="0"
+                   data-max="{{ exam.max_score }}"
+                   onkeyup="calculateGrade(this)">
+          </td>
+          <td>
+            <span class="percentage-display">—</span>
+          </td>
+          <td>
+            <span class="grade-display badge bg-secondary">—</span>
+          </td>
+          <td>
+            <input type="text" 
+                   name="remarks" 
+                   class="form-control form-control-sm" 
+                   placeholder="កំណត់ចំណាំ (ជ្រើសរើស)">
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+            មិនមានសិស្សក្នុងថ្នាក់នេះ
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if students %}
+    <div class="card-footer bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <small>បញ្ចូលពិន្ទុសម្រាប់សិស្សទាំងអស់ ហើយចុច "រក្សាទុក"</small>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="?academic_year={{ exam.academic_year.pk }}&classroom={{ exam.classroom.pk }}" 
+             class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-save me-1"></i>រក្សាទុកពិន្ទុ
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</form>
+{% endif %}
+
+<script>
+function calculateGrade(input) {
+  const row = input.closest('tr');
+  const score = parseFloat(input.value) || 0;
+  const maxScore = parseFloat(input.dataset.max) || 100;
+  const percentageEl = row.querySelector('.percentage-display');
+  const gradeEl = row.querySelector('.grade-display');
+  
+  // Validate input
+  if (score < 0 || score > maxScore) {
+    input.classList.add('invalid');
+    percentageEl.textContent = '—';
+    gradeEl.textContent = '—';
+    gradeEl.className = 'grade-display badge bg-secondary';
+    return;
+  } else {
+    input.classList.remove('invalid');
+  }
+  
+  // Calculate percentage
+  const percentage = maxScore > 0 ? (score / maxScore * 100).toFixed(1) : 0;
+  percentageEl.textContent = percentage + '%';
+  
+  // Determine grade
+  let grade, gradeClass;
+  if (percentage >= 90) {
+    grade = 'A';
+    gradeClass = 'bg-success';
+  } else if (percentage >= 80) {
+    grade = 'B';
+    gradeClass = 'bg-info';
+  } else if (percentage >= 70) {
+    grade = 'C';
+    gradeClass = 'bg-primary';
+  } else if (percentage >= 60) {
+    grade = 'D';
+    gradeClass = 'bg-warning text-dark';
+  } else {
+    grade = 'F';
+    gradeClass = 'bg-danger';
+  }
+  
+  gradeEl.textContent = grade;
+  gradeEl.className = 'grade-display badge ' + gradeClass;
+}
+
+function fillAllPresent() {
+  const maxScore = {{ exam.max_score }};
+  const inputs = document.querySelectorAll('.score-input');
+  inputs.forEach(input => {
+    if (!input.value) {
+      input.value = maxScore;
+      calculateGrade(input);
+    }
+  });
+}
+
+function clearAll() {
+  if (confirm('តើអ្នកពិតជាចង់សម្អាតពិន្ទុទាំងអស់មែនទេ?')) {
+    const inputs = document.querySelectorAll('.score-input');
+    inputs.forEach(input => {
+      input.value = '';
+      calculateGrade(input);
+    });
+    const remarkInputs = document.querySelectorAll('input[name="remarks"]');
+    remarkInputs.forEach(input => input.value = '');
+  }
+}
+
+// Form validation before submit
+document.getElementById('scoreForm')?.addEventListener('submit', function(e) {
+  const scores = document.querySelectorAll('.score-input');
+  let hasInvalid = false;
+  let emptyCount = 0;
+  
+  scores.forEach(input => {
+    if (input.classList.contains('invalid')) {
+      hasInvalid = true;
+    }
+    if (!input.value) {
+      emptyCount++;
+    }
+  });
+  
+  if (hasInvalid) {
+    e.preventDefault();
+    alert('សូមពិនិត្យពិន្ទុដែលមិនត្រឹមត្រូវ (ពណ៌ក្រហម)');
+    return false;
+  }
+  
+  if (emptyCount > 0) {
+    if (!confirm(`មានសិស្ស ${emptyCount} នាក់ដែលមិនទាន់បានបញ្ចូលពិន្ទុ។ តើអ្នកចង់បន្តរក្សាទុកទេ?`)) {
+      e.preventDefault();
+      return false;
+    }
+  }
+  
+  return true;
+});
+</script>
+
+{% endblock %}

@@ -292,14 +292,30 @@ def student_list(request):
 
 @admin_or_teacher
 def student_detail(request, pk):
+    from django.db.models import Avg
     student = get_object_or_404(Student, pk=pk)
     attendances   = student.attendances.order_by('-date')[:10]
     scores        = student.scores.select_related('subject','exam_type','academic_year').order_by('-date_recorded')
+    
+    # Calculate statistics
     present_count = student.attendances.filter(status='P').count()
     absent_count  = student.attendances.filter(status='A').count()
+    total_attendance = student.attendances.count()
+    attendance_rate = round((present_count / total_attendance * 100), 1) if total_attendance > 0 else 0
+    
+    # Calculate average score
+    average_score = scores.aggregate(avg=Avg('score'))['avg']
+    if average_score:
+        average_score = round(average_score, 1)
+    
     return render(request, 'school/student_detail.html', {
-        'student': student, 'attendances': attendances, 'scores': scores,
-        'present_count': present_count, 'absent_count': absent_count,
+        'student': student, 
+        'attendances': attendances, 
+        'scores': scores,
+        'present_count': present_count, 
+        'absent_count': absent_count,
+        'attendance_rate': attendance_rate,
+        'average_score': average_score,
         'role': request.user.profile.role,
     })
 
@@ -368,10 +384,25 @@ def teacher_detail(request, pk):
     teacher    = get_object_or_404(Teacher, pk=pk)
     subjects   = teacher.subjects.all()
     classes    = teacher.homeroom_classes.select_related('grade','academic_year')
+    attendances = teacher.attendances.order_by('-date')[:10]
     timetables = teacher.timetables.select_related('time_slot','subject','classroom').order_by('time_slot__day','time_slot__start_time')
+    
+    # Calculate statistics
+    present_count = teacher.attendances.filter(status='P').count()
+    total_attendance = teacher.attendances.count()
+    attendance_rate = round((present_count / total_attendance * 100), 1) if total_attendance > 0 else 0
+    
+    # Count total students across all homeroom classes
+    total_students = sum(c.students.count() for c in classes)
+    
     return render(request, 'school/teacher_detail.html', {
-        'teacher': teacher, 'subjects': subjects,
-        'classes': classes, 'timetables': timetables,
+        'teacher': teacher, 
+        'subjects': subjects,
+        'classes': classes, 
+        'attendances': attendances,
+        'timetables': timetables,
+        'attendance_rate': attendance_rate,
+        'total_students': total_students,
         'role': request.user.profile.role,
     })
 
@@ -775,6 +806,17 @@ def exam_delete(request, pk):
         return redirect('school:exam_list')
     return render(request, 'school/confirm_delete.html', {'object': exam, 'title': 'លុបការប្រឡង', 'back_url': reverse('school:exam_list')})
 
+@admin_required
+def exam_bulk_delete(request):
+    if request.method == 'POST':
+        exam_ids = request.POST.getlist('exam_ids')
+        if exam_ids:
+            deleted_count = Exam.objects.filter(pk__in=exam_ids).delete()[0]
+            messages.success(request, f'បានលុបការប្រឡង {deleted_count} ដោយជោគជ័យ។')
+        else:
+            messages.warning(request, 'មិនមានការប្រឡងដែលបានជ្រើសរើស។')
+    return redirect('school:exam_list')
+
 @admin_or_teacher
 def score_list(request):
     role = request.user.profile.role
@@ -808,13 +850,95 @@ def score_edit(request, pk):
         return redirect('school:score_list')
     return render(request, 'school/form.html', {'form': form, 'title': 'កែប្រែពិន្ទុ', 'back_url': reverse('school:score_list')})
 
-@admin_required
+@admin_or_teacher
 def score_delete(request, pk):
     score = get_object_or_404(Score, pk=pk)
     if request.method == 'POST':
         score.delete(); messages.success(request, 'ពិន្ទុបានលុប។')
         return redirect('school:score_list')
     return render(request, 'school/confirm_delete.html', {'object': score, 'title': 'លុបពិន្ទុ', 'back_url': reverse('school:score_list')})
+
+@admin_or_teacher
+def score_bulk_entry(request):
+    """Bulk score entry for a class by selecting an exam"""
+    academic_years = AcademicYear.objects.all()
+    classrooms = Classroom.objects.all()
+    
+    selected_year = request.GET.get('academic_year', '')
+    selected_classroom = request.GET.get('classroom', '')
+    selected_exam = request.GET.get('exam', '')
+    
+    # Filter exams based on selections
+    exams = Exam.objects.none()
+    if selected_year and selected_classroom:
+        exams = Exam.objects.filter(
+            academic_year_id=selected_year,
+            classroom_id=selected_classroom
+        ).select_related('subject', 'exam_type', 'classroom', 'academic_year')
+    
+    # Get exam and students if exam is selected
+    exam = None
+    students = []
+    if selected_exam:
+        exam = get_object_or_404(Exam, pk=selected_exam)
+        students = exam.classroom.students.filter(is_active=True).order_by('student_id')
+    
+    # Handle POST - save scores
+    if request.method == 'POST' and exam:
+        student_ids = request.POST.getlist('student_ids')
+        scores_list = request.POST.getlist('scores')
+        remarks_list = request.POST.getlist('remarks')
+        
+        success_count = 0
+        error_count = 0
+        
+        for i, student_id in enumerate(student_ids):
+            score_value = scores_list[i] if i < len(scores_list) else ''
+            remark = remarks_list[i] if i < len(remarks_list) else ''
+            
+            # Skip if no score entered
+            if not score_value:
+                continue
+            
+            try:
+                student = Student.objects.get(pk=student_id)
+                
+                # Create or update score
+                score_obj, created = Score.objects.update_or_create(
+                    student=student,
+                    subject=exam.subject,
+                    exam_type=exam.exam_type,
+                    academic_year=exam.academic_year,
+                    defaults={
+                        'exam': exam,
+                        'score': float(score_value),
+                        'max_score': exam.max_score,
+                        'remarks': remark
+                    }
+                )
+                success_count += 1
+            except Exception as e:
+                error_count += 1
+                import logging
+                logging.getLogger(__name__).error(f"Failed to save score for student {student_id}: {e}")
+        
+        if success_count > 0:
+            messages.success(request, f'បានរក្សាទុកពិន្ទុសម្រាប់សិស្ស {success_count} នាក់។')
+        if error_count > 0:
+            messages.warning(request, f'មានបញ្ហាក្នុងការរក្សាទុកពិន្ទុសម្រាប់សិស្ស {error_count} នាក់។')
+        
+        return redirect('school:score_list')
+    
+    return render(request, 'school/score_bulk_entry.html', {
+        'academic_years': academic_years,
+        'classrooms': classrooms,
+        'exams': exams,
+        'exam': exam,
+        'students': students,
+        'selected_year': selected_year,
+        'selected_classroom': selected_classroom,
+        'role': request.user.profile.role,
+    })
 
 # ── Parent/Student view results ────────────────
 @role_required('parent')
