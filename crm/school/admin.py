@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     AcademicYear, Grade, Teacher, Classroom, Student, Subject,
-    Attendance, TeacherAttendance, ExamType, Exam, Score, TimeSlot, Timetable,
+    Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, Score, TimeSlot, Timetable,
     Notification, NotificationRead, ReportCard, SchoolEvent,
     UserProfile, SchoolSettings
 )
@@ -78,6 +78,15 @@ class TeacherAttendanceAdmin(admin.ModelAdmin):
     list_filter    = ('status', 'date')
     search_fields  = ('teacher__first_name', 'teacher__last_name', 'teacher__teacher_id')
     date_hierarchy = 'date'
+
+
+@admin.register(TeacherEmploymentHistory)
+class TeacherEmploymentHistoryAdmin(admin.ModelAdmin):
+    list_display   = ('teacher', 'school_name', 'position', 'start_date', 'end_date', 'is_current')
+    list_filter    = ('is_current', 'start_date')
+    search_fields  = ('teacher__first_name', 'teacher__last_name', 'school_name', 'position')
+    date_hierarchy = 'start_date'
+    ordering       = ('-start_date',)
 
 
 @admin.register(ExamType)

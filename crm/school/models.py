@@ -60,6 +60,14 @@ class Grade(models.Model):
 # ══════════════════════════════════════════════════════
 class Teacher(models.Model):
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female')]
+    
+    # Cambodia Teacher Rank/Level (ជួរ)
+    RANK_CHOICES = [
+        ('primary', 'គ្រូបឋមសិក្សា (Primary Teacher)'),
+        ('secondary', 'គ្រូមធ្យមសិក្សា (Secondary Teacher)'),
+        ('senior', 'គ្រូជាន់ខ្ពស់ (Senior Teacher)'),
+        ('master', 'គ្រូបណ្ឌិត (Master Teacher)'),
+    ]
 
     teacher_id        = models.CharField(max_length=20, unique=True, blank=True)
     first_name        = models.CharField(max_length=100, verbose_name='នាមខ្លួន (ខ្មែរ)')
@@ -70,11 +78,39 @@ class Teacher(models.Model):
     phone             = models.CharField(max_length=20, blank=True)
     email             = models.EmailField(blank=True)
     address           = models.TextField(blank=True)
-    subject_specialty = models.CharField(max_length=100, blank=True)
-    hire_date         = models.DateField(null=True, blank=True)
+    
+    # Professional Information
+    subject_specialty = models.CharField(max_length=100, blank=True, verbose_name='ជំនាញមុខវិជ្ជា')
+    hire_date         = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃចូលបម្រើការងារ')
     photo             = models.ImageField(upload_to='images/Teachers/', null=True, blank=True)
-    qualification     = models.CharField(max_length=200, blank=True)
+    qualification     = models.CharField(max_length=200, blank=True, verbose_name='កម្រិតវប្បធម៌')
     is_active         = models.BooleanField(default=True)
+    
+    # Cambodia Teacher Standards
+    teacher_rank      = models.CharField(max_length=20, choices=RANK_CHOICES, blank=True, verbose_name='ជួរគ្រូ')
+    teacher_license   = models.CharField(max_length=50, blank=True, verbose_name='លេខអាជ្ញាប័ណ្ណគ្រូ')
+    ministry_id       = models.CharField(max_length=50, blank=True, verbose_name='លេខសម្គាល់ក្រសួង')
+    date_of_birth     = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃខែឆ្នាំកំណើត')
+    place_of_birth    = models.CharField(max_length=200, blank=True, verbose_name='ទីកន្លែងកំណើត')
+    national_id       = models.CharField(max_length=20, blank=True, verbose_name='អត្តសញ្ញាណប័ណ្ណ')
+    
+    # Training & Certification
+    teacher_training  = models.TextField(blank=True, verbose_name='បណ្តុះបណ្តាល')
+    certifications    = models.TextField(blank=True, verbose_name='វិញ្ញាបនប័ត្រ')
+    university        = models.CharField(max_length=200, blank=True, verbose_name='សាកលវិទ្យាល័យ')
+    degree            = models.CharField(max_length=100, blank=True, verbose_name='សញ្ញាប័ត្រ')
+    graduation_year   = models.IntegerField(null=True, blank=True, verbose_name='ឆ្នាំបញ្ចប់ការសិក្សា')
+    
+    # Employment Details
+    contract_type     = models.CharField(max_length=50, blank=True, verbose_name='ប្រភេទកិច្ចសន្យា', 
+                                        help_text='អចិន្ត្រៃយ៍, កិច្ចសន្យា, ល្បែ')
+    salary_scale      = models.CharField(max_length=50, blank=True, verbose_name='ជួរប្រាក់ខែ')
+    years_experience  = models.IntegerField(default=0, verbose_name='ឆ្នាំបទពិសោធន៍')
+    
+    # Emergency Contact
+    emergency_contact = models.CharField(max_length=100, blank=True, verbose_name='អ្នកទំនាក់ទំនងបន្ទាន់')
+    emergency_phone   = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទបន្ទាន់')
+    emergency_relation = models.CharField(max_length=50, blank=True, verbose_name='ទំនាក់ទំនង')
 
     def save(self, *args, **kwargs):
         if not self.teacher_id:
@@ -83,6 +119,13 @@ class Teacher(models.Model):
             Teacher.objects.filter(pk=self.pk).update(teacher_id=self.teacher_id)
         else:
             super().save(*args, **kwargs)
+    
+    def get_age(self):
+        if self.date_of_birth:
+            from datetime import date
+            today = date.today()
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        return None
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -343,6 +386,36 @@ class TeacherAttendance(models.Model):
     class Meta:
         unique_together = ('teacher', 'date')
         ordering = ['-date']
+
+
+# ══════════════════════════════════════════════════════
+#  TEACHER EMPLOYMENT HISTORY (ប្រវត្តិការងារ)
+# ══════════════════════════════════════════════════════
+class TeacherEmploymentHistory(models.Model):
+    teacher       = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='employment_history', verbose_name='គ្រូ')
+    school_name   = models.CharField(max_length=200, verbose_name='ឈ្មោះសាលា')
+    position      = models.CharField(max_length=100, verbose_name='តួនាទី')
+    start_date    = models.DateField(verbose_name='ថ្ងៃចាប់ផ្តើម')
+    end_date      = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃបញ្ចប់')
+    is_current    = models.BooleanField(default=False, verbose_name='បច្ចុប្បន្ន')
+    location      = models.CharField(max_length=200, blank=True, verbose_name='ទីតាំង')
+    responsibilities = models.TextField(blank=True, verbose_name='ភារកិច្ច')
+    achievements  = models.TextField(blank=True, verbose_name='សមិទ្ធផល')
+    reason_leaving = models.CharField(max_length=200, blank=True, verbose_name='មូលហេតុចាកចេញ')
+    
+    def duration_years(self):
+        from datetime import date
+        end = self.end_date if self.end_date else date.today()
+        delta = end - self.start_date
+        return round(delta.days / 365.25, 1)
+    
+    def __str__(self):
+        return f"{self.teacher} - {self.school_name} ({self.start_date.year})"
+    
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = 'ប្រវត្តិការងារ'
+        verbose_name_plural = 'ប្រវត្តិការងារ'
 
 
 # ══════════════════════════════════════════════════════
