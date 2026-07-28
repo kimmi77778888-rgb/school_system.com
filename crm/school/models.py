@@ -111,6 +111,10 @@ class Teacher(models.Model):
     emergency_contact = models.CharField(max_length=100, blank=True, verbose_name='អ្នកទំនាក់ទំនងបន្ទាន់')
     emergency_phone   = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទបន្ទាន់')
     emergency_relation = models.CharField(max_length=50, blank=True, verbose_name='ទំនាក់ទំនង')
+    
+    # Document Uploads
+    id_card_file      = models.FileField(upload_to='documents/teachers/id_cards/', null=True, blank=True, verbose_name='ឯកសារអត្តសញ្ញាណប័ណ្ណ')
+    certificate_file  = models.FileField(upload_to='documents/teachers/certificates/', null=True, blank=True, verbose_name='ឯកសារវិញ្ញាបនប័ត្រ')
 
     def save(self, *args, **kwargs):
         if not self.teacher_id:

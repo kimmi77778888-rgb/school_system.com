@@ -172,7 +172,7 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'teacher_training', 'certifications',
             'contract_type', 'salary_scale', 'years_experience',
             'emergency_contact', 'emergency_phone', 'emergency_relation',
-            'photo', 'is_active'
+            'photo', 'id_card_file', 'certificate_file', 'is_active'
         ]
         labels = {
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
@@ -196,6 +196,8 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'emergency_contact': 'អ្នកទំនាក់ទំនងបន្ទាន់',
             'emergency_phone': 'ទូរស័ព្ទបន្ទាន់',
             'emergency_relation': 'ទំនាក់ទំនង',
+            'id_card_file': 'ឯកសារអត្តសញ្ញាណប័ណ្ណ (ID Card Document)',
+            'certificate_file': 'ឯកសារវិញ្ញាបនប័ត្រ (Certificate Documents)',
         }
         widgets = {
             'hire_date': forms.DateInput(attrs={'type': 'date'}),
@@ -204,6 +206,8 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'teacher_training': forms.Textarea(attrs={'rows': 3}),
             'certifications': forms.Textarea(attrs={'rows': 3}),
             'photo':     PhotoInput(),
+            'id_card_file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
+            'certificate_file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
         }
     
     def __init__(self, *args, **kwargs):

@@ -175,6 +175,33 @@
           <code class="bg-light px-2 py-1 rounded">{{ teacher.national_id }}</code>
         {% else %}—{% endif %}
       </div>
+      
+      <!-- Document Files -->
+      <div class="mt-3 pt-3" style="border-top: 1px solid #e2e8f0;">
+        <div class="info-label"><i class="bi bi-file-earmark-pdf me-1"></i>ឯកសារភ្ជាប់</div>
+        
+        {% if teacher.id_card_file %}
+        <div class="mb-2">
+          <a href="{{ teacher.id_card_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm w-100" download>
+            <i class="bi bi-download me-1"></i>ទាញយកអត្តសញ្ញាណប័ណ្ណ
+          </a>
+        </div>
+        {% endif %}
+        
+        {% if teacher.certificate_file %}
+        <div class="mb-2">
+          <a href="{{ teacher.certificate_file.url }}" target="_blank" class="btn btn-outline-success btn-sm w-100" download>
+            <i class="bi bi-download me-1"></i>ទាញយកវិញ្ញាបនប័ត្រ
+          </a>
+        </div>
+        {% endif %}
+        
+        {% if not teacher.id_card_file and not teacher.certificate_file %}
+        <div class="text-muted small text-center py-2">
+          <i class="bi bi-inbox"></i> មិនមានឯកសារទេ
+        </div>
+        {% endif %}
+      </div>
     </div>
 
     <!-- Education Background -->
