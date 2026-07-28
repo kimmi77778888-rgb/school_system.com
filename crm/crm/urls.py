@@ -229,6 +229,7 @@ urlpatterns = [
     path('test-upload/', test_upload, name='test_upload'),
     path('', lambda request: redirect('school:dashboard'), name='root'),
     path('school/', include('school.urls')),
+    path('api/', include('school.api_urls')),  # REST API endpoints
 ]
 
 # Serve media files locally (dev) and as fallback in production without Cloudinary.

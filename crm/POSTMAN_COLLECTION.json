@@ -1,0 +1,483 @@
+{
+  "info": {
+    "name": "School Management System API",
+    "description": "Complete REST API for School Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "Token {{token}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/overview/",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "overview", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Today's Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/attendance_today/",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "attendance_today", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "List Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/students/?page=1&page_size=20",
+              "host": ["{{base_url}}"],
+              "path": ["students", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Student",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/students/1/",
+              "host": ["{{base_url}}"],
+              "path": ["students", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"first_name_en\": \"John\",\n    \"last_name_en\": \"Doe\",\n    \"gender\": \"M\",\n    \"date_of_birth\": \"2010-05-15\",\n    \"classroom\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/students/",
+              "host": ["{{base_url}}"],
+              "path": ["students", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Student Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/students/1/statistics/",
+              "host": ["{{base_url}}"],
+              "path": ["students", "1", "statistics", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teachers",
+      "item": [
+        {
+          "name": "List Teachers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teachers/",
+              "host": ["{{base_url}}"],
+              "path": ["teachers", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Teacher",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teachers/1/",
+              "host": ["{{base_url}}"],
+              "path": ["teachers", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Active Teachers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teachers/active/",
+              "host": ["{{base_url}}"],
+              "path": ["teachers", "active", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "List Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", ""]
+            }
+          }
+        },
+        {
+          "name": "Mark Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"student\": 1,\n    \"date\": \"2026-07-28\",\n    \"status\": \"P\",\n    \"note\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Today's Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/today/",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "today", ""]
+            }
+          }
+        },
+        {
+          "name": "Bulk Mark Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"attendance\": [\n        {\n            \"student\": 1,\n            \"date\": \"2026-07-28\",\n            \"status\": \"P\"\n        },\n        {\n            \"student\": 2,\n            \"date\": \"2026-07-28\",\n            \"status\": \"A\",\n            \"note\": \"Sick\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/bulk_create/",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "bulk_create", ""]
+            }
+          }
+        },
+        {
+          "name": "Attendance Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/summary/?student=1&start_date=2026-01-01&end_date=2026-07-28",
+              "host": ["{{base_url}}"],
+              "path": ["attendance", "summary", ""],
+              "query": [
+                {
+                  "key": "student",
+                  "value": "1"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-07-28"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scores",
+      "item": [
+        {
+          "name": "List Scores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/scores/",
+              "host": ["{{base_url}}"],
+              "path": ["scores", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"student\": 1,\n    \"subject\": 1,\n    \"exam_type\": 1,\n    \"academic_year\": 1,\n    \"score\": 85.5,\n    \"max_score\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/scores/",
+              "host": ["{{base_url}}"],
+              "path": ["scores", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Student Scores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/scores/student_scores/?student_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["scores", "student_scores", ""],
+              "query": [
+                {
+                  "key": "student_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/notifications/",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/notifications/unread/",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "unread", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Test Notification\",\n    \"message\": \"This is a test notification\",\n    \"notification_type\": \"announcement\",\n    \"audience\": \"all\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications/",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", ""]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/notifications/1/mark_read/",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "1", "mark_read", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Classrooms",
+      "item": [
+        {
+          "name": "List Classrooms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/classrooms/",
+              "host": ["{{base_url}}"],
+              "path": ["classrooms", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Classroom Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/classrooms/1/students/",
+              "host": ["{{base_url}}"],
+              "path": ["classrooms", "1", "students", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Classroom Timetable",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/classrooms/1/timetable/",
+              "host": ["{{base_url}}"],
+              "path": ["classrooms", "1", "timetable", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
