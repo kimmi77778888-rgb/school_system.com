@@ -15,7 +15,18 @@ def role_required(*roles):
             try:
                 role = request.user.profile.role
             except Exception:
-                role = None
+                # Profile doesn't exist - create it
+                from .models import UserProfile
+                role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'student'
+                UserProfile.objects.get_or_create(
+                    user=request.user,
+                    defaults={'role': role}
+                )
+                # Re-fetch the role after creating profile
+                try:
+                    role = request.user.profile.role
+                except Exception:
+                    role = None
             if role in roles:
                 return view_func(request, *args, **kwargs)
             messages.error(request, 'អ្នកមិនមានសិទ្ធិចូលទៅកាន់ទំព័រនេះ។')
