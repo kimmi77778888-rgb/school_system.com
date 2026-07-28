@@ -1,0 +1,159 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}បន្ថែមឯកសារ - {{ teacher.first_name }} {{ teacher.last_name }}{% endblock %}
+{% block page_title %}បន្ថែមឯកសារគ្រូ{% endblock %}
+
+{% block content %}
+<style>
+.doc-card { border-left: 4px solid var(--ac); transition: transform 0.2s; }
+.doc-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.doc-icon { font-size: 2rem; opacity: 0.7; }
+.doc-type-badge { font-size: 0.7rem; padding: 3px 8px; }
+</style>
+
+<div class="page-header">
+  <h2>
+    <i class="bi bi-file-earmark-plus me-2 text-primary"></i>
+    បន្ថែមឯកសារសម្រាប់ {{ teacher.first_name }} {{ teacher.last_name }}
+  </h2>
+  <div class="d-flex gap-2">
+    <a href="{% url 'school:teacher_detail' teacher.pk %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Upload Form -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-cloud-upload me-2 text-success"></i><strong>បញ្ចូលឯកសារថ្មី</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">{{ form.document_type.label }}</label>
+            {{ form.document_type }}
+            {% if form.document_type.errors %}
+            <div class="text-danger small mt-1">{{ form.document_type.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">{{ form.title.label }}</label>
+            {{ form.title }}
+            <div class="form-text">ឧទាហរណ៍: អត្តសញ្ញាណប័ណ្ណ២០២៤, វិញ្ញាបនប័ត្រភាសាអង់គ្លេស</div>
+            {% if form.title.errors %}
+            <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">{{ form.document_file.label }}</label>
+            {{ form.document_file }}
+            <div class="form-text">
+              <i class="bi bi-info-circle me-1"></i>
+              អនុញ្ញាត: PDF, JPG, PNG, DOC, DOCX (អតិបរមា 10MB)
+            </div>
+            {% if form.document_file.errors %}
+            <div class="text-danger small mt-1">{{ form.document_file.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">{{ form.description.label }}</label>
+            {{ form.description }}
+            <div class="form-text">ពិពណ៌នាបន្ថែម (ជាជម្រើស)</div>
+            {% if form.description.errors %}
+            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-upload me-2"></i>បញ្ចូលឯកសារ
+            </button>
+            <a href="{% url 'school:teacher_detail' teacher.pk %}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-circle me-1"></i>បោះបង់
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing Documents List -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <i class="bi bi-files me-2 text-info"></i>
+        <strong>ឯកសារដែលមាន</strong>
+        <span class="badge bg-primary ms-2">{{ documents.count }} ឯកសារ</span>
+      </div>
+      <div class="card-body">
+        {% if documents %}
+          <div class="row g-3">
+            {% for doc in documents %}
+            <div class="col-md-6">
+              <div class="card doc-card h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="doc-icon text-primary">
+                      {% if doc.is_pdf %}
+                        <i class="bi bi-file-pdf-fill text-danger"></i>
+                      {% elif doc.is_image %}
+                        <i class="bi bi-file-image-fill text-success"></i>
+                      {% else %}
+                        <i class="bi bi-file-earmark-fill text-primary"></i>
+                      {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                      <span class="doc-type-badge badge bg-secondary mb-2">
+                        {{ doc.get_document_type_display }}
+                      </span>
+                      <h6 class="mb-1">{{ doc.title|default:"មិនមានចំណងជើង" }}</h6>
+                      <p class="text-muted small mb-2">{{ doc.description|truncatewords:15|default:"" }}</p>
+                      <div class="text-muted small mb-2">
+                        <i class="bi bi-calendar3 me-1"></i>{{ doc.uploaded_at|date:"d M Y" }}
+                        {% if doc.uploaded_by %}
+                        <br><i class="bi bi-person me-1"></i>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}
+                        {% endif %}
+                      </div>
+                      <div class="d-flex gap-1">
+                        <a href="{{ doc.document_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary" download>
+                          <i class="bi bi-download"></i> ទាញយក
+                        </a>
+                        <a href="{{ doc.document_file.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                          <i class="bi bi-eye"></i> មើល
+                        </a>
+                        <form method="post" action="{% url 'school:teacher_document_delete' doc.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                  onclick="return confirm('តើអ្នកប្រាកដថាចង់លុបឯកសារនេះ?')">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 16px;"></i>
+            <p>មិនទាន់មានឯកសារ</p>
+            <small>សូមបញ្ចូលឯកសារពីទម្រង់ខាងឆ្វេង</small>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    AcademicYear, Grade, Teacher, Classroom, Student, Subject,
+    AcademicYear, Grade, Teacher, TeacherDocument, Classroom, Student, Subject,
     Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, Score, TimeSlot, Timetable,
     Notification, NotificationRead, ReportCard, SchoolEvent,
     UserProfile, SchoolSettings
@@ -43,6 +43,14 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display  = ('teacher_id', 'first_name', 'last_name', 'gender', 'subject_specialty', 'phone', 'is_active')
     search_fields = ('first_name', 'last_name', 'email', 'teacher_id')
     list_filter   = ('gender', 'is_active')
+
+
+@admin.register(TeacherDocument)
+class TeacherDocumentAdmin(admin.ModelAdmin):
+    list_display  = ('teacher', 'document_type', 'title', 'uploaded_at', 'uploaded_by')
+    list_filter   = ('document_type', 'uploaded_at')
+    search_fields = ('teacher__first_name', 'teacher__last_name', 'title', 'description')
+    readonly_fields = ('uploaded_at',)
 
 
 @admin.register(Classroom)

@@ -196,11 +196,32 @@
         </div>
         {% endif %}
         
-        {% if not teacher.id_card_file and not teacher.certificate_file %}
+        <!-- Multiple Documents -->
+        {% for doc in teacher.documents.all %}
+        <div class="mb-2">
+          <a href="{{ doc.document_file.url }}" target="_blank" class="btn btn-outline-info btn-sm w-100 d-flex align-items-center justify-content-between" download>
+            <span>
+              {% if doc.is_pdf %}<i class="bi bi-file-pdf me-1"></i>
+              {% elif doc.is_image %}<i class="bi bi-file-image me-1"></i>
+              {% else %}<i class="bi bi-file-earmark me-1"></i>{% endif %}
+              {{ doc.title|default:doc.get_document_type_display }}
+            </span>
+            <i class="bi bi-download"></i>
+          </a>
+        </div>
+        {% endfor %}
+        
+        {% if not teacher.id_card_file and not teacher.certificate_file and not teacher.documents.all %}
         <div class="text-muted small text-center py-2">
           <i class="bi bi-inbox"></i> មិនមានឯកសារទេ
         </div>
         {% endif %}
+        
+        <div class="mt-3">
+          <a href="{% url 'school:teacher_document_upload' teacher.pk %}" class="btn btn-success btn-sm w-100">
+            <i class="bi bi-plus-circle me-1"></i>បន្ថែមឯកសារ
+          </a>
+        </div>
       </div>
     </div>
 

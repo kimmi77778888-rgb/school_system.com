@@ -112,7 +112,7 @@ class Teacher(models.Model):
     emergency_phone   = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទបន្ទាន់')
     emergency_relation = models.CharField(max_length=50, blank=True, verbose_name='ទំនាក់ទំនង')
     
-    # Document Uploads
+    # Legacy single file fields (kept for backward compatibility)
     id_card_file      = models.FileField(upload_to='documents/teachers/id_cards/', null=True, blank=True, verbose_name='ឯកសារអត្តសញ្ញាណប័ណ្ណ')
     certificate_file  = models.FileField(upload_to='documents/teachers/certificates/', null=True, blank=True, verbose_name='ឯកសារវិញ្ញាបនប័ត្រ')
 
@@ -136,6 +136,47 @@ class Teacher(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name']
+
+
+# ══════════════════════════════════════════════════════
+#  TEACHER DOCUMENT - For multiple file uploads
+# ══════════════════════════════════════════════════════
+class TeacherDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('id_card', 'អត្តសញ្ញាណប័ណ្ណ (ID Card)'),
+        ('certificate', 'វិញ្ញាបនប័ត្រ (Certificate)'),
+        ('degree', 'សញ្ញាប័ត្រសិក្សា (Degree)'),
+        ('license', 'អាជ្ញាប័ណ្ណគ្រូ (Teacher License)'),
+        ('contract', 'កិច្ចសន្យា (Contract)'),
+        ('training', 'វិញ្ញាបនប័ត្របណ្តុះបណ្តាល (Training Certificate)'),
+        ('other', 'ផ្សេងៗ (Other)'),
+    ]
+    
+    teacher       = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, verbose_name='ប្រភេទឯកសារ')
+    document_file = models.FileField(upload_to='documents/teachers/', verbose_name='ឯកសារ')
+    title         = models.CharField(max_length=200, blank=True, verbose_name='ចំណងជើង')
+    description   = models.TextField(blank=True, verbose_name='ការពិពណ៌នា')
+    uploaded_at   = models.DateTimeField(auto_now_add=True, verbose_name='ថ្ងៃបញ្ចូល')
+    uploaded_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='បញ្ចូលដោយ')
+    
+    def __str__(self):
+        return f"{self.teacher} - {self.get_document_type_display()} - {self.title or 'No Title'}"
+    
+    def get_file_extension(self):
+        import os
+        return os.path.splitext(self.document_file.name)[1].lower()
+    
+    def is_pdf(self):
+        return self.get_file_extension() == '.pdf'
+    
+    def is_image(self):
+        return self.get_file_extension() in ['.jpg', '.jpeg', '.png', '.gif']
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name = 'ឯកសារគ្រូ'
+        verbose_name_plural = 'ឯកសារគ្រូ'
 
 
 # ══════════════════════════════════════════════════════

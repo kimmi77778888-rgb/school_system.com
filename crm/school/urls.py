@@ -33,6 +33,8 @@ urlpatterns = [
     path('teachers/<int:pk>/',          views.teacher_detail, name='teacher_detail'),
     path('teachers/<int:pk>/edit/',     views.teacher_edit,   name='teacher_edit'),
     path('teachers/<int:pk>/delete/',   views.teacher_delete, name='teacher_delete'),
+    path('teachers/<int:teacher_pk>/documents/upload/', views.teacher_document_upload, name='teacher_document_upload'),
+    path('teacher-documents/<int:pk>/delete/', views.teacher_document_delete, name='teacher_document_delete'),
 
     # Academic Years
     path('academic-years/',                     views.academic_year_list,       name='academic_year_list'),

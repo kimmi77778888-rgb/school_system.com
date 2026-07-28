@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import (
-    Student, Teacher, Classroom, Attendance, TeacherAttendance, Score, Subject,
+    Student, Teacher, TeacherDocument, Classroom, Attendance, TeacherAttendance, Score, Subject,
     Grade, AcademicYear, ExamType, Exam, Timetable, TimeSlot,
     Notification, ReportCard, SchoolEvent, UserProfile
 )
@@ -544,4 +544,21 @@ class SchoolSettingsForm(BootstrapMixin, forms.ModelForm):
             'sidebar_bg':      forms.TextInput(attrs={'type': 'color', 'class': 'form-control form-control-color'}),
             'logo':            PhotoInput(),
             'favicon':         PhotoInput(),
+        }
+
+
+# ── Teacher Document Form ────────────────────────────────────────
+class TeacherDocumentForm(BootstrapMixin, forms.ModelForm):
+    class Meta:
+        model = TeacherDocument
+        fields = ['document_type', 'document_file', 'title', 'description']
+        labels = {
+            'document_type': 'ប្រភេទឯកសារ (Document Type)',
+            'document_file': 'ឯកសារ (File)',
+            'title': 'ចំណងជើង (Title)',
+            'description': 'ការពិពណ៌នា (Description)',
+        }
+        widgets = {
+            'document_file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png,.doc,.docx'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
         }

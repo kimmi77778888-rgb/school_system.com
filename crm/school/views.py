@@ -513,6 +513,56 @@ def teacher_delete(request, pk):
         'object': teacher, 'title': 'លុបគ្រូ', 'back_url': reverse('school:teacher_list')
     })
 
+
+@admin_or_teacher
+def teacher_document_upload(request, teacher_pk):
+    from .forms import TeacherDocumentForm
+    from .models import TeacherDocument
+    
+    teacher = get_object_or_404(Teacher, pk=teacher_pk)
+    
+    if request.method == 'POST':
+        form = TeacherDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.teacher = teacher
+            document.uploaded_by = request.user
+            document.save()
+            messages.success(request, 'ឯកសារបានបញ្ចូលរួច។')
+            return redirect('school:teacher_detail', pk=teacher_pk)
+    else:
+        form = TeacherDocumentForm()
+    
+    # Get all existing documents
+    documents = TeacherDocument.objects.filter(teacher=teacher)
+    
+    return render(request, 'school/teacher_document_upload.html', {
+        'form': form,
+        'teacher': teacher,
+        'documents': documents,
+        'title': f'បន្ថែមឯកសារសម្រាប់ {teacher.first_name} {teacher.last_name}',
+        'back_url': reverse('school:teacher_detail', args=[teacher_pk])
+    })
+
+
+@admin_required
+def teacher_document_delete(request, pk):
+    from .models import TeacherDocument
+    document = get_object_or_404(TeacherDocument, pk=pk)
+    teacher_pk = document.teacher.pk
+    
+    if request.method == 'POST':
+        document.delete()
+        messages.success(request, 'ឯកសារបានលុប។')
+        return redirect('school:teacher_detail', pk=teacher_pk)
+    
+    return render(request, 'school/confirm_delete.html', {
+        'object': document,
+        'title': 'លុបឯកសារ',
+        'back_url': reverse('school:teacher_detail', args=[teacher_pk])
+    })
+
+
 # ══════════════════════════════════════════════
 #  CLASSROOMS & SUBJECTS (Admin only)
 # ══════════════════════════════════════════════
