@@ -671,27 +671,27 @@ a{text-decoration:none;color:inherit;}
     <!-- LANGUAGE SWITCHER -->
     <div class="dropdown no-print">
       <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" 
-        style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;">
-        <span id="current-flag">🇰🇭</span>
+        style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:8px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;">
+        <img id="current-flag" src="https://flagcdn.com/w40/kh.png" alt="KH" style="width:24px;height:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.2);">
         <span class="d-none d-md-inline" id="current-lang">ភាសាខ្មែរ</span>
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" style="min-width:160px;">
+      <ul class="dropdown-menu dropdown-menu-end" style="min-width:180px;">
         <li>
-          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('km'); return false;">
-            <span style="font-size:1.2rem;">🇰🇭</span>
-            <span>ភាសាខ្មែរ</span>
+          <a class="dropdown-item d-flex align-items-center gap-3" href="#" onclick="switchLanguage('km'); return false;" style="padding:8px 12px;">
+            <img src="https://flagcdn.com/w40/kh.png" alt="KH" style="width:28px;height:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+            <span style="font-weight:500;">ភាសាខ្មែរ</span>
           </a>
         </li>
         <li>
-          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('en'); return false;">
-            <span style="font-size:1.2rem;">🇬🇧</span>
-            <span>English</span>
+          <a class="dropdown-item d-flex align-items-center gap-3" href="#" onclick="switchLanguage('en'); return false;" style="padding:8px 12px;">
+            <img src="https://flagcdn.com/w40/gb.png" alt="GB" style="width:28px;height:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+            <span style="font-weight:500;">English</span>
           </a>
         </li>
         <li>
-          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('zh'); return false;">
-            <span style="font-size:1.2rem;">🇨🇳</span>
-            <span>中文</span>
+          <a class="dropdown-item d-flex align-items-center gap-3" href="#" onclick="switchLanguage('zh'); return false;" style="padding:8px 12px;">
+            <img src="https://flagcdn.com/w40/cn.png" alt="CN" style="width:28px;height:auto;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+            <span style="font-weight:500;">中文</span>
           </a>
         </li>
       </ul>
@@ -721,10 +721,10 @@ a{text-decoration:none;color:inherit;}
 <script>
 // Language Switcher
 function switchLanguage(lang) {
-  const flags = {
-    'km': '🇰🇭',
-    'en': '🇬🇧',
-    'zh': '🇨🇳'
+  const flagUrls = {
+    'km': 'https://flagcdn.com/w40/kh.png',
+    'en': 'https://flagcdn.com/w40/gb.png',
+    'zh': 'https://flagcdn.com/w40/cn.png'
   };
   const names = {
     'km': 'ភាសាខ្មែរ',
@@ -733,7 +733,8 @@ function switchLanguage(lang) {
   };
   
   // Update UI
-  document.getElementById('current-flag').textContent = flags[lang];
+  const flagImg = document.getElementById('current-flag');
+  flagImg.src = flagUrls[lang];
   const langSpan = document.getElementById('current-lang');
   if (langSpan) langSpan.textContent = names[lang];
   
@@ -757,10 +758,15 @@ function switchLanguage(lang) {
 // Load saved language on page load
 document.addEventListener('DOMContentLoaded', function() {
   const savedLang = localStorage.getItem('language') || 'km';
-  const flags = {'km': '🇰🇭', 'en': '🇬🇧', 'zh': '🇨🇳'};
+  const flagUrls = {
+    'km': 'https://flagcdn.com/w40/kh.png',
+    'en': 'https://flagcdn.com/w40/gb.png',
+    'zh': 'https://flagcdn.com/w40/cn.png'
+  };
   const names = {'km': 'ភាសាខ្មែរ', 'en': 'English', 'zh': '中文'};
   
-  document.getElementById('current-flag').textContent = flags[savedLang];
+  const flagImg = document.getElementById('current-flag');
+  flagImg.src = flagUrls[savedLang];
   const langSpan = document.getElementById('current-lang');
   if (langSpan) langSpan.textContent = names[savedLang];
   
