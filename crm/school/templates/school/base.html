@@ -775,74 +775,253 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Translation dictionary
+// Translation dictionary - COMPREHENSIVE
 const translations = {
   'en': {
-    // Add English translations here
+    // Main Navigation
     'ផ្ទាំងគ្រប់គ្រង': 'Dashboard',
+    'អ្នកប្រើប្រាស់': 'Users',
+    'ឆ្នាំសិក្សា': 'Academic Year',
+    'សិក្សា': 'Education',
     'សិស្ស': 'Students',
     'គ្រូបង្រៀន': 'Teachers',
     'ថ្នាក់រៀន': 'Classes',
     'មុខវិជ្ជា': 'Subjects',
-    'កាលវិភាគ': 'Timetable',
+    'តារាងម៉ោង': 'Timetable',
+    'ការបង្រៀន': 'Teaching',
+    'វត្តមានសិស្ស': 'Student Attendance',
+    'វត្តមានក្រុម': 'Group Attendance',
+    'វត្តមានគ្រូ': 'Teacher Attendance',
     'ការប្រឡង': 'Exams',
-    'លទ្ធផល': 'Results',
+    'លទ្ធផលប្រឡង': 'Exam Results',
+    'ទំនាក់ទំនង': 'Communication',
+    'ជូនដំណឹង': 'Notifications',
+    'ព្រឹត្តិការណ៍': 'Events',
+    'លទ្ធផល': 'Reports',
+    'សៀវភៅប័ណ្ណ': 'Report Cards',
+    'របាយការណ៍សិស្ស': 'Student Reports',
+    'របាយការណ៍វត្តមាន': 'Attendance Reports',
+    'របាយការណ៍ពិន្ទុ': 'Score Reports',
+    'របាយការណ៍គ្រូ': 'Teacher Reports',
+    
+    // Dashboard Cards
+    'Teachers': 'Teachers',
+    'Classes': 'Classes',
+    'Subjects': 'Subjects',
+    'Students': 'Students',
+    'Results': 'Results',
+    
+    // Stats Labels
     'វត្តមាន': 'Attendance',
-    'បោះពុម្ព': 'Print',
-    'ចាកចេញ': 'Logout',
+    'អវត្តមាន': 'Absent',
+    'ច្បាប់': 'Leave',
+    'មកយឺត': 'Late',
+    
+    // Buttons
     'បន្ថែម': 'Add',
     'កែប្រែ': 'Edit',
     'លុប': 'Delete',
     'រក្សាទុក': 'Save',
     'បោះបង់': 'Cancel',
+    'បោះពុម្ព': 'Print',
+    'ចាកចេញ': 'Logout',
+    'មើលព័ត៌មាន': 'View Details',
+    'មើលទាំងអស់': 'View All',
+    
+    // Parent Links
+    'ព័ត៌មានកូន': 'Children Info',
+    'វត្តមានកូន': 'Children Attendance',
+    'លទ្ធផលកូន': 'Children Results',
+    'ព័ត៌មានសាលា': 'School Info',
+    
+    // Labels
+    'ទូទៅ': 'General',
+    'គ្រប់គ្រង': 'Management',
+    'ប្រវត្តិរូប': 'Profile',
+    
+    // Table Headers
+    'ឈ្មោះ': 'Name',
+    'ភេទ': 'Gender',
+    'ថ្ងៃខែឆ្នាំកំណើត': 'Date of Birth',
+    'អាសយដ្ឋាន': 'Address',
+    'ទូរស័ព្ទ': 'Phone',
+    'អ៊ីមែល': 'Email',
+    'សកម្មភាព': 'Actions',
+    
+    // Quick Actions
+    'សកម្មភាពលឿន': 'Quick Actions',
+    'បញ្ចូលវត្តមាន': 'Enter Attendance',
+    'បញ្ចូលពិន្ទុ': 'Enter Scores',
+    'កាលវិភាគ': 'Schedule',
+    
+    // Notifications
+    'សកម្មភាពចុងក្រោយ': 'Recent Activity',
+    'សកម្មភាពថ្មីៗ': 'Recent Events',
+    'ព្រឹត្តិការណ៍ថ្មី': 'New Events',
+    
+    // Misc
+    'គ្មានទិន្នន័យទេ': 'No data available',
+    'Everyone': 'Everyone',
+    'Parents Only': 'Parents Only',
+    'Meeting': 'Meeting',
   },
   'zh': {
-    // Add Chinese translations here
+    // Main Navigation
     'ផ្ទាំងគ្រប់គ្រង': '仪表板',
+    'អ្នកប្រើប្រាស់': '用户',
+    'ឆ្នាំសិក្សា': '学年',
+    'សិក្សា': '教育',
     'សិស្ស': '学生',
     'គ្រូបង្រៀន': '教师',
     'ថ្នាក់រៀន': '班级',
     'មុខវិជ្ជា': '科目',
-    'កាលវិភាគ': '时间表',
+    'តារាងម៉ោង': '时间表',
+    'ការបង្រៀន': '教学',
+    'វត្តមានសិស្ស': '学生考勤',
+    'វត្តមានក្រុម': '小组考勤',
+    'វត្តមានគ្រូ': '教师考勤',
     'ការប្រឡង': '考试',
-    'លទ្ធផល': '成绩',
+    'លទ្ធផលប្រឡង': '考试成绩',
+    'ទំនាក់ទំនង': '沟通',
+    'ជូនដំណឹង': '通知',
+    'ព្រឹត្តិការណ៍': '活动',
+    'លទ្ធផល': '报告',
+    'សៀវភៅប័ណ្ណ': '成绩单',
+    'របាយការណ៍សិស្ស': '学生报告',
+    'របាយការណ៍វត្តមាន': '考勤报告',
+    'របាយការណ៍ពិន្ទុ': '分数报告',
+    'របាយការណ៍គ្រូ': '教师报告',
+    
+    // Dashboard Cards
+    'Teachers': '教师',
+    'Classes': '班级',
+    'Subjects': '科目',
+    'Students': '学生',
+    'Results': '成绩',
+    
+    // Stats Labels
     'វត្តមាន': '出勤',
-    'បោះពុម្ព': '打印',
-    'ចាកចេញ': '登出',
+    'អវត្តមាន': '缺勤',
+    'ច្បាប់': '请假',
+    'មកយឺត': '迟到',
+    
+    // Buttons
     'បន្ថែម': '添加',
     'កែប្រែ': '编辑',
     'លុប': '删除',
     'រក្សាទុក': '保存',
     'បោះបង់': '取消',
+    'បោះពុម្ព': '打印',
+    'ចាកចេញ': '登出',
+    'មើលព័ត៌មាន': '查看详情',
+    'មើលទាំងអស់': '查看全部',
+    
+    // Parent Links
+    'ព័ត៌មានកូន': '孩子信息',
+    'វត្តមានកូន': '孩子考勤',
+    'លទ្ធផលកូន': '孩子成绩',
+    'ព័ត៌មានសាលា': '学校信息',
+    
+    // Labels
+    'ទូទៅ': '常规',
+    'គ្រប់គ្រង': '管理',
+    'ប្រវត្តិរូប': '个人资料',
+    
+    // Table Headers
+    'ឈ្មោះ': '姓名',
+    'ភេទ': '性别',
+    'ថ្ងៃខែឆ្នាំកំណើត': '出生日期',
+    'អាសយដ្ឋាន': '地址',
+    'ទូរស័ព្ទ': '电话',
+    'អ៊ីមែល': '电子邮件',
+    'សកម្មភាព': '操作',
+    
+    // Quick Actions
+    'សកម្មភាពលឿន': '快速操作',
+    'បញ្ចូលវត្តមាន': '录入考勤',
+    'បញ្ចូលពិន្ទុ': '录入分数',
+    'កាលវិភាគ': '日程表',
+    
+    // Notifications
+    'សកម្មភាពចុងក្រោយ': '最近活动',
+    'សកម្មភាពថ្មីៗ': '最近事件',
+    'ព្រឹត្តិការណ៍ថ្មី': '新活动',
+    
+    // Misc
+    'គ្មានទិន្នន័យទេ': '暂无数据',
+    'Everyone': '所有人',
+    'Parents Only': '仅家长',
+    'Meeting': '会议',
   }
 };
 
-// Apply translations to page
+// Apply translations to page - IMPROVED
 function applyTranslations(lang) {
-  if (lang === 'km') return; // No translation needed for Khmer
+  if (lang === 'km') {
+    location.reload(); // Reload to get back to Khmer
+    return;
+  }
   
   const dict = translations[lang];
   if (!dict) return;
   
-  // Translate text nodes
+  // Function to translate a text node
+  function translateText(text) {
+    let translated = text;
+    // Try exact match first
+    if (dict[text.trim()]) {
+      return text.replace(text.trim(), dict[text.trim()]);
+    }
+    // Try partial matches for longer text
+    for (let [khmer, english] of Object.entries(dict)) {
+      if (text.includes(khmer)) {
+        translated = translated.replace(khmer, english);
+      }
+    }
+    return translated;
+  }
+  
+  // Translate all text nodes
   const walker = document.createTreeWalker(
     document.body,
     NodeFilter.SHOW_TEXT,
-    null,
+    {
+      acceptNode: function(node) {
+        // Skip script and style tags
+        if (node.parentElement.tagName === 'SCRIPT' || 
+            node.parentElement.tagName === 'STYLE') {
+          return NodeFilter.FILTER_REJECT;
+        }
+        // Skip if text is only whitespace
+        if (!node.textContent.trim()) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    },
     false
   );
   
   let node;
   const nodesToTranslate = [];
   while (node = walker.nextNode()) {
-    const text = node.textContent.trim();
-    if (text && dict[text]) {
-      nodesToTranslate.push({node, originalText: text, translatedText: dict[text]});
+    const originalText = node.textContent;
+    const translatedText = translateText(originalText);
+    if (originalText !== translatedText) {
+      nodesToTranslate.push({node, translatedText});
     }
   }
   
+  // Apply translations
   nodesToTranslate.forEach(({node, translatedText}) => {
-    node.textContent = node.textContent.replace(node.textContent.trim(), translatedText);
+    node.textContent = translatedText;
+  });
+  
+  // Translate attributes (title, placeholder, alt)
+  document.querySelectorAll('[title], [placeholder], [alt]').forEach(el => {
+    if (el.title) el.title = translateText(el.title);
+    if (el.placeholder) el.placeholder = translateText(el.placeholder);
+    if (el.alt) el.alt = translateText(el.alt);
   });
 }
 
