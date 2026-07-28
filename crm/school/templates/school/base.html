@@ -667,13 +667,44 @@ a{text-decoration:none;color:inherit;}
   </div>
   <div class="top-right">
     <span class="top-date d-none d-lg-flex"><i class="bi bi-calendar3"></i><span id="td"></span></span>
-    <!-- PRINT BUTTON — works on every page -->
+    
+    <!-- LANGUAGE SWITCHER -->
+    <div class="dropdown no-print">
+      <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" 
+        style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;">
+        <span id="current-flag">🇰🇭</span>
+        <span class="d-none d-md-inline" id="current-lang">ភាសាខ្មែរ</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" style="min-width:160px;">
+        <li>
+          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('km'); return false;">
+            <span style="font-size:1.2rem;">🇰🇭</span>
+            <span>ភាសាខ្មែរ</span>
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('en'); return false;">
+            <span style="font-size:1.2rem;">🇬🇧</span>
+            <span>English</span>
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="switchLanguage('zh'); return false;">
+            <span style="font-size:1.2rem;">🇨🇳</span>
+            <span>中文</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- PRINT BUTTON -->
     <button onclick="window.print()" class="btn btn-sm no-print"
       style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;"
       title="បោះពុម្ពទំព័រនេះ">
       <i class="bi bi-printer-fill" style="font-size:.85rem;"></i>
       <span class="d-none d-md-inline">បោះពុម្ព</span>
     </button>
+    
     <a href="{% url 'school:profile_update' %}" class="top-av no-print" title="ប្រវត្តិរូប">
       {% if request.user.profile.photo %}<img src="{{ request.user.profile.photo|safe_url }}" alt="">
       {% else %}{{ request.user.get_full_name|default:request.user.username|first|upper }}{% endif %}
@@ -687,7 +718,141 @@ a{text-decoration:none;color:inherit;}
   </div>
 </header>
 
+<script>
+// Language Switcher
+function switchLanguage(lang) {
+  const flags = {
+    'km': '🇰🇭',
+    'en': '🇬🇧',
+    'zh': '🇨🇳'
+  };
+  const names = {
+    'km': 'ភាសាខ្មែរ',
+    'en': 'English',
+    'zh': '中文'
+  };
+  
+  // Update UI
+  document.getElementById('current-flag').textContent = flags[lang];
+  const langSpan = document.getElementById('current-lang');
+  if (langSpan) langSpan.textContent = names[lang];
+  
+  // Save to localStorage
+  localStorage.setItem('language', lang);
+  
+  // Apply language translations
+  applyTranslations(lang);
+  
+  // Show notification
+  const notification = document.createElement('div');
+  notification.innerHTML = `
+    <div style="position:fixed;top:80px;right:20px;background:#10b981;color:white;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;animation:slideIn 0.3s;">
+      <i class="bi bi-check-circle-fill me-2"></i>Language changed to ${names[lang]}
+    </div>
+  `;
+  document.body.appendChild(notification);
+  setTimeout(() => notification.remove(), 2000);
+}
+
+// Load saved language on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const savedLang = localStorage.getItem('language') || 'km';
+  const flags = {'km': '🇰🇭', 'en': '🇬🇧', 'zh': '🇨🇳'};
+  const names = {'km': 'ភាសាខ្មែរ', 'en': 'English', 'zh': '中文'};
+  
+  document.getElementById('current-flag').textContent = flags[savedLang];
+  const langSpan = document.getElementById('current-lang');
+  if (langSpan) langSpan.textContent = names[savedLang];
+  
+  if (savedLang !== 'km') {
+    applyTranslations(savedLang);
+  }
+});
+
+// Translation dictionary
+const translations = {
+  'en': {
+    // Add English translations here
+    'ផ្ទាំងគ្រប់គ្រង': 'Dashboard',
+    'សិស្ស': 'Students',
+    'គ្រូបង្រៀន': 'Teachers',
+    'ថ្នាក់រៀន': 'Classes',
+    'មុខវិជ្ជា': 'Subjects',
+    'កាលវិភាគ': 'Timetable',
+    'ការប្រឡង': 'Exams',
+    'លទ្ធផល': 'Results',
+    'វត្តមាន': 'Attendance',
+    'បោះពុម្ព': 'Print',
+    'ចាកចេញ': 'Logout',
+    'បន្ថែម': 'Add',
+    'កែប្រែ': 'Edit',
+    'លុប': 'Delete',
+    'រក្សាទុក': 'Save',
+    'បោះបង់': 'Cancel',
+  },
+  'zh': {
+    // Add Chinese translations here
+    'ផ្ទាំងគ្រប់គ្រង': '仪表板',
+    'សិស្ស': '学生',
+    'គ្រូបង្រៀន': '教师',
+    'ថ្នាក់រៀន': '班级',
+    'មុខវិជ្ជា': '科目',
+    'កាលវិភាគ': '时间表',
+    'ការប្រឡង': '考试',
+    'លទ្ធផល': '成绩',
+    'វត្តមាន': '出勤',
+    'បោះពុម្ព': '打印',
+    'ចាកចេញ': '登出',
+    'បន្ថែម': '添加',
+    'កែប្រែ': '编辑',
+    'លុប': '删除',
+    'រក្សាទុក': '保存',
+    'បោះបង់': '取消',
+  }
+};
+
+// Apply translations to page
+function applyTranslations(lang) {
+  if (lang === 'km') return; // No translation needed for Khmer
+  
+  const dict = translations[lang];
+  if (!dict) return;
+  
+  // Translate text nodes
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+  
+  let node;
+  const nodesToTranslate = [];
+  while (node = walker.nextNode()) {
+    const text = node.textContent.trim();
+    if (text && dict[text]) {
+      nodesToTranslate.push({node, originalText: text, translatedText: dict[text]});
+    }
+  }
+  
+  nodesToTranslate.forEach(({node, translatedText}) => {
+    node.textContent = node.textContent.replace(node.textContent.trim(), translatedText);
+  });
+}
+
+// Add animation
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+document.head.appendChild(style);
+</script>
+
 <!-- ═══ MAIN ═══ -->
+
 <main class="main" id="main">
   <div class="ph">
     <h3>{{ school.school_name }}</h3>
