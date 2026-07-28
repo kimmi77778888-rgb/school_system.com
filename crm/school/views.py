@@ -33,6 +33,28 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         login(request, user)
+        
+        # Track login with device information
+        from .models import LoginHistory
+        from .utils import get_client_ip, parse_user_agent, create_login_notification
+        
+        device_info = parse_user_agent(request)
+        ip_address = get_client_ip(request)
+        
+        # Create login history record
+        login_history = LoginHistory.objects.create(
+            user=user,
+            ip_address=ip_address,
+            device_type=device_info['device_type'],
+            browser=device_info['browser'],
+            operating_system=device_info['operating_system'],
+            device_name=device_info['device_name'],
+            user_agent=device_info['user_agent'],
+        )
+        
+        # Create notification for admins
+        create_login_notification(user, login_history)
+        
         name = user.get_full_name() or user.username
         messages.success(request, f'សូមស្វាគមន៍, {name}!')
         return redirect(request.GET.get('next', 'school:dashboard'))

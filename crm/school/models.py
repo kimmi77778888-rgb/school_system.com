@@ -28,6 +28,39 @@ class UserProfile(models.Model):
 
 
 # ══════════════════════════════════════════════════════
+#  LOGIN HISTORY - Track user logins with device info
+# ══════════════════════════════════════════════════════
+class LoginHistory(models.Model):
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name='login_history')
+    login_time      = models.DateTimeField(auto_now_add=True)
+    ip_address      = models.GenericIPAddressField(null=True, blank=True)
+    device_type     = models.CharField(max_length=50, blank=True)  # Mobile, Desktop, Tablet
+    browser         = models.CharField(max_length=100, blank=True)
+    operating_system = models.CharField(max_length=100, blank=True)
+    device_name     = models.CharField(max_length=200, blank=True)  # e.g., iPhone 15 Pro
+    location        = models.CharField(max_length=200, blank=True)
+    user_agent      = models.TextField(blank=True)
+    is_suspicious   = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.login_time.strftime('%Y-%m-%d %H:%M:%S')}"
+    
+    def get_device_icon(self):
+        """Return Bootstrap icon class based on device type"""
+        if 'mobile' in self.device_type.lower():
+            return 'bi-phone'
+        elif 'tablet' in self.device_type.lower():
+            return 'bi-tablet'
+        else:
+            return 'bi-laptop'
+    
+    class Meta:
+        ordering = ['-login_time']
+        verbose_name = 'Login History'
+        verbose_name_plural = 'Login Histories'
+
+
+# ══════════════════════════════════════════════════════
 #  ACADEMIC YEAR
 # ══════════════════════════════════════════════════════
 class AcademicYear(models.Model):

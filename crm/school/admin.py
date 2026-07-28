@@ -3,7 +3,7 @@ from .models import (
     AcademicYear, Grade, Teacher, TeacherDocument, Classroom, Student, Subject,
     Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, Score, TimeSlot, Timetable,
     Notification, NotificationRead, ReportCard, SchoolEvent,
-    UserProfile, SchoolSettings
+    UserProfile, LoginHistory, SchoolSettings
 )
 
 
@@ -25,6 +25,16 @@ class SchoolSettingsAdmin(admin.ModelAdmin):
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'phone')
     list_filter  = ('role',)
+
+
+@admin.register(LoginHistory)
+class LoginHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'login_time', 'device_type', 'browser', 'ip_address', 'is_suspicious')
+    list_filter = ('device_type', 'is_suspicious', 'login_time')
+    search_fields = ('user__username', 'ip_address', 'browser', 'device_name')
+    readonly_fields = ('login_time', 'user', 'ip_address', 'device_type', 'browser', 
+                      'operating_system', 'device_name', 'location', 'user_agent')
+    date_hierarchy = 'login_time'
 
 
 @admin.register(AcademicYear)
