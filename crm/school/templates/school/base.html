@@ -697,6 +697,73 @@ a{text-decoration:none;color:inherit;}
       </ul>
     </div>
     
+    <!-- NOTIFICATION BELL -->
+    <div class="dropdown no-print">
+      <button class="btn btn-sm position-relative" type="button" data-bs-toggle="dropdown"
+        style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;"
+        title="ជូនដំណឹង">
+        <i class="bi bi-bell-fill" style="font-size:.85rem;"></i>
+        <span class="d-none d-md-inline">ជូនដំណឹង</span>
+        {% if unread_count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+              style="font-size:0.6rem;padding:2px 5px;margin-top:2px;margin-left:-8px;">
+          {{ unread_count }}
+          <span class="visually-hidden">unread notifications</span>
+        </span>
+        {% endif %}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" style="min-width:320px;max-width:400px;max-height:400px;overflow-y:auto;">
+        <li class="dropdown-header d-flex justify-content-between align-items-center">
+          <strong>ជូនដំណឹង</strong>
+          <a href="{% url 'school:notification_list' %}" class="text-decoration-none small">មើលទាំងអស់</a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        {% if recent_notifications %}
+          {% for notif in recent_notifications %}
+          <li>
+            <a class="dropdown-item {% if not notif.is_read %}bg-light{% endif %}" 
+               href="{% url 'school:notification_list' %}" 
+               style="white-space:normal;padding:10px 15px;border-bottom:1px solid #f1f5f9;">
+              <div class="d-flex gap-2">
+                <div class="flex-shrink-0">
+                  {% if notif.notification_type == 'success' %}
+                  <i class="bi bi-check-circle-fill text-success" style="font-size:1.2rem;"></i>
+                  {% elif notif.notification_type == 'warning' %}
+                  <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size:1.2rem;"></i>
+                  {% elif notif.notification_type == 'error' %}
+                  <i class="bi bi-x-circle-fill text-danger" style="font-size:1.2rem;"></i>
+                  {% else %}
+                  <i class="bi bi-info-circle-fill text-primary" style="font-size:1.2rem;"></i>
+                  {% endif %}
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-semibold text-truncate" style="font-size:0.85rem;">{{ notif.title }}</div>
+                  <div class="text-muted small text-truncate">{{ notif.message|truncatewords:15 }}</div>
+                  <div class="text-muted" style="font-size:0.7rem;margin-top:2px;">
+                    <i class="bi bi-clock me-1"></i>{{ notif.created_at|timesince }} ago
+                  </div>
+                </div>
+              </div>
+            </a>
+          </li>
+          {% endfor %}
+        {% else %}
+          <li class="dropdown-item text-center text-muted py-4">
+            <i class="bi bi-bell-slash" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>
+            <div>គ្មានជូនដំណឹងទេ</div>
+          </li>
+        {% endif %}
+        {% if recent_notifications %}
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item text-center text-primary fw-semibold" href="{% url 'school:notification_list' %}">
+            <i class="bi bi-arrow-right-circle me-1"></i>មើលជូនដំណឹងទាំងអស់
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    
     <!-- PRINT BUTTON -->
     <button onclick="window.print()" class="btn btn-sm no-print"
       style="background:#f1f5f9;border:1px solid var(--br);color:#374151;display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;border-radius:8px;padding:5px 12px;"

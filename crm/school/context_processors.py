@@ -22,3 +22,49 @@ def ensure_user_profile(request):
                 defaults={'role': role}
             )
     return {}
+
+
+def notifications_context(request):
+    """
+    Add notification data to every template context.
+    Shows unread count and recent notifications in topbar.
+    """
+    if request.user.is_authenticated:
+        from .models import Notification, NotificationRead
+        from django.db.models import Q, Exists, OuterRef
+        
+        user_role = request.user.profile.role if hasattr(request.user, 'profile') else None
+        
+        # Get notifications for this user based on role and audience
+        notifications = Notification.objects.filter(
+            Q(audience='everyone') | 
+            Q(audience=user_role) |
+            Q(classroom=request.user.profile.student.classroom if user_role == 'student' and hasattr(request.user.profile, 'student') and request.user.profile.student else None) |
+            Q(student=request.user.profile.student if user_role in ['student', 'parent'] and hasattr(request.user.profile, 'student') and request.user.profile.student else None)
+        ).filter(is_active=True).order_by('-created_at')
+        
+        # Annotate with read status
+        notifications = notifications.annotate(
+            is_read=Exists(
+                NotificationRead.objects.filter(
+                    notification=OuterRef('pk'),
+                    user=request.user
+                )
+            )
+        )
+        
+        # Count unread
+        unread_count = notifications.filter(is_read=False).count()
+        
+        # Get recent 5 notifications
+        recent_notifications = list(notifications[:5])
+        
+        return {
+            'unread_count': unread_count,
+            'recent_notifications': recent_notifications,
+        }
+    
+    return {
+        'unread_count': 0,
+        'recent_notifications': [],
+    }

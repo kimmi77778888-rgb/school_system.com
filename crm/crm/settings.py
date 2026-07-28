@@ -117,6 +117,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'school.context_processors.school_settings',
                 'school.context_processors.ensure_user_profile',
+                'school.context_processors.notifications_context',
             ],
         },
     },
