@@ -5,7 +5,7 @@ set -o errexit
 pip install -r requirements.txt
 python manage.py collectstatic --no-input
 python manage.py migrate
-python create_admin.py
+python create_admin.py || true
 python fix_images.py || true
 python load_data.py || true
-python fix_profiles.py
+python fix_profiles.py || true
