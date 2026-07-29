@@ -290,7 +290,10 @@ def user_delete(request, pk):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def student_list(request):
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'teacher'
     q = request.GET.get('q', '')
     classroom_id = request.GET.get('classroom', '')
     students = Student.objects.filter(is_active=True).select_related('classroom__grade')
@@ -338,7 +341,7 @@ def student_detail(request, pk):
         'absent_count': absent_count,
         'attendance_rate': attendance_rate,
         'average_score': average_score,
-        'role': request.user.profile.role,
+        'role': getattr(request.user.profile, 'role', 'student') if hasattr(request.user, 'profile') else 'student',
     })
 
 @admin_required
@@ -398,7 +401,7 @@ def teacher_list(request):
     if q:
         teachers = teachers.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(subject_specialty__icontains=q))
     return render(request, 'school/teacher_list.html', {
-        'teachers': teachers, 'q': q, 'role': request.user.profile.role
+        'teachers': teachers, 'q': q, 'role': getattr(request.user.profile, 'role', 'admin') if hasattr(request.user, 'profile') else 'admin'
     })
 
 @admin_or_teacher
@@ -476,7 +479,7 @@ def teacher_detail(request, pk):
         'total_absent': total_absent,
         'total_late': total_late,
         'total_excused': total_excused,
-        'role': request.user.profile.role,
+        'role': getattr(request.user.profile, 'role', 'teacher') if hasattr(request.user, 'profile') else 'teacher',
     })
 
 @admin_required
@@ -683,7 +686,8 @@ def academic_year_generate(request):
 @admin_or_teacher
 def classroom_list(request):
     classrooms = Classroom.objects.select_related('grade','homeroom_teacher','academic_year').annotate(student_count=Count('students'))
-    return render(request, 'school/classroom_list.html', {'classrooms': classrooms, 'role': request.user.profile.role})
+    role = getattr(request.user.profile, 'role', 'admin') if hasattr(request.user, 'profile') else 'admin'
+    return render(request, 'school/classroom_list.html', {'classrooms': classrooms, 'role': role})
 
 @admin_required
 def classroom_add(request):
@@ -713,7 +717,8 @@ def classroom_delete(request, pk):
 @admin_or_teacher
 def subject_list(request):
     subjects = Subject.objects.select_related('teacher','grade')
-    return render(request, 'school/subject_list.html', {'subjects': subjects, 'role': request.user.profile.role})
+    role = getattr(request.user.profile, 'role', 'admin') if hasattr(request.user, 'profile') else 'admin'
+    return render(request, 'school/subject_list.html', {'subjects': subjects, 'role': role})
 
 @admin_required
 def subject_add(request):
@@ -748,7 +753,10 @@ def attendance_list(request):
     today        = timezone.now().date()
     date_filter  = request.GET.get('date', str(today))
     classroom_id = request.GET.get('classroom', '')
-    role         = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
     records = Attendance.objects.filter(date=date_filter).select_related('student__classroom__grade')
     if role == 'teacher':
         try:
@@ -839,7 +847,10 @@ def student_my_attendance(request):
 def teacher_attendance_list(request):
     today       = timezone.now().date()
     date_filter = request.GET.get('date', str(today))
-    role        = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
     records = TeacherAttendance.objects.filter(date=date_filter).select_related('teacher')
     if role == 'teacher':
         try:
@@ -902,7 +913,8 @@ def teacher_attendance_bulk(request):
 @admin_or_teacher
 def exam_list(request):
     exams = Exam.objects.select_related('subject','classroom','exam_type','academic_year').order_by('-date')
-    return render(request, 'school/exam_list.html', {'exams': exams, 'role': request.user.profile.role})
+    role = getattr(request.user.profile, 'role', 'teacher') if hasattr(request.user, 'profile') else 'teacher'
+    return render(request, 'school/exam_list.html', {'exams': exams, 'role': role})
 
 @admin_or_teacher
 def exam_add(request):
@@ -942,7 +954,10 @@ def exam_bulk_delete(request):
 
 @admin_or_teacher
 def score_list(request):
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
     q    = request.GET.get('q','')
     scores = Score.objects.select_related('student','subject','exam_type','academic_year')
     if role == 'teacher':
@@ -1052,6 +1067,12 @@ def score_bulk_entry(request):
         
         return redirect('school:score_list')
     
+    # Safely get role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'student'
+    
     return render(request, 'school/score_bulk_entry.html', {
         'academic_years': academic_years,
         'classrooms': classrooms,
@@ -1060,7 +1081,7 @@ def score_bulk_entry(request):
         'students': students,
         'selected_year': selected_year,
         'selected_classroom': selected_classroom,
-        'role': request.user.profile.role,
+        'role': role,
     })
 
 # ── Parent/Student view results ────────────────
@@ -1087,7 +1108,10 @@ def student_my_results(request):
 # ══════════════════════════════════════════════
 @login_required
 def timetable_list(request):
-    role         = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'student'
     classroom_id = request.GET.get('classroom','')
     year_id      = request.GET.get('year','')
     classrooms   = Classroom.objects.select_related('grade','academic_year')
@@ -1146,7 +1170,10 @@ def timetable_delete(request, pk):
 # ══════════════════════════════════════════════
 @login_required
 def notification_list(request):
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'student'
     notifs = Notification.objects.select_related('created_by').filter(is_active=True)
     # Filter by audience
     if role == 'teacher':
@@ -1193,7 +1220,8 @@ def notification_delete(request, pk):
 @login_required
 def event_list(request):
     events = SchoolEvent.objects.order_by('start_date')
-    return render(request, 'school/event_list.html', {'events': events, 'role': request.user.profile.role})
+    role = getattr(request.user.profile, 'role', 'student') if hasattr(request.user, 'profile') else 'student'
+    return render(request, 'school/event_list.html', {'events': events, 'role': role})
 
 @admin_required
 def event_add(request):
@@ -1226,7 +1254,10 @@ def event_delete(request, pk):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def report_card_list(request):
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
     cards = ReportCard.objects.select_related('student__classroom__grade','academic_year').order_by('-generated_at')
     if role == 'teacher':
         try:
@@ -1250,7 +1281,10 @@ def report_card_add(request):
 def report_card_view(request, pk):
     card    = get_object_or_404(ReportCard, pk=pk)
     # Parent/Student can only view their own child/self
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'student'
     if role == 'parent' or role == 'student':
         try:
             my_student = request.user.profile.student
@@ -1283,7 +1317,10 @@ def report_card_delete(request, pk):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def report_students(request):
-    role = request.user.profile.role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
     students = Student.objects.filter(is_active=True).select_related('classroom__grade').order_by('student_id')
     if role == 'teacher':
         try:
