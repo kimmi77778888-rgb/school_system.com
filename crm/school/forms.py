@@ -117,6 +117,7 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Student
         fields = [
+            'student_id',
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
             'gender', 'date_of_birth',
@@ -124,6 +125,7 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             'classroom', 'photo', 'is_active', 'blood_group', 'medical_notes'
         ]
         labels = {
+            'student_id':    'លេខសម្គាល់សិស្ស',
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
@@ -162,6 +164,7 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Teacher
         fields = [
+            'teacher_id',
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
             'gender', 'date_of_birth', 'place_of_birth',
@@ -175,6 +178,7 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'photo', 'id_card_file', 'certificate_file', 'is_active'
         ]
         labels = {
+            'teacher_id':    'លេខសម្គាល់គ្រូ',
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
