@@ -117,8 +117,8 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Student
         fields = [
-            'first_name', 'last_name',
-            'first_name_en', 'last_name_en',
+            'last_name', 'first_name',
+            'last_name_en', 'first_name_en',
             'gender', 'date_of_birth',
             'address', 'phone', 'parent_name', 'parent_phone', 'parent_email',
             'classroom', 'photo', 'is_active', 'blood_group', 'medical_notes'
@@ -162,8 +162,8 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Teacher
         fields = [
-            'first_name', 'last_name',
-            'first_name_en', 'last_name_en',
+            'last_name', 'first_name',
+            'last_name_en', 'first_name_en',
             'gender', 'date_of_birth', 'place_of_birth',
             'phone', 'email', 'address',
             'national_id', 'teacher_rank', 'teacher_license', 'ministry_id',
@@ -471,8 +471,8 @@ class ParentRegisterForm(BootstrapMixin, forms.Form):
         ('dad', 'ឪពុក (Dad)'),
     ]
     username      = forms.CharField(max_length=150, label='ឈ្មោះអ្នកប្រើ')
-    first_name    = forms.CharField(max_length=150, label='ឈ្មោះ')
     last_name     = forms.CharField(max_length=150, label='នាមត្រកូល')
+    first_name    = forms.CharField(max_length=150, label='ឈ្មោះ')
     email         = forms.EmailField(required=False, label='អ៊ីម៉ែល')
     phone         = forms.CharField(max_length=20, required=False, label='លេខទូរស័ព្ទ')
     relationship  = forms.ChoiceField(choices=RELATIONSHIP_CHOICES, label='ទំនាក់ទំនង')
