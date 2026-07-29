@@ -165,7 +165,11 @@ def dashboard(request):
     today = timezone.now().date()
     try:
         role = request.user.profile.role
-    except Exception:
+    except Exception as e:
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Profile access error in dashboard: {e}", exc_info=True)
         role = 'student'
 
     notifications  = Notification.objects.filter(is_active=True).order_by('-created_at')[:5]
