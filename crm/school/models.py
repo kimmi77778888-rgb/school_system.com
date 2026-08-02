@@ -304,6 +304,19 @@ class Student(models.Model):
     is_active     = models.BooleanField(default=True, verbose_name='សកម្ម')
 
     def save(self, *args, **kwargs):
+        # Clean Khmer text to remove invisible characters
+        from .utils_khmer import clean_khmer_text
+        
+        if self.first_name:
+            self.first_name = clean_khmer_text(self.first_name)
+        if self.last_name:
+            self.last_name = clean_khmer_text(self.last_name)
+        if self.place_of_birth:
+            self.place_of_birth = clean_khmer_text(self.place_of_birth)
+        if self.address:
+            self.address = clean_khmer_text(self.address)
+        
+        # Generate student_id if not exists
         if not self.student_id:
             super().save(*args, **kwargs)
             self.student_id = f"STU-{self.pk:04d}"

@@ -594,6 +594,19 @@ input[type="file"].form-control:hover{
   opacity:.85;
 }
 .sb-sub:hover{opacity:1;}
+
+/* ═══ KHMER TEXT FIX ═══ */
+/* Prevent spacing issues in Khmer text */
+body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
+  letter-spacing: 0 !important;
+  word-spacing: normal !important;
+}
+/* Ensure proper Khmer font rendering */
+.s-name, .khmer-text {
+  font-family: 'Noto Sans Khmer', 'Khmer OS Siemreap', 'Khmer OS', 'Hanuman', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 </style>
 </head>
 <body>
