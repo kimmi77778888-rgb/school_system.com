@@ -117,23 +117,87 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Student
         fields = [
+            # Basic Information
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
-            'gender', 'date_of_birth',
-            'address', 'phone', 'parent_name', 'parent_phone', 'parent_email',
-            'classroom', 'photo', 'is_active', 'blood_group', 'medical_notes'
+            'gender', 'date_of_birth', 'place_of_birth',
+            'nationality', 'religion',
+            'photo',
+            
+            # Birth Certificate
+            'birth_certificate_number', 'birth_certificate_file',
+            
+            # Contact Information
+            'address', 'phone',
+            
+            # Father Information
+            'father_name', 'father_phone', 'father_occupation',
+            
+            # Mother Information
+            'mother_name', 'mother_phone', 'mother_occupation',
+            
+            # Parent/Guardian (General)
+            'parent_name', 'parent_phone', 'parent_email', 'parent_occupation',
+            
+            # Emergency Contact
+            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
+            
+            # School Information
+            'classroom', 'previous_school',
+            
+            # Health Information
+            'blood_group', 'allergies', 'medical_notes',
+            
+            # Additional Documents
+            'id_card_file',
+            
+            # Status
+            'is_active'
         ]
         labels = {
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
             'last_name_en':  'Last Name (English)',
+            'gender':        'ភេទ',
+            'date_of_birth': 'ថ្ងៃខែឆ្នាំកំណើត',
+            'place_of_birth': 'ទីកន្លែងកំណើត',
+            'nationality':   'សញ្ជាតិ',
+            'religion':      'សាសនា',
+            'photo':         'រូបថត',
+            'birth_certificate_number': 'លេខសំបុត្រកំណើត',
+            'birth_certificate_file': 'ឯកសារសំបុត្រកំណើត',
+            'address':       'អាសយដ្ឋាន',
+            'phone':         'ទូរស័ព្ទ',
+            'father_name':   'ឈ្មោះឪពុក',
+            'father_phone':  'ទូរស័ព្ទឪពុក',
+            'father_occupation': 'មុខរបរឪពុក',
+            'mother_name':   'ឈ្មោះម្តាយ',
+            'mother_phone':  'ទូរស័ព្ទម្តាយ',
+            'mother_occupation': 'មុខរបរម្តាយ',
+            'parent_name':   'ឈ្មោះឪពុកម្តាយ/អាណាព្យាបាល',
+            'parent_phone':  'ទូរស័ព្ទឪពុកម្តាយ',
+            'parent_email':  'អ៊ីម៉ែលឪពុកម្តាយ',
+            'parent_occupation': 'មុខរបរឪពុកម្តាយ',
+            'emergency_contact_name': 'ឈ្មោះអ្នកទំនាក់ទំនងបន្ទាន់',
+            'emergency_contact_phone': 'ទូរស័ព្ទបន្ទាន់',
+            'emergency_contact_relation': 'ទំនាក់ទំនង',
+            'classroom':     'ថ្នាក់រៀន',
+            'previous_school': 'សាលារៀនមុន',
+            'blood_group':   'ក្រុមឈាម',
+            'allergies':     'ប្រតិកម្មហ្សែនសា',
+            'medical_notes': 'កំណត់សម្គាល់សុខភាព',
+            'id_card_file':  'អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន',
+            'is_active':     'សកម្ម',
         }
         widgets = {
             'date_of_birth':  forms.DateInput(attrs={'type': 'date'}),
             'address':        forms.Textarea(attrs={'rows': 2}),
             'medical_notes':  forms.Textarea(attrs={'rows': 2}),
+            'allergies':      forms.Textarea(attrs={'rows': 2}),
             'photo':          PhotoInput(),
+            'birth_certificate_file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
+            'id_card_file':   forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
         }
 
 

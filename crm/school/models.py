@@ -252,18 +252,56 @@ class Student(models.Model):
     first_name_en = models.CharField(max_length=100, blank=True, verbose_name='First Name (English)')
     last_name_en  = models.CharField(max_length=100, blank=True, verbose_name='Last Name (English)')
     gender        = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    address       = models.TextField(blank=True)
-    phone         = models.CharField(max_length=20, blank=True)
-    parent_name   = models.CharField(max_length=200, blank=True)
-    parent_phone  = models.CharField(max_length=20, blank=True)
-    parent_email  = models.EmailField(blank=True)
+    date_of_birth = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃខែឆ្នាំកំណើត')
+    place_of_birth = models.CharField(max_length=200, blank=True, verbose_name='ទីកន្លែងកំណើត')
+    
+    # Birth Certificate Information
+    birth_certificate_number = models.CharField(max_length=50, blank=True, verbose_name='លេខសំបុត្រកំណើត')
+    birth_certificate_file = models.FileField(upload_to='documents/students/birth_certificates/', null=True, blank=True, verbose_name='សំបុត្រកំណើត')
+    
+    # Personal Information
+    nationality = models.CharField(max_length=50, blank=True, default='ខ្មែរ', verbose_name='សញ្ជាតិ')
+    religion = models.CharField(max_length=50, blank=True, verbose_name='សាសនា')
+    address       = models.TextField(blank=True, verbose_name='អាសយដ្ឋាន')
+    phone         = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទ')
+    
+    # Parent/Guardian Information
+    parent_name   = models.CharField(max_length=200, blank=True, verbose_name='ឈ្មោះឪពុកម្តាយ')
+    parent_phone  = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទឪពុកម្តាយ')
+    parent_email  = models.EmailField(blank=True, verbose_name='អ៊ីម៉ែលឪពុកម្តាយ')
+    parent_occupation = models.CharField(max_length=100, blank=True, verbose_name='មុខរបរឪពុកម្តាយ')
+    
+    # Father Information
+    father_name = models.CharField(max_length=200, blank=True, verbose_name='ឈ្មោះឪពុក')
+    father_phone = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទឪពុក')
+    father_occupation = models.CharField(max_length=100, blank=True, verbose_name='មុខរបរឪពុក')
+    
+    # Mother Information
+    mother_name = models.CharField(max_length=200, blank=True, verbose_name='ឈ្មោះម្តាយ')
+    mother_phone = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទម្តាយ')
+    mother_occupation = models.CharField(max_length=100, blank=True, verbose_name='មុខរបរម្តាយ')
+    
+    # Emergency Contact
+    emergency_contact_name = models.CharField(max_length=200, blank=True, verbose_name='ឈ្មោះអ្នកទំនាក់ទំនងបន្ទាន់')
+    emergency_contact_phone = models.CharField(max_length=20, blank=True, verbose_name='ទូរស័ព្ទបន្ទាន់')
+    emergency_contact_relation = models.CharField(max_length=50, blank=True, verbose_name='ទំនាក់ទំនង')
+    
+    # School Information
     classroom     = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-    enrolled_date = models.DateField(auto_now_add=True)
-    photo         = models.ImageField(upload_to='images/Students/', null=True, blank=True)
-    is_active     = models.BooleanField(default=True)
-    blood_group   = models.CharField(max_length=5, blank=True)
-    medical_notes = models.TextField(blank=True)
+    enrolled_date = models.DateField(auto_now_add=True, verbose_name='ថ្ងៃចុះឈ្មោះ')
+    previous_school = models.CharField(max_length=200, blank=True, verbose_name='សាលារៀនមុន')
+    
+    # Health Information
+    photo         = models.ImageField(upload_to='images/Students/', null=True, blank=True, verbose_name='រូបថត')
+    blood_group   = models.CharField(max_length=5, blank=True, verbose_name='ក្រុមឈាម')
+    medical_notes = models.TextField(blank=True, verbose_name='កំណត់សម្គាល់សុខភាព')
+    allergies = models.TextField(blank=True, verbose_name='ប្រតិកម្មحساសភាព')
+    
+    # Additional Documents
+    id_card_file = models.FileField(upload_to='documents/students/id_cards/', null=True, blank=True, verbose_name='អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន')
+    
+    # Status
+    is_active     = models.BooleanField(default=True, verbose_name='សកម្ម')
 
     def save(self, *args, **kwargs):
         if not self.student_id:
@@ -272,6 +310,13 @@ class Student(models.Model):
             Student.objects.filter(pk=self.pk).update(student_id=self.student_id)
         else:
             super().save(*args, **kwargs)
+    
+    def get_age(self):
+        if self.date_of_birth:
+            from datetime import date
+            today = date.today()
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        return None
 
     def __str__(self):
         return f"{self.student_id} - {self.first_name} {self.last_name}"

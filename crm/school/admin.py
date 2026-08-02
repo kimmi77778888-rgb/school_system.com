@@ -74,9 +74,46 @@ class ClassroomAdmin(admin.ModelAdmin):
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display  = ('student_id', 'first_name', 'last_name', 'gender', 'classroom', 'is_active')
-    search_fields = ('student_id', 'first_name', 'last_name')
-    list_filter   = ('is_active', 'gender', 'classroom')
-    readonly_fields = ('student_id',)
+    search_fields = ('student_id', 'first_name', 'last_name', 'birth_certificate_number')
+    list_filter   = ('is_active', 'gender', 'classroom', 'blood_group')
+    readonly_fields = ('student_id', 'enrolled_date')
+    
+    fieldsets = (
+        ('ព័ត៌មានមូលដ្ឋាន (Basic Information)', {
+            'fields': ('student_id', 'last_name', 'first_name', 'last_name_en', 'first_name_en', 
+                      'gender', 'date_of_birth', 'place_of_birth', 'nationality', 'religion', 'photo')
+        }),
+        ('សំបុត្រកំណើត (Birth Certificate)', {
+            'fields': ('birth_certificate_number', 'birth_certificate_file')
+        }),
+        ('ព័ត៌មានទំនាក់ទំនង (Contact Information)', {
+            'fields': ('address', 'phone')
+        }),
+        ('ព័ត៌មានឪពុក (Father Information)', {
+            'fields': ('father_name', 'father_phone', 'father_occupation'),
+            'classes': ('collapse',)
+        }),
+        ('ព័ត៌មានម្តាយ (Mother Information)', {
+            'fields': ('mother_name', 'mother_phone', 'mother_occupation'),
+            'classes': ('collapse',)
+        }),
+        ('ព័ត៌មានឪពុកម្តាយ/អាណាព្យាបាល (Parent/Guardian)', {
+            'fields': ('parent_name', 'parent_phone', 'parent_email', 'parent_occupation')
+        }),
+        ('ទំនាក់ទំនងបន្ទាន់ (Emergency Contact)', {
+            'fields': ('emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation')
+        }),
+        ('ព័ត៌មានសាលារៀន (School Information)', {
+            'fields': ('classroom', 'enrolled_date', 'previous_school', 'is_active')
+        }),
+        ('ព័ត៌មានសុខភាព (Health Information)', {
+            'fields': ('blood_group', 'allergies', 'medical_notes')
+        }),
+        ('ឯកសារបន្ថែម (Additional Documents)', {
+            'fields': ('id_card_file',),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 @admin.register(Subject)
