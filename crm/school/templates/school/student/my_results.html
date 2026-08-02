@@ -3,6 +3,40 @@
 {% block title %}លទ្ធផលរបស់ខ្ញុំ{% endblock %}
 {% block page_title %}លទ្ធផលរបស់ខ្ញុំ{% endblock %}
 {% block content %}
+<!-- Statistics Summary -->
+{% if stats.total_scores > 0 %}
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="stat-card sc-blue">
+      <div class="lbl">មុខវិជ្ជាសរុប</div>
+      <div class="val">{{ stats.total_scores }}</div>
+      <i class="bg-icon bi bi-journal-bookmark-fill"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card sc-purple">
+      <div class="lbl">មធ្យមភាគ</div>
+      <div class="val">{{ stats.avg_percentage }}%</div>
+      <i class="bg-icon bi bi-calculator-fill"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card sc-green">
+      <div class="lbl">ប្រឡងជាប់</div>
+      <div class="val">{{ stats.pass_count }}</div>
+      <i class="bg-icon bi bi-check-circle-fill"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card sc-rose">
+      <div class="lbl">ប្រឡងធ្លាក់</div>
+      <div class="val">{{ stats.fail_count }}</div>
+      <i class="bg-icon bi bi-x-circle-fill"></i>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="page-header">
   <h2><i class="bi bi-bar-chart-fill me-2 text-primary"></i>លទ្ធផលប្រឡងរបស់ខ្ញុំ</h2>
 </div>

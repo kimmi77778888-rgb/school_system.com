@@ -1065,6 +1065,7 @@ def exam_bulk_delete(request):
 
 @admin_or_teacher
 def score_list(request):
+    from django.db.models import Avg, Count
     try:
         role = request.user.profile.role
     except Exception:
@@ -1080,7 +1081,31 @@ def score_list(request):
             scores = Score.objects.none()
     if q:
         scores = scores.filter(Q(student__first_name__icontains=q)|Q(student__last_name__icontains=q)|Q(student__student_id__icontains=q))
-    return render(request, 'school/score_list.html', {'scores': scores, 'q': q, 'role': role})
+    
+    # Calculate statistics
+    stats = {
+        'total_scores': scores.count(),
+        'avg_score': 0,
+        'avg_percentage': 0,
+        'pass_count': 0,
+        'fail_count': 0,
+    }
+    
+    if scores.exists():
+        # Calculate averages
+        total_percentage = sum(score.percentage() for score in scores)
+        stats['avg_percentage'] = round(total_percentage / scores.count(), 1) if scores.count() > 0 else 0
+        
+        # Calculate pass/fail counts
+        stats['pass_count'] = sum(1 for score in scores if score.is_passing(50))
+        stats['fail_count'] = scores.count() - stats['pass_count']
+    
+    return render(request, 'school/score_list.html', {
+        'scores': scores, 
+        'q': q, 
+        'role': role,
+        'stats': stats,
+    })
 
 @admin_or_teacher
 def score_add(request):
@@ -1203,7 +1228,30 @@ def parent_child_results(request):
     except Exception:
         student = None
     scores = student.scores.select_related('subject','exam_type','academic_year').order_by('subject__name') if student else []
-    return render(request, 'school/parent/child_results.html', {'student': student, 'scores': scores})
+    
+    # Calculate statistics
+    stats = {
+        'total_scores': len(scores),
+        'avg_percentage': 0,
+        'pass_count': 0,
+        'fail_count': 0,
+        'highest_score': 0,
+        'lowest_score': 0,
+    }
+    
+    if scores:
+        percentages = [score.percentage() for score in scores]
+        stats['avg_percentage'] = round(sum(percentages) / len(percentages), 1) if percentages else 0
+        stats['pass_count'] = sum(1 for score in scores if score.is_passing(50))
+        stats['fail_count'] = len(scores) - stats['pass_count']
+        stats['highest_score'] = max(percentages) if percentages else 0
+        stats['lowest_score'] = min(percentages) if percentages else 0
+    
+    return render(request, 'school/parent/child_results.html', {
+        'student': student, 
+        'scores': scores,
+        'stats': stats,
+    })
 
 @role_required('student')
 def student_my_results(request):
@@ -1212,7 +1260,30 @@ def student_my_results(request):
     except Exception:
         student = None
     scores = student.scores.select_related('subject','exam_type','academic_year').order_by('subject__name') if student else []
-    return render(request, 'school/student/my_results.html', {'student': student, 'scores': scores})
+    
+    # Calculate statistics
+    stats = {
+        'total_scores': len(scores),
+        'avg_percentage': 0,
+        'pass_count': 0,
+        'fail_count': 0,
+        'highest_score': 0,
+        'lowest_score': 0,
+    }
+    
+    if scores:
+        percentages = [score.percentage() for score in scores]
+        stats['avg_percentage'] = round(sum(percentages) / len(percentages), 1) if percentages else 0
+        stats['pass_count'] = sum(1 for score in scores if score.is_passing(50))
+        stats['fail_count'] = len(scores) - stats['pass_count']
+        stats['highest_score'] = max(percentages) if percentages else 0
+        stats['lowest_score'] = min(percentages) if percentages else 0
+    
+    return render(request, 'school/student/my_results.html', {
+        'student': student, 
+        'scores': scores,
+        'stats': stats,
+    })
 
 # ══════════════════════════════════════════════
 #  TIMETABLE (Admin: manage | Teacher+Student: view)
