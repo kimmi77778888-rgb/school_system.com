@@ -165,7 +165,7 @@ class Teacher(models.Model):
         return None
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.last_name} {self.first_name}"
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -332,7 +332,7 @@ class Student(models.Model):
         return None
 
     def __str__(self):
-        return f"{self.student_id} - {self.first_name} {self.last_name}"
+        return f"{self.student_id} - {self.last_name} {self.first_name}"
 
     class Meta:
         ordering = ['last_name', 'first_name']

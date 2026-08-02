@@ -59,7 +59,7 @@
     {% for sc in scores %}
     <tr>
       <td>{{ forloop.counter }}</td>
-      <td><strong>{{ sc.student.first_name }} {{ sc.student.last_name }}</strong>
+      <td><strong>{{ sc.student.last_name }} {{ sc.student.first_name }}</strong>
         <div class="text-muted" style="font-size:.75rem;">{{ sc.student.student_id }}</div>
       </td>
       <td>{{ sc.subject.name }}</td>

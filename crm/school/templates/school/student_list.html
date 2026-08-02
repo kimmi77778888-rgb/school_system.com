@@ -186,7 +186,7 @@
               {% else %}{{ s.first_name|first|upper }}{% endif %}
             </div>
             <div>
-              <a href="{% url 'school:student_detail' s.pk %}" class="s-name d-block">{{ s.first_name }} {{ s.last_name }}</a>
+              <a href="{% url 'school:student_detail' s.pk %}" class="s-name d-block">{{ s.last_name }} {{ s.first_name }}</a>
             </div>
           </div>
         </td>

@@ -1,6 +1,6 @@
 {% extends 'school/reports/report_base.html' %}
 {% load school_tags %}
-{% block title %}ប័ណ្ណព័ត៌មានសិស្ស — {{ student.first_name }} {{ student.last_name }}{% endblock %}
+{% block title %}ប័ណ្ណព័ត៌មានសិស្ស — {{ student.last_name }} {{ student.first_name }}{% endblock %}
 {% block report_title %}ប័ណ្ណព័ត៌មានសិស្ស / Student Profile{% endblock %}
 {% block report_meta %}
   លេខ: <strong>{{ student.student_id }}</strong> &nbsp;·&nbsp; ថ្ងៃចេញ: <strong>{{ today }}</strong>
@@ -16,7 +16,7 @@
       <td>ថ្នាក់ / Class</td><td><strong>{{ student.classroom|default:"—" }}</strong></td>
     </tr>
     <tr>
-      <td>ឈ្មោះ (ខ្មែរ)</td><td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
+      <td>ឈ្មោះ (ខ្មែរ)</td><td><strong>{{ student.last_name }} {{ student.first_name }}</strong></td>
       <td>ឈ្មោះ (English)</td><td>{{ student.first_name_en|default:"—" }} {{ student.last_name_en|default:"" }}</td>
     </tr>
     <tr>

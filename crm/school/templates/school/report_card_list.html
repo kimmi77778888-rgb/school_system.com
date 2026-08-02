@@ -19,7 +19,7 @@
     <tr>
       <td>{{ forloop.counter }}</td>
       <td>
-        <strong>{{ card.student.first_name }} {{ card.student.last_name }}</strong>
+        <strong>{{ card.student.last_name }} {{ card.student.first_name }}</strong>
         <div class="text-muted" style="font-size:.75rem;">{{ card.student.student_id }}</div>
       </td>
       <td>{{ card.student.classroom|default:"—" }}</td>

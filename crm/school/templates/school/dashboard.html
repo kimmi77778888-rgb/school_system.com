@@ -259,7 +259,7 @@
         <tbody>
         {% for sc in recent_scores %}
         <tr>
-          <td>{{ sc.student.first_name }} {{ sc.student.last_name }}</td>
+          <td>{{ sc.student.last_name }} {{ sc.student.first_name }}</td>
           <td>{{ sc.subject.name }}</td>
           <td>{{ sc.score }}/{{ sc.max_score }}</td>
           <td><span class="badge bg-secondary">{{ sc.grade_letter }}</span></td>

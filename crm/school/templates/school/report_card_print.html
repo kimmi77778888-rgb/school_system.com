@@ -50,7 +50,7 @@
   </div>
 
   <div class="student-info">
-    <div><span>Student Name: </span><strong>{{ student.first_name }} {{ student.last_name }}</strong></div>
+    <div><span>Student Name: </span><strong>{{ student.last_name }} {{ student.first_name }}</strong></div>
     <div><span>Student ID: </span><strong>{{ student.student_id }}</strong></div>
     <div><span>Class: </span><strong>{{ student.classroom|default:"—" }}</strong></div>
     <div><span>Gender: </span><strong>{{ student.get_gender_display|default:"—" }}</strong></div>
