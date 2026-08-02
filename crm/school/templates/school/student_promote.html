@@ -24,6 +24,9 @@
 <div class="page-header">
   <h2><i class="bi bi-arrow-up-circle me-2 text-success"></i>ដាក់សិស្សឡើងថ្នាក់</h2>
   <div class="actions">
+    <a href="https://github.com/kimmi77778888-rgb/school_system.com/blob/main/crm/STUDENT_PROMOTION_GUIDE.md" target="_blank" class="btn btn-info btn-sm me-2">
+      <i class="bi bi-book me-1"></i>មគ្គុទ្ទេសន៍
+    </a>
     <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary btn-sm">
       <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅបញ្ជី
     </a>
@@ -31,6 +34,16 @@
 </div>
 
 {% if not students_data %}
+<!-- Help Box -->
+<div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+  <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+  <div>
+    <strong>របៀបប្រើប្រាស់:</strong> ជ្រើសរើសថ្នាក់បច្ចុប្បន្ន, ឆ្នាំសិក្សា និងពិន្ទុជាប់ ហើយចុច "ពិនិត្យលទ្ធផល"។ 
+    មានតែសិស្សដែល<strong>ប្រឡងជាប់គ្រប់មុខវិជ្ជា</strong>ប៉ុណ្ណោះទើបអាចឡើងថ្នាក់។
+    <a href="https://github.com/kimmi77778888-rgb/school_system.com/blob/main/crm/STUDENT_PROMOTION_GUIDE.md" target="_blank" class="alert-link">អានមគ្គុទ្ទេសន៍ពេញលេញ »</a>
+  </div>
+</div>
+
 <!-- Step 1: Select Classroom and Year -->
 <div class="card shadow-sm">
   <div class="card-body p-4">
