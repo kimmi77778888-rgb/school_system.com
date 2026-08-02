@@ -102,6 +102,12 @@
 <div class="page-header">
   <h2><i class="bi bi-people-fill me-2 text-primary"></i>បញ្ជីសិស្ស</h2>
   <div class="actions">
+    <!-- Export to Excel Button -->
+    <a href="{% url 'school:student_list_export_excel' %}?q={{ q }}&classroom={{ selected_classroom }}" 
+       class="btn btn-success btn-sm me-2"
+       title="Export to Excel">
+      <i class="bi bi-file-earmark-excel-fill me-1"></i>Excel
+    </a>
     {% if role == 'admin' %}
     <a href="{% url 'school:student_add' %}" class="btn btn-primary btn-sm">
       <i class="bi bi-person-plus-fill me-1"></i>បន្ថែមសិស្ស

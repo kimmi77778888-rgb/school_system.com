@@ -319,6 +319,162 @@ def student_list(request):
         'classrooms': classrooms, 'selected_classroom': classroom_id, 'role': role,
     })
 
+
+@admin_or_teacher
+def student_list_export_excel(request):
+    """
+    Export student list to Excel file with comprehensive information
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.http import HttpResponse
+    from datetime import datetime
+    
+    # Get filter parameters (same as student_list)
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'teacher'
+    
+    q = request.GET.get('q', '')
+    classroom_id = request.GET.get('classroom', '')
+    students = Student.objects.filter(is_active=True).select_related('classroom__grade', 'classroom__academic_year')
+    
+    # Teacher sees only their class students
+    if role == 'teacher':
+        try:
+            teacher = request.user.profile.teacher
+            my_classes = Classroom.objects.filter(homeroom_teacher=teacher)
+            students = students.filter(classroom__in=my_classes)
+        except Exception:
+            students = Student.objects.none()
+    
+    if q:
+        students = students.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(student_id__icontains=q))
+    if classroom_id:
+        students = students.filter(classroom_id=classroom_id)
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Students"
+    
+    # Define styles
+    header_font = Font(bold=True, color="FFFFFF", size=12)
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    border_style = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Headers (English and Khmer)
+    headers = [
+        'Student ID\nលេខសម្គាល់',
+        'Last Name (KH)\nនាមត្រកូល',
+        'First Name (KH)\nនាមខ្លួន',
+        'Last Name (EN)',
+        'First Name (EN)',
+        'Gender\nភេទ',
+        'Date of Birth\nថ្ងៃខែឆ្នាំកំណើត',
+        'Place of Birth\nទីកន្លែងកំណើត',
+        'Nationality\nសញ្ជាតិ',
+        'Religion\nសាសនា',
+        'Birth Cert No.\nលេខសំបុត្រកំណើត',
+        'Classroom\nថ្នាក់រៀន',
+        'Phone\nទូរស័ព្ទ',
+        'Address\nអាសយដ្ឋាន',
+        'Father Name\nឈ្មោះឪពុក',
+        'Father Phone\nទូរស័ព្ទឪពុក',
+        'Father Occupation\nមុខរបរឪពុក',
+        'Mother Name\nឈ្មោះម្តាយ',
+        'Mother Phone\nទូរស័ព្ទម្តាយ',
+        'Mother Occupation\nមុខរបរម្តាយ',
+        'Guardian Name\nឈ្មោះអាណាព្យាបាល',
+        'Guardian Phone\nទូរស័ព្ទអាណាព្យាបាល',
+        'Guardian Email\nអ៊ីម៉ែលអាណាព្យាបាល',
+        'Emergency Contact\nទំនាក់ទំនងបន្ទាន់',
+        'Emergency Phone\nទូរស័ព្ទបន្ទាន់',
+        'Blood Group\nក្រុមឈាម',
+        'Allergies\nអាឡែកស៊ី',
+        'Enrolled Date\nថ្ងៃចុះឈ្មោះ',
+        'Previous School\nសាលារៀនមុន',
+        'Status\nស្ថានភាព',
+    ]
+    
+    # Write headers
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = border_style
+    
+    # Set row height for header
+    ws.row_dimensions[1].height = 40
+    
+    # Write data
+    for row_num, student in enumerate(students, 2):
+        data = [
+            student.student_id or '',
+            student.last_name or '',
+            student.first_name or '',
+            student.last_name_en or '',
+            student.first_name_en or '',
+            'Male' if student.gender == 'M' else 'Female' if student.gender == 'F' else '',
+            student.date_of_birth.strftime('%d/%m/%Y') if student.date_of_birth else '',
+            student.place_of_birth or '',
+            student.nationality or '',
+            student.religion or '',
+            student.birth_certificate_number or '',
+            str(student.classroom) if student.classroom else '',
+            student.phone or '',
+            student.address or '',
+            student.father_name or '',
+            student.father_phone or '',
+            student.father_occupation or '',
+            student.mother_name or '',
+            student.mother_phone or '',
+            student.mother_occupation or '',
+            student.parent_name or '',
+            student.parent_phone or '',
+            student.parent_email or '',
+            student.emergency_contact_name or '',
+            student.emergency_contact_phone or '',
+            student.blood_group or '',
+            student.allergies or '',
+            student.enrolled_date.strftime('%d/%m/%Y') if student.enrolled_date else '',
+            student.previous_school or '',
+            'Active' if student.is_active else 'Inactive',
+        ]
+        
+        for col_num, value in enumerate(data, 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.value = value
+            cell.border = border_style
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    
+    # Auto-adjust column widths
+    for col_num in range(1, len(headers) + 1):
+        column_letter = get_column_letter(col_num)
+        ws.column_dimensions[column_letter].width = 20
+    
+    # Prepare response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'students_list_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    wb.save(response)
+    return response
+
+
 @admin_or_teacher
 def student_detail(request, pk):
     from django.db.models import Avg

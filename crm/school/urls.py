@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Students
     path('students/',                   views.student_list,   name='student_list'),
+    path('students/export/excel/',      views.student_list_export_excel, name='student_list_export_excel'),
     path('students/add/',               views.student_add,    name='student_add'),
     path('students/promote/',           views.student_promote, name='student_promote'),
     path('students/<int:pk>/',          views.student_detail, name='student_detail'),
