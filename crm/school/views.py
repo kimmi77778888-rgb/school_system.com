@@ -486,10 +486,23 @@ def student_promote(request):
     next_classrooms = []
     if current_classroom_id:
         current_classroom = Classroom.objects.get(pk=current_classroom_id)
-        current_grade_level = current_classroom.grade.level if current_classroom.grade else 0
-        next_classrooms = Classroom.objects.filter(
-            grade__level__gt=current_grade_level
-        ).select_related('grade', 'academic_year')
+        # Extract grade number from name (e.g., "Grade 1" -> 1)
+        current_grade_name = current_classroom.grade.name if current_classroom.grade else ""
+        try:
+            current_grade_num = int(''.join(filter(str.isdigit, current_grade_name)))
+        except ValueError:
+            current_grade_num = 0
+        
+        # Get classrooms with higher grade numbers
+        all_classrooms = Classroom.objects.all().select_related('grade', 'academic_year')
+        next_classrooms = []
+        for classroom in all_classrooms:
+            try:
+                grade_num = int(''.join(filter(str.isdigit, classroom.grade.name)))
+                if grade_num > current_grade_num:
+                    next_classrooms.append(classroom)
+            except (ValueError, AttributeError):
+                pass
     
     return render(request, 'school/student_promote.html', {
         'classrooms': classrooms,
