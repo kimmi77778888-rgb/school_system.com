@@ -8,7 +8,7 @@
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ឆ្នាំ</th><th>ពិន្ទុ</th><th>ភាគរយ</th><th>ថ្នាក់</th></tr></thead>
+    <thead><tr><th>#</th><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ឆ្នាំ</th><th>ពិន្ទុ</th><th>ភាគរយ</th><th>ថ្នាក់</th><th>លទ្ធផល</th></tr></thead>
     <tbody>
     {% for s in scores %}
     <tr>
@@ -19,8 +19,9 @@
       <td><strong>{{ s.score }}/{{ s.max_score }}</strong></td>
       <td>{{ s.percentage }}%</td>
       <td><span class="badge bg-{{ s.grade_color }}">{{ s.grade_letter }}</span></td>
+      <td>{% pass_fail_badge s 50 'km' %}</td>
     </tr>
-    {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">មិនមានលទ្ធផល</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="8" class="text-center text-muted py-4">មិនមានលទ្ធផល</td></tr>{% endfor %}
     </tbody>
   </table>
 </div>

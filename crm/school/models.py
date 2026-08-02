@@ -434,6 +434,22 @@ class Score(models.Model):
         elif p >= 70: return 'primary'
         elif p >= 60: return 'warning'
         return 'danger'
+    
+    def is_passing(self, passing_percentage=50):
+        """Check if student passed (default: 50% or above)"""
+        return self.percentage() >= passing_percentage
+    
+    def pass_fail_status(self, passing_percentage=50):
+        """Return 'Pass' or 'Fail' based on percentage"""
+        return 'Pass' if self.is_passing(passing_percentage) else 'Fail'
+    
+    def pass_fail_khmer(self, passing_percentage=50):
+        """Return 'ជាប់' or 'ធ្លាក់' based on percentage"""
+        return 'ជាប់' if self.is_passing(passing_percentage) else 'ធ្លាក់'
+    
+    def pass_fail_color(self, passing_percentage=50):
+        """Return Bootstrap color class for pass/fail"""
+        return 'success' if self.is_passing(passing_percentage) else 'danger'
 
     def __str__(self):
         return f"{self.student} | {self.subject} | {self.exam_type} | {self.score}"

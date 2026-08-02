@@ -20,7 +20,7 @@
 </div>
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>សិស្ស</th><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ឆ្នាំ</th><th>ពិន្ទុ</th><th>ភាគរយ</th><th>ថ្នាក់</th><th>សកម្មភាព</th></tr></thead>
+    <thead><tr><th>#</th><th>សិស្ស</th><th>មុខវិជ្ជា</th><th>ប្រភេទ</th><th>ឆ្នាំ</th><th>ពិន្ទុ</th><th>ភាគរយ</th><th>ថ្នាក់</th><th>លទ្ធផល</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for sc in scores %}
     <tr>
@@ -34,13 +34,14 @@
       <td><strong>{{ sc.score }}/{{ sc.max_score }}</strong></td>
       <td>{{ sc.percentage }}%</td>
       <td><span class="badge bg-{{ sc.grade_color }}">{{ sc.grade_letter }}</span></td>
+      <td>{% pass_fail_badge sc 50 'km' %}</td>
       <td>
         <a href="{% url 'school:score_edit' sc.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
         <a href="{% url 'school:score_delete' sc.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="9" class="text-center text-muted py-4">មិនមានលទ្ធផល</td></tr>
+    <tr><td colspan="10" class="text-center text-muted py-4">មិនមានលទ្ធផល</td></tr>
     {% endfor %}
     </tbody>
   </table>

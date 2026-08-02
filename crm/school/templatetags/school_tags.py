@@ -59,3 +59,43 @@ def user_role_badge(context):
     color = colors.get(role, 'secondary')
     label = role.capitalize() if role else 'User'
     return format_html('<span class="badge bg-{}">{}</span>', color, label)
+
+
+@register.simple_tag
+def pass_fail_badge(score, passing_percentage=50, language='en'):
+    """
+    Display a pass/fail badge for a score.
+    Usage: {% pass_fail_badge score 50 'en' %}
+           {% pass_fail_badge score 50 'km' %}
+    """
+    if not score:
+        return ''
+    
+    is_passing = score.is_passing(passing_percentage)
+    color = 'success' if is_passing else 'danger'
+    
+    if language == 'km':
+        label = 'ជាប់' if is_passing else 'ធ្លាក់'
+    else:
+        label = 'Pass' if is_passing else 'Fail'
+    
+    icon = '✓' if is_passing else '✗'
+    
+    return format_html(
+        '<span class="badge bg-{}" title="{}%">{} {}</span>',
+        color,
+        score.percentage(),
+        icon,
+        label
+    )
+
+
+@register.filter
+def pass_or_fail(score, passing_percentage=50):
+    """
+    Simple filter to get pass/fail status.
+    Usage: {{ score|pass_or_fail:50 }}
+    """
+    if not score:
+        return 'N/A'
+    return score.pass_fail_status(passing_percentage)
