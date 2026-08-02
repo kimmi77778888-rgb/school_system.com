@@ -395,6 +395,113 @@ def student_delete(request, pk):
         'object': student, 'title': 'ដកសិស្ស', 'back_url': reverse('school:student_list')
     })
 
+
+@admin_required
+def student_promote(request):
+    """
+    Bulk promote students to next grade if they passed all exams.
+    ដាក់សិស្សឡើងថ្នាក់ជាក្រុម បើប្រឡងជាប់
+    """
+    from django.db.models import Count, Avg, Q
+    
+    # Get filter parameters
+    current_classroom_id = request.GET.get('classroom', '')
+    academic_year_id = request.GET.get('academic_year', '')
+    passing_percentage = float(request.GET.get('passing_percentage', 50))
+    
+    classrooms = Classroom.objects.select_related('grade', 'academic_year')
+    academic_years = AcademicYear.objects.all()
+    
+    students_data = []
+    
+    if current_classroom_id and academic_year_id:
+        current_classroom = get_object_or_404(Classroom, pk=current_classroom_id)
+        academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
+        
+        # Get all students in the classroom
+        students = Student.objects.filter(
+            classroom=current_classroom,
+            is_active=True
+        ).prefetch_related('scores')
+        
+        for student in students:
+            # Get all scores for this academic year
+            scores = student.scores.filter(academic_year=academic_year)
+            
+            if scores.exists():
+                # Calculate pass/fail for each score
+                total_subjects = scores.count()
+                passed_subjects = sum(1 for score in scores if score.is_passing(passing_percentage))
+                failed_subjects = total_subjects - passed_subjects
+                
+                # Calculate average percentage
+                avg_percentage = sum(score.percentage() for score in scores) / total_subjects if total_subjects > 0 else 0
+                
+                # Determine if student can be promoted
+                can_promote = failed_subjects == 0 and total_subjects > 0
+                
+                students_data.append({
+                    'student': student,
+                    'total_subjects': total_subjects,
+                    'passed_subjects': passed_subjects,
+                    'failed_subjects': failed_subjects,
+                    'avg_percentage': round(avg_percentage, 1),
+                    'can_promote': can_promote,
+                })
+            else:
+                # No scores - cannot promote
+                students_data.append({
+                    'student': student,
+                    'total_subjects': 0,
+                    'passed_subjects': 0,
+                    'failed_subjects': 0,
+                    'avg_percentage': 0,
+                    'can_promote': False,
+                })
+    
+    # Handle POST - actually promote students
+    if request.method == 'POST':
+        student_ids = request.POST.getlist('student_ids')
+        next_classroom_id = request.POST.get('next_classroom')
+        
+        if student_ids and next_classroom_id:
+            next_classroom = get_object_or_404(Classroom, pk=next_classroom_id)
+            promoted_count = 0
+            
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(pk=student_id)
+                    student.classroom = next_classroom
+                    student.save()
+                    promoted_count += 1
+                except Exception as e:
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to promote student {student_id}: {e}")
+            
+            if promoted_count > 0:
+                messages.success(request, f'បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។')
+            return redirect('school:student_list')
+    
+    # Get available next grade classrooms
+    next_classrooms = []
+    if current_classroom_id:
+        current_classroom = Classroom.objects.get(pk=current_classroom_id)
+        current_grade_level = current_classroom.grade.level if current_classroom.grade else 0
+        next_classrooms = Classroom.objects.filter(
+            grade__level__gt=current_grade_level
+        ).select_related('grade', 'academic_year')
+    
+    return render(request, 'school/student_promote.html', {
+        'classrooms': classrooms,
+        'academic_years': academic_years,
+        'students_data': students_data,
+        'current_classroom_id': current_classroom_id,
+        'academic_year_id': academic_year_id,
+        'passing_percentage': passing_percentage,
+        'next_classrooms': next_classrooms,
+    })
+
+
 # ══════════════════════════════════════════════
 #  TEACHERS (Admin: full CRUD | Teacher: view self)
 # ══════════════════════════════════════════════

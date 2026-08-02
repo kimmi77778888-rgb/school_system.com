@@ -1,0 +1,200 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}ដាក់សិស្សឡើងថ្នាក់{% endblock %}
+{% block page_title %}ដាក់សិស្សឡើងថ្នាក់{% endblock %}
+
+{% block content %}
+<style>
+.promote-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.status-badge {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+}
+.student-row:hover {
+  background: #f8fafc;
+}
+</style>
+
+<div class="page-header">
+  <h2><i class="bi bi-arrow-up-circle me-2 text-success"></i>ដាក់សិស្សឡើងថ្នាក់</h2>
+  <div class="actions">
+    <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅបញ្ជី
+    </a>
+  </div>
+</div>
+
+{% if not students_data %}
+<!-- Step 1: Select Classroom and Year -->
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <h5 class="mb-4"><i class="bi bi-filter me-2 text-primary"></i>ជ្រើសរើសថ្នាក់និងឆ្នាំសិក្សា</h5>
+    <form method="get">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ថ្នាក់បច្ចុប្បន្ន</label>
+          <select name="classroom" class="form-select" required>
+            <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
+            {% for cls in classrooms %}
+            <option value="{{ cls.pk }}" {% if current_classroom_id == cls.pk|stringformat:"s" %}selected{% endif %}>
+              {{ cls }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ឆ្នាំសិក្សា</label>
+          <select name="academic_year" class="form-select" required>
+            <option value="">-- ជ្រើសរើសឆ្នាំ --</option>
+            {% for year in academic_years %}
+            <option value="{{ year.pk }}" {% if academic_year_id == year.pk|stringformat:"s" %}selected{% endif %}>
+              {{ year }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ពិន្ទុជាប់ (%) </label>
+          <input type="number" name="passing_percentage" class="form-control" value="{{ passing_percentage }}" min="0" max="100" step="0.1">
+          <small class="text-muted">លំនាំដើម: 50%</small>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search me-1"></i>ពិនិត្យលទ្ធផល
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% else %}
+<!-- Step 2: Review and Promote -->
+<div class="promote-card shadow">
+  <div class="row">
+    <div class="col-md-6">
+      <h5><i class="bi bi-info-circle me-2"></i>សង្ខេប</h5>
+      <div class="mt-2">
+        <div><strong>សិស្សសរុប:</strong> {{ students_data|length }} នាក់</div>
+        <div><strong>ប្រឡងជាប់:</strong> {{ students_data|length|add:"-1" }} នាក់</div>
+        <div><strong>ពិន្ទុជាប់:</strong> {{ passing_percentage }}% ឡើងទៅ</div>
+      </div>
+    </div>
+    <div class="col-md-6 text-end">
+      <a href="{% url 'school:student_promote' %}" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>ជ្រើសរើសថ្នាក់ផ្សេង
+      </a>
+    </div>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="current_classroom" value="{{ current_classroom_id }}">
+  
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>បញ្ជីសិស្ស</h5>
+        <div>
+          <label class="form-label fw-semibold me-2 mb-0">ថ្នាក់ថ្មី:</label>
+          <select name="next_classroom" class="form-select d-inline-block" style="width: auto;" required>
+            <option value="">-- ជ្រើសរើសថ្នាក់ថ្មី --</option>
+            {% for cls in next_classrooms %}
+            <option value="{{ cls.pk }}">{{ cls }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 50px;">
+              <input type="checkbox" id="selectAll" class="form-check-input">
+            </th>
+            <th>#</th>
+            <th>លេខសិស្ស</th>
+            <th>ឈ្មោះសិស្ស</th>
+            <th>មុខវិជ្ជា</th>
+            <th>ជាប់</th>
+            <th>ធ្លាក់</th>
+            <th>មធ្យមភាគ</th>
+            <th>ស្ថានភាព</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for data in students_data %}
+        <tr class="student-row">
+          <td>
+            {% if data.can_promote %}
+            <input type="checkbox" name="student_ids" value="{{ data.student.pk }}" class="form-check-input student-checkbox" checked>
+            {% else %}
+            <input type="checkbox" class="form-check-input" disabled>
+            {% endif %}
+          </td>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge bg-light text-dark border">{{ data.student.student_id }}</span></td>
+          <td><strong>{{ data.student.first_name }} {{ data.student.last_name }}</strong></td>
+          <td><span class="badge bg-secondary">{{ data.total_subjects }}</span></td>
+          <td><span class="badge bg-success">{{ data.passed_subjects }}</span></td>
+          <td><span class="badge bg-danger">{{ data.failed_subjects }}</span></td>
+          <td><strong>{{ data.avg_percentage }}%</strong></td>
+          <td>
+            {% if data.can_promote %}
+              <span class="badge bg-success status-badge">✓ អាចឡើងថ្នាក់</span>
+            {% elif data.total_subjects == 0 %}
+              <span class="badge bg-secondary status-badge">មិនមានពិន្ទុ</span>
+            {% else %}
+              <span class="badge bg-danger status-badge">✗ ប្រឡងធ្លាក់</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">
+            មិនមានសិស្សក្នុងថ្នាក់នេះ
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if students_data %}
+    <div class="card-footer bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <small>មានតែសិស្សប្រឡងជាប់ប៉ុណ្ណោះដែលអាចឡើងថ្នាក់បាន</small>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-success" onclick="return confirm('តើអ្នកប្រាកដជាចង់ដាក់សិស្សទាំងនេះឡើងថ្នាក់មែនទេ?')">
+            <i class="bi bi-arrow-up-circle me-1"></i>ដាក់ឡើងថ្នាក់
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</form>
+{% endif %}
+
+<script>
+document.getElementById('selectAll')?.addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.student-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+});
+</script>
+
+{% endblock %}
