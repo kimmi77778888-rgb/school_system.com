@@ -67,7 +67,7 @@
             </div>
             <div>
               <a href="{% url 'school:teacher_detail' r.teacher.pk %}" class="fw-bold" style="font-size:.82rem;color:#0f172a;">
-                {{ r.teacher.first_name }} {{ r.teacher.last_name }}
+                {{ r.teacher.last_name }} {{ r.teacher.first_name }}
               </a>
               {% if r.teacher.subject_specialty %}
               <div style="font-size:.68rem;color:var(--mu);">{{ r.teacher.subject_specialty }}</div>

@@ -30,7 +30,7 @@
       <td style="text-align:center;color:#888;">{{ forloop.counter }}</td>
       <td><strong>{{ t.teacher_id }}</strong></td>
       <td>
-        {{ t.first_name }} {{ t.last_name }}
+        {{ t.last_name }} {{ t.first_name }}
         {% if t.first_name_en %}<br><span style="font-size:9px;color:#888;">{{ t.first_name_en }} {{ t.last_name_en }}</span>{% endif %}
       </td>
       <td style="text-align:center;">{{ t.get_gender_display|default:"—" }}</td>
