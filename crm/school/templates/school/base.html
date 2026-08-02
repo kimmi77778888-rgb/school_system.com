@@ -660,9 +660,14 @@ input[type="file"].form-control:hover{
         <i class="bi bi-chevron-down sb-grp-arrow"></i>
       </button>
       <div class="sb-grp-body">
-        <a class="sb-a sb-sub {% if 'student' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}">
+        <a class="sb-a sb-sub {% if 'student' in request.resolver_match.url_name and 'promote' not in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}">
           <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
         </a>
+        {% if role == 'admin' %}
+        <a class="sb-a sb-sub {% if 'promote' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_promote' %}">
+          <i class="bi bi-arrow-up-circle-fill"></i><span class="t">ដាក់សិស្សឡើងថ្នាក់</span>
+        </a>
+        {% endif %}
         <a class="sb-a sb-sub {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}">
           <i class="bi bi-mortarboard-fill"></i><span class="t">គ្រូបង្រៀន</span>
         </a>
