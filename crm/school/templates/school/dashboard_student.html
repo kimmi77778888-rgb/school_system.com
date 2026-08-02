@@ -1,7 +1,7 @@
-{% extends 'school/base.html' %}
+﻿{% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}???????????{% endblock %}
-{% block page_title %}???????????{% endblock %}
+{% block title %}ផ្ទាំងសិស្ស{% endblock %}
+{% block page_title %}ផ្ទាំងសិស្ស{% endblock %}
 {% block content %}
 {% if student %}
 <div class="card p-4 mb-4" style="background:linear-gradient(135deg,#4f46e5,#1e3a5f);color:#fff;border:none;border-radius:16px;">
@@ -13,7 +13,7 @@
     {% endif %}
     <div>
       <h4 class="mb-0 fw-bold">{{ student.last_name }} {{ student.first_name }}</h4>
-      <div style="opacity:.75;font-size:.85rem;">{{ student.student_id }} &nbsp;|&nbsp; {{ student.classroom|default:"????????????????" }}</div>
+      <div style="opacity:.75;font-size:.85rem;">{{ student.student_id }} &nbsp;|&nbsp; {{ student.classroom|default:"មិនទាន់មានថ្នាក់" }}</div>
     </div>
   </div>
 </div>
@@ -24,8 +24,8 @@
     <a href="{% url 'school:timetable_list' %}" class="text-decoration-none">
       <div class="card p-3 text-center h-100" style="border-left:4px solid #2563eb;">
         <i class="bi bi-calendar3-week-fill fs-2 text-primary mb-2"></i>
-        <div class="fw-bold">?????????</div>
-        <div class="text-muted small">???????</div>
+        <div class="fw-bold">តារាងម៉ោង</div>
+        <div class="text-muted small">ម៉ោងរៀន</div>
       </div>
     </a>
   </div>
@@ -33,8 +33,8 @@
     <a href="{% url 'school:student_results' %}" class="text-decoration-none">
       <div class="card p-3 text-center h-100" style="border-left:4px solid #10b981;">
         <i class="bi bi-bar-chart-fill fs-2 text-success mb-2"></i>
-        <div class="fw-bold">??????</div>
-        <div class="text-muted small">???????????</div>
+        <div class="fw-bold">លទ្ធផល</div>
+        <div class="text-muted small">ពិន្ទុប្រឡង</div>
       </div>
     </a>
   </div>
@@ -42,8 +42,8 @@
     <a href="{% url 'school:student_attendance' %}" class="text-decoration-none">
       <div class="card p-3 text-center h-100" style="border-left:4px solid #f59e0b;">
         <i class="bi bi-calendar-check-fill fs-2 text-warning mb-2"></i>
-        <div class="fw-bold">???????</div>
-        <div class="text-muted small">????????????????</div>
+        <div class="fw-bold">វត្តមាន</div>
+        <div class="text-muted small">កត់ត្រារបស់ខ្ញុំ</div>
       </div>
     </a>
   </div>
@@ -51,8 +51,8 @@
     <a href="{% url 'school:notification_list' %}" class="text-decoration-none">
       <div class="card p-3 text-center h-100" style="border-left:4px solid #8b5cf6;">
         <i class="bi bi-bell-fill fs-2 mb-2" style="color:#8b5cf6;"></i>
-        <div class="fw-bold">???????????????</div>
-        <div class="text-muted small">??????</div>
+        <div class="fw-bold">សេចក្ដីជូនដំណឹង</div>
+        <div class="text-muted small">ពីសាលា</div>
       </div>
     </a>
   </div>
@@ -61,27 +61,27 @@
 <div class="row g-3">
   <div class="col-lg-7">
     <div class="card">
-      <div class="card-header"><i class="bi bi-calendar3-week-fill text-primary me-2"></i>????????????????</div>
+      <div class="card-header"><i class="bi bi-calendar3-week-fill text-primary me-2"></i>តារាងម៉ោងថ្ងៃនេះ</div>
       <table class="table table-hover mb-0">
-        <thead><tr><th>????</th><th>????</th><th>?????????</th><th>????</th></tr></thead>
+        <thead><tr><th>ថ្ងៃ</th><th>ម៉ោង</th><th>មុខវិជ្ជា</th><th>គ្រូ</th></tr></thead>
         <tbody>
         {% for tt in timetables %}
         <tr>
-          <td>{% if tt.time_slot.day == 1 %}????{% elif tt.time_slot.day == 2 %}??????{% elif tt.time_slot.day == 3 %}???{% elif tt.time_slot.day == 4 %}??????????{% elif tt.time_slot.day == 5 %}?????{% else %}????{% endif %}</td>
-          <td>{{ tt.time_slot.start_time|time:"H:i" }}�{{ tt.time_slot.end_time|time:"H:i" }}</td>
+          <td>{% if tt.time_slot.day == 1 %}ចន្ទ{% elif tt.time_slot.day == 2 %}អង្គារ{% elif tt.time_slot.day == 3 %}ពុធ{% elif tt.time_slot.day == 4 %}ព្រហស្បតិ៍{% elif tt.time_slot.day == 5 %}សុក្រ{% else %}សៅរ៍{% endif %}</td>
+          <td>{{ tt.time_slot.start_time|time:"H:i" }}–{{ tt.time_slot.end_time|time:"H:i" }}</td>
           <td><strong>{{ tt.subject.name }}</strong></td>
-          <td>{{ tt.teacher|default:"�" }}</td>
+          <td>{{ tt.teacher|default:"—" }}</td>
         </tr>
-        {% empty %}<tr><td colspan="4" class="text-center text-muted py-3">???????????????</td></tr>{% endfor %}
+        {% empty %}<tr><td colspan="4" class="text-center text-muted py-3">មិនមានតារាងម៉ោង</td></tr>{% endfor %}
         </tbody>
       </table>
     </div>
   </div>
   <div class="col-lg-5">
     <div class="card mb-3">
-      <div class="card-header"><i class="bi bi-bar-chart text-success me-2"></i>??????????????</div>
+      <div class="card-header"><i class="bi bi-bar-chart text-success me-2"></i>ពិន្ទុចុងក្រោយ</div>
       <table class="table table-hover mb-0">
-        <thead><tr><th>?????????</th><th>??????</th><th>??????</th></tr></thead>
+        <thead><tr><th>មុខវិជ្ជា</th><th>ពិន្ទុ</th><th>ថ្នាក់</th></tr></thead>
         <tbody>
         {% for s in scores %}
         <tr>
@@ -89,19 +89,19 @@
           <td>{{ s.score }}/{{ s.max_score }}</td>
           <td><span class="badge bg-{{ s.grade_color }}">{{ s.grade_letter }}</span></td>
         </tr>
-        {% empty %}<tr><td colspan="3" class="text-center text-muted py-3">??????????????</td></tr>{% endfor %}
+        {% empty %}<tr><td colspan="3" class="text-center text-muted py-3">មិនមានទិន្នន័យ</td></tr>{% endfor %}
         </tbody>
       </table>
     </div>
     <div class="card">
-      <div class="card-header"><i class="bi bi-bell-fill text-warning me-2"></i>???????????????</div>
+      <div class="card-header"><i class="bi bi-bell-fill text-warning me-2"></i>សេចក្ដីជូនដំណឹង</div>
       <ul class="list-group list-group-flush">
         {% for n in notifications %}
         <li class="list-group-item" style="font-size:.85rem;">
           <strong>{{ n.title }}</strong>
           <div class="text-muted" style="font-size:.75rem;">{{ n.message|truncatechars:50 }}</div>
         </li>
-        {% empty %}<li class="list-group-item text-center text-muted py-3">?????????????????????</li>{% endfor %}
+        {% empty %}<li class="list-group-item text-center text-muted py-3">មិនមានសេចក្ដីជូនដំណឹង</li>{% endfor %}
       </ul>
     </div>
   </div>
