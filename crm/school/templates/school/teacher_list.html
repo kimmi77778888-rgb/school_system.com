@@ -24,14 +24,14 @@
       <td>
         <div class="d-flex align-items-center gap-2">
           {% if t.photo %}<img src="{{ t.photo|safe_url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
-          {% else %}<div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white" style="width:32px;height:32px;font-size:.75rem;font-weight:700;">{{ t.first_name|first }}</div>{% endif %}
+          {% else %}<div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white" style="width:32px;height:32px;font-size:.75rem;font-weight:700;">{{ t.last_name|first }}{{ t.first_name|first }}</div>{% endif %}
           <a href="{% url 'school:teacher_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.last_name }} {{ t.first_name }}</a>
         </div>
       </td>
-      <td class="hide-xs">{{ t.get_gender_display|default:"—" }}</td>
-      <td class="hide-xs">{{ t.subject_specialty|default:"—" }}</td>
-      <td class="hide-xs">{{ t.phone|default:"—" }}</td>
-      <td class="hide-xs">{% if t.hire_date %}{{ t.hire_date }}{% else %}—{% endif %}</td>
+      <td class="hide-xs">{{ t.get_gender_display|default:"ï¿½" }}</td>
+      <td class="hide-xs">{{ t.subject_specialty|default:"ï¿½" }}</td>
+      <td class="hide-xs">{{ t.phone|default:"ï¿½" }}</td>
+      <td class="hide-xs">{% if t.hire_date %}{{ t.hire_date }}{% else %}ï¿½{% endif %}</td>
       <td>
         <a href="{% url 'school:teacher_detail' t.pk %}" class="btn btn-outline-info btn-sm"><i class="bi bi-eye"></i></a>
         <a href="{% url 'school:teacher_edit' t.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>

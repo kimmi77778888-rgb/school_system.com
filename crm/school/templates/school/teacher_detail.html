@@ -56,12 +56,12 @@
       {% else %}
         <div class="rounded-circle bg-gradient text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow" 
              style="width:120px;height:120px;font-size:2.5rem;background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);border: 4px solid #e2e8f0;">
-          {{ teacher.first_name.0 }}{{ teacher.last_name.0 }}
+          {{ teacher.last_name.0 }}{{ teacher.first_name.0 }}
         </div>
       {% endif %}
       <h4 class="fw-bold mb-1">{{ teacher.last_name }} {{ teacher.first_name }}</h4>
       {% if teacher.first_name_en or teacher.last_name_en %}
-      <div class="text-muted small mb-2">{{ teacher.first_name_en }} {{ teacher.last_name_en }}</div>
+      <div class="text-muted small mb-2">{{ teacher.last_name_en }} {{ teacher.first_name_en }}</div>
       {% endif %}
       <span class="badge bg-success fs-6 mb-2">{{ teacher.teacher_id }}</span>
       {% if teacher.subject_specialty %}
@@ -82,18 +82,18 @@
       <div class="info-value">
         {% if teacher.phone %}
           <a href="tel:{{ teacher.phone }}" class="text-decoration-none">{{ teacher.phone }}</a>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-envelope me-1"></i>???????</div>
       <div class="info-value" style="font-size: 0.85rem;">
         {% if teacher.email %}
           <a href="mailto:{{ teacher.email }}" class="text-decoration-none">{{ teacher.email }}</a>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-geo-alt me-1"></i>?????????</div>
-      <div class="info-value">{{ teacher.address|default:"—" }}</div>
+      <div class="info-value">{{ teacher.address|default:"ï¿½" }}</div>
     </div>
 
     <!-- Professional Info -->
@@ -101,11 +101,11 @@
       <div class="section-header"><i class="bi bi-briefcase me-2 text-success"></i>??????</div>
       
       <div class="info-label"><i class="bi bi-gender-ambiguous me-1"></i>???</div>
-      <div class="info-value">{{ teacher.get_gender_display|default:"—" }}</div>
+      <div class="info-value">{{ teacher.get_gender_display|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-cake2 me-1"></i>????????????????</div>
       <div class="info-value">
-        {{ teacher.date_of_birth|default:"—" }}
+        {{ teacher.date_of_birth|default:"ï¿½" }}
         {% if teacher.date_of_birth %}
         <div class="text-muted small mt-1">
           <i class="bi bi-hourglass-split me-1"></i>????: {{ teacher.get_age }} ?????
@@ -114,11 +114,11 @@
       </div>
       
       <div class="info-label"><i class="bi bi-geo me-1"></i>?????????????</div>
-      <div class="info-value">{{ teacher.place_of_birth|default:"—" }}</div>
+      <div class="info-value">{{ teacher.place_of_birth|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-calendar-check me-1"></i>??????????</div>
       <div class="info-value">
-        {{ teacher.hire_date|default:"—" }}
+        {{ teacher.hire_date|default:"ï¿½" }}
         {% if teacher.hire_date %}
         <div class="text-muted small mt-1">
           <i class="bi bi-clock-history me-1"></i>?????????: {{ teacher.hire_date|timesince }}
@@ -130,17 +130,17 @@
       <div class="info-value">
         {% if teacher.contract_type %}
           <span class="badge bg-primary">{{ teacher.contract_type }}</span>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-bar-chart me-1"></i>???????????</div>
-      <div class="info-value">{{ teacher.salary_scale|default:"—" }}</div>
+      <div class="info-value">{{ teacher.salary_scale|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-clock-history me-1"></i>??????????????</div>
       <div class="info-value">
         {% if teacher.years_experience %}
           <span class="badge bg-info text-dark">{{ teacher.years_experience }} ?????</span>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
     </div>
 
@@ -152,28 +152,28 @@
       <div class="info-value">
         {% if teacher.teacher_rank %}
           <span class="badge bg-success">{{ teacher.get_teacher_rank_display }}</span>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-card-text me-1"></i>??????????????????</div>
       <div class="info-value">
         {% if teacher.teacher_license %}
           <code class="bg-light px-2 py-1 rounded">{{ teacher.teacher_license }}</code>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-building me-1"></i>????????????????</div>
       <div class="info-value">
         {% if teacher.ministry_id %}
           <code class="bg-light px-2 py-1 rounded">{{ teacher.ministry_id }}</code>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-person-vcard me-1"></i>???????????????</div>
       <div class="info-value">
         {% if teacher.national_id %}
           <code class="bg-light px-2 py-1 rounded">{{ teacher.national_id }}</code>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <!-- Document Files -->
@@ -230,23 +230,23 @@
       <div class="section-header"><i class="bi bi-mortarboard me-2 text-warning"></i>????????</div>
       
       <div class="info-label"><i class="bi bi-building-fill-gear me-1"></i>?????????????</div>
-      <div class="info-value">{{ teacher.university|default:"—" }}</div>
+      <div class="info-value">{{ teacher.university|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-mortarboard-fill me-1"></i>??????????</div>
-      <div class="info-value">{{ teacher.degree|default:"—" }}</div>
+      <div class="info-value">{{ teacher.degree|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-calendar-event me-1"></i>????????????????????</div>
       <div class="info-value">
         {% if teacher.graduation_year %}
           {{ teacher.graduation_year }}
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-award me-1"></i>?????????????</div>
-      <div class="info-value">{{ teacher.qualification|default:"—" }}</div>
+      <div class="info-value">{{ teacher.qualification|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-book me-1"></i>?????</div>
-      <div class="info-value">{{ teacher.subject_specialty|default:"—" }}</div>
+      <div class="info-value">{{ teacher.subject_specialty|default:"ï¿½" }}</div>
     </div>
 
     <!-- Emergency Contact -->
@@ -254,17 +254,17 @@
       <div class="section-header"><i class="bi bi-exclamation-triangle me-2 text-danger"></i>?????????????????</div>
       
       <div class="info-label"><i class="bi bi-person me-1"></i>?????</div>
-      <div class="info-value">{{ teacher.emergency_contact|default:"—" }}</div>
+      <div class="info-value">{{ teacher.emergency_contact|default:"ï¿½" }}</div>
       
       <div class="info-label"><i class="bi bi-telephone me-1"></i>????????</div>
       <div class="info-value">
         {% if teacher.emergency_phone %}
           <a href="tel:{{ teacher.emergency_phone }}" class="text-decoration-none">{{ teacher.emergency_phone }}</a>
-        {% else %}—{% endif %}
+        {% else %}ï¿½{% endif %}
       </div>
       
       <div class="info-label"><i class="bi bi-heart me-1"></i>??????????</div>
-      <div class="info-value">{{ teacher.emergency_relation|default:"—" }}</div>
+      <div class="info-value">{{ teacher.emergency_relation|default:"ï¿½" }}</div>
     </div>
 
     <!-- Monthly Attendance Summary -->
@@ -411,8 +411,8 @@
                     {% for sub in subjects %}
                     <tr>
                       <td><strong>{{ sub.name }}</strong></td>
-                      <td><code class="bg-light px-2 py-1 rounded">{{ sub.code|default:"—" }}</code></td>
-                      <td><span class="badge bg-info text-dark">{{ sub.grade|default:"—" }}</span></td>
+                      <td><code class="bg-light px-2 py-1 rounded">{{ sub.code|default:"ï¿½" }}</code></td>
+                      <td><span class="badge bg-info text-dark">{{ sub.grade|default:"ï¿½" }}</span></td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -447,7 +447,7 @@
                     {% for c in classes %}
                     <tr>
                       <td><span class="badge bg-primary">{{ c.grade }}</span></td>
-                      <td><strong>{{ c.room_number|default:"—" }}</strong></td>
+                      <td><strong>{{ c.room_number|default:"ï¿½" }}</strong></td>
                       <td><span class="badge bg-secondary">{{ c.students.count }} ????</span></td>
                       <td class="text-muted small">{{ c.academic_year }}</td>
                     </tr>
@@ -536,9 +536,9 @@
                   </td>
                   <td>{{ history.position }}</td>
                   <td>{{ history.start_date }}</td>
-                  <td>{{ history.end_date|default:"—" }}</td>
+                  <td>{{ history.end_date|default:"ï¿½" }}</td>
                   <td><span class="badge bg-info text-dark">{{ history.duration_years }} ?????</span></td>
-                  <td>{{ history.location|default:"—" }}</td>
+                  <td>{{ history.location|default:"ï¿½" }}</td>
                 </tr>
                 <tr>
                   <td colspan="6" class="bg-light">
@@ -766,7 +766,7 @@
                       <span class="badge bg-info text-dark"><i class="bi bi-info-circle-fill me-1"></i>{{ att.get_status_display }}</span>
                     {% endif %}
                   </td>
-                  <td class="text-muted">{{ att.note|default:"—" }}</td>
+                  <td class="text-muted">{{ att.note|default:"ï¿½" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
