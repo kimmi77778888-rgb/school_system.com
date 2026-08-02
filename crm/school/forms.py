@@ -117,7 +117,7 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Student
         fields = [
-            # Basic Information
+            # Basic Information - Khmer name order (Last name first, First name second)
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
             'gender', 'date_of_birth', 'place_of_birth',
@@ -155,10 +155,10 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             'is_active'
         ]
         labels = {
-            'first_name':    'នាមខ្លួន (ខ្មែរ)',
-            'last_name':     'នាមត្រកូល (ខ្មែរ)',
-            'first_name_en': 'First Name (English)',
+            'last_name':     'នាមត្រកូល (Last Name)',
+            'first_name':    'នាមខ្លួន (First Name)',
             'last_name_en':  'Last Name (English)',
+            'first_name_en': 'First Name (English)',
             'gender':        'ភេទ',
             'date_of_birth': 'ថ្ងៃខែឆ្នាំកំណើត',
             'place_of_birth': 'ទីកន្លែងកំណើត',
@@ -239,10 +239,10 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'photo', 'id_card_file', 'certificate_file', 'is_active'
         ]
         labels = {
-            'first_name':    'នាមខ្លួន (ខ្មែរ)',
-            'last_name':     'នាមត្រកូល (ខ្មែរ)',
-            'first_name_en': 'First Name (English)',
+            'last_name':     'នាមត្រកូល (Last Name)',
+            'first_name':    'នាមខ្លួន (First Name)',
             'last_name_en':  'Last Name (English)',
+            'first_name_en': 'First Name (English)',
             'date_of_birth': 'ថ្ងៃខែឆ្នាំកំណើត',
             'place_of_birth': 'ទីកន្លែងកំណើត',
             'national_id': 'អត្តសញ្ញាណប័ណ្ណ',
