@@ -117,7 +117,6 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Student
         fields = [
-            'student_id',
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
             'gender', 'date_of_birth',
@@ -125,7 +124,6 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             'classroom', 'photo', 'is_active', 'blood_group', 'medical_notes'
         ]
         labels = {
-            'student_id':    'លេខសម្គាល់សិស្ស',
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
@@ -164,7 +162,6 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Teacher
         fields = [
-            'teacher_id',
             'last_name', 'first_name',
             'last_name_en', 'first_name_en',
             'gender', 'date_of_birth', 'place_of_birth',
@@ -178,7 +175,6 @@ class TeacherForm(BootstrapMixin, forms.ModelForm):
             'photo', 'id_card_file', 'certificate_file', 'is_active'
         ]
         labels = {
-            'teacher_id':    'លេខសម្គាល់គ្រូ',
             'first_name':    'នាមខ្លួន (ខ្មែរ)',
             'last_name':     'នាមត្រកូល (ខ្មែរ)',
             'first_name_en': 'First Name (English)',
@@ -326,24 +322,8 @@ class ExamTypeForm(BootstrapMixin, forms.ModelForm):
 class SubjectForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Subject
-        fields = ['subject_id', 'name', 'code', 'teacher', 'grade', 'credit', 'description']
+        fields = ['name', 'code', 'teacher', 'grade', 'credit', 'description']
         widgets = {'description': forms.Textarea(attrs={'rows': 2})}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Make subject_id read-only — auto-generated, never edited by user
-        self.fields['subject_id'].required = False
-        self.fields['subject_id'].label = 'Subject ID'
-        self.fields['subject_id'].widget.attrs.update({
-            'readonly':    True,
-            'placeholder': 'Auto-generated',
-            'class':       'form-control',
-            'style':       'background:#f3f4f6;color:#6b7280;cursor:not-allowed;',
-        })
-
-    def clean_subject_id(self):
-        # Ignore user input — preserve existing value or leave blank for new records
-        return self.instance.subject_id if self.instance.pk else None
 
 
 # ── Grade / Academic Year ────────────────────────────────────────

@@ -53,6 +53,7 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display  = ('teacher_id', 'first_name', 'last_name', 'gender', 'subject_specialty', 'phone', 'is_active')
     search_fields = ('first_name', 'last_name', 'email', 'teacher_id')
     list_filter   = ('gender', 'is_active')
+    readonly_fields = ('teacher_id',)
 
 
 @admin.register(TeacherDocument)
@@ -67,6 +68,7 @@ class TeacherDocumentAdmin(admin.ModelAdmin):
 class ClassroomAdmin(admin.ModelAdmin):
     list_display = ('grade', 'homeroom_teacher', 'academic_year', 'room_number', 'capacity')
     list_filter  = ('academic_year',)
+    readonly_fields = ('classroom_id',)
 
 
 @admin.register(Student)
@@ -74,12 +76,14 @@ class StudentAdmin(admin.ModelAdmin):
     list_display  = ('student_id', 'first_name', 'last_name', 'gender', 'classroom', 'is_active')
     search_fields = ('student_id', 'first_name', 'last_name')
     list_filter   = ('is_active', 'gender', 'classroom')
+    readonly_fields = ('student_id',)
 
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'code', 'teacher', 'grade', 'credit')
     list_filter  = ('grade',)
+    readonly_fields = ('subject_id',)
 
 
 @admin.register(Attendance)
@@ -117,6 +121,7 @@ class ExamAdmin(admin.ModelAdmin):
     list_display = ('name', 'exam_type', 'subject', 'classroom', 'date', 'max_score')
     list_filter  = ('exam_type', 'academic_year', 'classroom')
     date_hierarchy = 'date'
+    readonly_fields = ('exam_id',)
 
 
 @admin.register(Score)
@@ -142,15 +147,18 @@ class TimetableAdmin(admin.ModelAdmin):
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('title', 'notification_type', 'audience', 'created_by', 'created_at', 'is_active')
     list_filter  = ('notification_type', 'audience', 'is_active')
+    readonly_fields = ('notification_id', 'created_at')
 
 
 @admin.register(ReportCard)
 class ReportCardAdmin(admin.ModelAdmin):
     list_display = ('student', 'academic_year', 'term', 'status', 'generated_at')
     list_filter  = ('status', 'academic_year', 'term')
+    readonly_fields = ('report_id', 'generated_at')
 
 
 @admin.register(SchoolEvent)
 class SchoolEventAdmin(admin.ModelAdmin):
     list_display = ('title', 'event_type', 'start_date', 'end_date')
     list_filter  = ('event_type',)
+    readonly_fields = ('event_id',)
