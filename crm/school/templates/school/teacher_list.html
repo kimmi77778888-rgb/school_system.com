@@ -1,26 +1,27 @@
 {% extends 'school/base.html' %}
 {% load school_tags %}
-{% block title %}?????????{% endblock %}
-{% block page_title %}???????????????????{% endblock %}
+{% block title %}បញ្ជីគ្រូ{% endblock %}
+{% block page_title %}គ្រប់គ្រងគ្រូបង្រៀន{% endblock %}
+
 {% block content %}
 <div class="page-header">
-  <h2><i class="bi bi-mortarboard-fill me-2 text-success"></i>???????????????</h2>
+  <h2><i class="bi bi-mortarboard-fill me-2 text-success"></i>បញ្ជីគ្រូ</h2>
   <div class="actions">
     <form method="get" class="d-flex gap-2">
-      <input type="text" name="q" value="{{ q }}" placeholder="???????????..." class="form-control form-control-sm" style="width:200px;"/>
+      <input type="text" name="q" value="{{ q }}" placeholder="ស្វែងរក..." class="form-control form-control-sm" style="width:200px;"/>
       <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
     </form>
-    <a href="{% url 'school:teacher_add' %}" class="btn btn-success btn-sm"><i class="bi bi-person-plus-fill me-1"></i>??????????</a>
+    <a href="{% url 'school:teacher_add' %}" class="btn btn-success btn-sm"><i class="bi bi-person-plus-fill me-1"></i>បន្ថែមគ្រូ</a>
   </div>
 </div>
+
 <div class="card table-card">
   <table class="table table-hover">
-    <thead><tr><th>#</th><th>???</th><th>?????</th><th class="hide-xs">???</th><th class="hide-xs">?????</th><th class="hide-xs">????????</th><th class="hide-xs">?.?</th><th>????????</th></tr></thead>
+    <thead><tr><th>#</th><th>ឈ្មោះ</th><th>ភេទ</th><th class="hide-xs">ជំនាញ</th><th class="hide-xs">ទូរស័ព្ទ</th><th class="hide-xs">ថ.ចូលបម្រើ</th><th>សកម្ម</th><th>សកម្មភាព</th></tr></thead>
     <tbody>
     {% for t in teachers %}
     <tr>
       <td>{{ forloop.counter }}</td>
-      <td><span class="badge bg-light text-dark fw-bold">{{ t.teacher_id }}</span></td>
       <td>
         <div class="d-flex align-items-center gap-2">
           {% if t.photo %}<img src="{{ t.photo|safe_url }}" class="rounded-circle" width="32" height="32" style="object-fit:cover;">
@@ -28,18 +29,27 @@
           <a href="{% url 'school:teacher_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.last_name }} {{ t.first_name }}</a>
         </div>
       </td>
-      <td class="hide-xs">{{ t.get_gender_display|default:"�" }}</td>
-      <td class="hide-xs">{{ t.subject_specialty|default:"�" }}</td>
-      <td class="hide-xs">{{ t.phone|default:"�" }}</td>
-      <td class="hide-xs">{% if t.hire_date %}{{ t.hire_date }}{% else %}�{% endif %}</td>
+      <td class="hide-xs">{{ t.get_gender_display|default:"—" }}</td>
+      <td class="hide-xs">{{ t.subject_specialty|default:"—" }}</td>
+      <td class="hide-xs">{{ t.phone|default:"—" }}</td>
+      <td class="hide-xs">{% if t.hire_date %}{{ t.hire_date }}{% else %}—{% endif %}</td>
       <td>
-        <a href="{% url 'school:teacher_detail' t.pk %}" class="btn btn-outline-info btn-sm"><i class="bi bi-eye"></i></a>
-        <a href="{% url 'school:teacher_edit' t.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
-        <a href="{% url 'school:teacher_delete' t.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+        {% if t.is_active %}
+        <span class="badge bg-success">សកម្ម</span>
+        {% else %}
+        <span class="badge bg-secondary">អសកម្ម</span>
+        {% endif %}
+      </td>
+      <td>
+        <div class="btn-group btn-group-sm">
+          <a href="{% url 'school:teacher_detail' t.pk %}" class="btn btn-outline-info" title="មើល"><i class="bi bi-eye"></i></a>
+          <a href="{% url 'school:teacher_edit' t.pk %}" class="btn btn-outline-primary" title="កែ"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'school:teacher_delete' t.pk %}" class="btn btn-outline-danger" title="លុប" onclick="return confirm('តើអ្នកប្រាកដក្នុងការលុបគ្រូនេះឬ?')"><i class="bi bi-trash"></i></a>
+        </div>
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>??????????</td></tr>
+    <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>គ្មានទិន្នន័យ</td></tr>
     {% endfor %}
     </tbody>
   </table>
