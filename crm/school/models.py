@@ -78,14 +78,33 @@ class AcademicYear(models.Model):
 #  GRADE
 # ══════════════════════════════════════════════════════
 class Grade(models.Model):
+    # Cambodia Education System Levels
+    LEVEL_CHOICES = [
+        ('primary', 'បឋមសិក្សា (Primary: Grade 1-6)'),
+        ('lower_secondary', 'បឋមភូមិ (Lower Secondary: Grade 7-9)'),
+        ('upper_secondary', 'មធ្យមភូមិ (Upper Secondary: Grade 10-12)'),
+    ]
+    
     name    = models.CharField(max_length=50)
     section = models.CharField(max_length=10, blank=True)
+    level   = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='primary', verbose_name='កម្រិតថ្នាក់')
+    grade_number = models.IntegerField(null=True, blank=True, verbose_name='លេខថ្នាក់', help_text='1-12')
 
     def __str__(self):
         return f"{self.name} {self.section}".strip()
+    
+    def get_next_grade_level(self):
+        """Return the next level after this grade (for promotion logic)"""
+        if self.grade_number == 6:
+            return 'lower_secondary'
+        elif self.grade_number == 9:
+            return 'upper_secondary'
+        elif self.grade_number == 12:
+            return 'graduated'
+        return self.level
 
     class Meta:
-        ordering = ['name', 'section']
+        ordering = ['grade_number', 'section']
 
 
 # ══════════════════════════════════════════════════════
@@ -481,11 +500,18 @@ class StudentHistory(models.Model):
     """
     Track student progression through grades - one record per academic year
     រក្សាទុកប្រវត្តិសិស្ស - កំណត់ត្រាមួយសម្រាប់មួយឆ្នាំសិក្សា
+    
+    Cambodia Education System:
+    - Primary (បឋមសិក្សា): Grade 1-6
+    - Lower Secondary (បឋមភូមិ): Grade 7-9  
+    - Upper Secondary (មធ្យមភូមិ): Grade 10-12
     """
     student        = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='history_records')
     academic_year  = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='student_histories')
     classroom      = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, related_name='student_histories')
     grade_name     = models.CharField(max_length=100, verbose_name='ឈ្មោះថ្នាក់', help_text='Stored for historical reference')
+    grade_number   = models.IntegerField(null=True, blank=True, verbose_name='លេខថ្នាក់', help_text='1-12')
+    grade_level    = models.CharField(max_length=20, blank=True, verbose_name='កម្រិតថ្នាក់', help_text='primary, lower_secondary, upper_secondary')
     status         = models.CharField(max_length=20, choices=Student.STATUS_CHOICES, default='ACTIVE', verbose_name='ស្ថានភាព')
     
     # Academic performance
@@ -503,6 +529,10 @@ class StudentHistory(models.Model):
     start_date     = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃចាប់ផ្តើម')
     end_date       = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃបញ្ចប់')
     
+    # Promotion details
+    promoted_to    = models.CharField(max_length=200, blank=True, verbose_name='ឡើងថ្នាក់ទៅ', help_text='Next grade/classroom after promotion')
+    promotion_note = models.TextField(blank=True, verbose_name='កំណត់សំគាល់ការឡើងថ្នាក់')
+    
     # Notes
     notes          = models.TextField(blank=True, verbose_name='កំណត់ចំណាំ')
     
@@ -513,6 +543,11 @@ class StudentHistory(models.Model):
     def attendance_percentage(self):
         if self.total_days > 0:
             return round((self.present_days / self.total_days) * 100, 1)
+        return 0
+    
+    def pass_percentage(self):
+        if self.total_subjects > 0:
+            return round((self.passed_subjects / self.total_subjects) * 100, 1)
         return 0
     
     def __str__(self):

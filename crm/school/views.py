@@ -573,11 +573,16 @@ def student_delete(request, pk):
 
 
 @admin_or_teacher
-@admin_or_teacher
 def student_promote(request):
     """
-    Bulk promote students to next grade if they passed all exams.
-    ដាក់សិស្សឡើងថ្នាក់ជាក្រុម បើប្រឡងជាប់
+    Bulk promote students to next grade based on Cambodia Education System
+    ដាក់សិស្សឡើងថ្នាក់ជាក្រុមតាមប្រព័ន្ធអប់រំកម្ពុជា
+    
+    Cambodia Education System:
+    - Primary (បឋមសិក្សា): Grade 1-6
+    - Lower Secondary (បឋមភូមិ): Grade 7-9
+    - Upper Secondary (មធ្យមភូមិ): Grade 10-12
+    
     Creates historical records to preserve student data across academic years.
     """
     from django.db.models import Count, Avg, Q
@@ -620,7 +625,7 @@ def student_promote(request):
                 total_subjects = scores.count()
                 avg_percentage = sum(score.percentage() for score in scores) / total_subjects if total_subjects > 0 else 0
                 
-                # NEW: Determine pass/fail based on AVERAGE score
+                # Determine pass/fail based on AVERAGE score
                 # ជាប់/ធ្លាក់ដោយផ្អែកលើពិន្ទុមធ្យម
                 # If average >= passing_percentage → can promote
                 can_promote = avg_percentage >= passing_percentage and total_subjects > 0
@@ -663,9 +668,18 @@ def student_promote(request):
                     student = Student.objects.get(pk=student_id)
                     old_classroom = student.classroom
                     
+                    if not old_classroom:
+                        continue
+                    
+                    # Get grade information
+                    old_grade = old_classroom.grade
+                    new_grade = next_classroom.grade
+                    old_grade_number = old_grade.grade_number if old_grade else 0
+                    new_grade_number = new_grade.grade_number if new_grade else 0
+                    
                     # === CREATE HISTORY RECORD ===
                     # Save current academic year data before promotion
-                    if old_classroom and old_classroom.academic_year:
+                    if old_classroom.academic_year:
                         # Get academic year data
                         year = old_classroom.academic_year
                         
@@ -682,14 +696,32 @@ def student_promote(request):
                             failed = 0
                         
                         # Calculate attendance for this academic year
-                        year_attendance = student.attendances.filter(
-                            date__gte=year.year.split('-')[0] + '-01-01',
-                            date__lte=year.year.split('-')[1] + '-12-31'
-                        ) if '-' in year.year else student.attendances.all()
+                        # Parse year string (e.g., "2024-2025")
+                        try:
+                            if '-' in year.year:
+                                start_year = year.year.split('-')[0]
+                                end_year = year.year.split('-')[1]
+                                year_attendance = student.attendances.filter(
+                                    date__gte=f'{start_year}-01-01',
+                                    date__lte=f'{end_year}-12-31'
+                                )
+                            else:
+                                year_attendance = student.attendances.all()
+                        except:
+                            year_attendance = student.attendances.all()
                         
                         total_days = year_attendance.count()
                         present_days = year_attendance.filter(status='P').count()
                         absent_days = year_attendance.filter(status='A').count()
+                        
+                        # Determine next level transition
+                        level_transition_note = ""
+                        if old_grade_number == 6 and new_grade_number == 7:
+                            level_transition_note = " | ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Primary → Lower Secondary)"
+                        elif old_grade_number == 9 and new_grade_number == 10:
+                            level_transition_note = " | ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Lower Secondary → Upper Secondary)"
+                        elif old_grade_number == 12:
+                            level_transition_note = " | បញ្ចប់ការសិក្សា (Graduated)"
                         
                         # Create or update history record
                         history, created = StudentHistory.objects.update_or_create(
@@ -698,6 +730,8 @@ def student_promote(request):
                             defaults={
                                 'classroom': old_classroom,
                                 'grade_name': str(old_classroom.grade),
+                                'grade_number': old_grade_number,
+                                'grade_level': old_grade.level if old_grade else 'primary',
                                 'status': 'PROMOTED',
                                 'average_score': avg_score,
                                 'total_subjects': total_subjects,
@@ -707,13 +741,15 @@ def student_promote(request):
                                 'present_days': present_days,
                                 'absent_days': absent_days,
                                 'end_date': timezone.now().date(),
-                                'notes': f"ឡើងថ្នាក់ទៅ {next_classroom.grade} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}"
+                                'promoted_to': str(next_classroom),
+                                'promotion_note': f"ឡើងថ្នាក់ទៅ {next_classroom.grade} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}{level_transition_note}",
+                                'notes': f"ពិន្ទុមធ្យម: {avg_score:.1f} | វត្តមាន: {present_days}/{total_days} ថ្ងៃ ({round((present_days/total_days*100) if total_days > 0 else 0, 1)}%)"
                             }
                         )
                     
                     # === UPDATE STUDENT RECORD ===
-                    old_classroom_name = old_classroom.name if old_classroom else 'N/A'
-                    student.previous_classroom = old_classroom_name
+                    old_classroom_str = str(old_classroom)
+                    student.previous_classroom = old_classroom_str
                     student.promotion_date = timezone.now().date()
                     
                     # Keep status as ACTIVE (they're active in new grade)
@@ -722,8 +758,14 @@ def student_promote(request):
                     # Move to new classroom
                     student.classroom = next_classroom
                     
-                    # Add note
-                    promotion_note = f"ឡើងថ្នាក់ពី {old_classroom_name} ទៅ {next_classroom} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}"
+                    # Add note with level transition info
+                    level_note = ""
+                    if old_grade_number == 6 and new_grade_number == 7:
+                        level_note = " (ចូលបឋមភូមិ)"
+                    elif old_grade_number == 9 and new_grade_number == 10:
+                        level_note = " (ចូលមធ្យមភូមិ)"
+                    
+                    promotion_note = f"ឡើងថ្នាក់ពី {old_classroom_str} ទៅ {next_classroom} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}{level_note}"
                     if student.notes:
                         student.notes += f"\n{promotion_note}"
                     else:
@@ -744,23 +786,18 @@ def student_promote(request):
     next_classrooms = []
     if current_classroom_id:
         current_classroom = Classroom.objects.get(pk=current_classroom_id)
-        # Extract grade number from name (e.g., "Grade 1" -> 1)
-        current_grade_name = current_classroom.grade.name if current_classroom.grade else ""
-        try:
-            current_grade_num = int(''.join(filter(str.isdigit, current_grade_name)))
-        except ValueError:
-            current_grade_num = 0
+        current_grade = current_classroom.grade
         
-        # Get classrooms with higher grade numbers
-        all_classrooms = Classroom.objects.all().select_related('grade', 'academic_year')
-        next_classrooms = []
-        for classroom in all_classrooms:
-            try:
-                grade_num = int(''.join(filter(str.isdigit, classroom.grade.name)))
-                if grade_num > current_grade_num:
-                    next_classrooms.append(classroom)
-            except (ValueError, AttributeError):
-                pass
+        if current_grade and current_grade.grade_number:
+            current_grade_num = current_grade.grade_number
+            
+            # Get classrooms with next grade number
+            all_classrooms = Classroom.objects.all().select_related('grade', 'academic_year')
+            for classroom in all_classrooms:
+                if classroom.grade and classroom.grade.grade_number:
+                    # Allow promotion to next grade only (strict progression)
+                    if classroom.grade.grade_number == current_grade_num + 1:
+                        next_classrooms.append(classroom)
     
     return render(request, 'school/student_promote.html', {
         'classrooms': classrooms,
