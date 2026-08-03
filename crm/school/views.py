@@ -570,9 +570,9 @@ def student_promote(request):
     
     students_data = []
     
-    if current_classroom_id and academic_year_id:
+    # Show students if classroom is selected (academic year is now optional)
+    if current_classroom_id:
         current_classroom = get_object_or_404(Classroom, pk=current_classroom_id)
-        academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
         
         # Get all students in the classroom
         students = Student.objects.filter(
@@ -581,8 +581,16 @@ def student_promote(request):
         ).prefetch_related('scores')
         
         for student in students:
-            # Get all scores for this academic year
-            scores = student.scores.filter(academic_year=academic_year)
+            # Get scores - filter by academic year if provided
+            if academic_year_id:
+                academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
+                scores = student.scores.filter(academic_year=academic_year)
+            else:
+                # Use current classroom's academic year or all scores
+                if current_classroom.academic_year:
+                    scores = student.scores.filter(academic_year=current_classroom.academic_year)
+                else:
+                    scores = student.scores.all()
             
             if scores.exists():
                 # Calculate pass/fail for each score
