@@ -616,16 +616,18 @@ def student_promote(request):
                     scores = student.scores.all()
             
             if scores.exists():
-                # Calculate pass/fail for each score
-                total_subjects = scores.count()
-                passed_subjects = sum(1 for score in scores if score.is_passing(passing_percentage))
-                failed_subjects = total_subjects - passed_subjects
-                
                 # Calculate average percentage
+                total_subjects = scores.count()
                 avg_percentage = sum(score.percentage() for score in scores) / total_subjects if total_subjects > 0 else 0
                 
-                # Determine if student can be promoted
-                can_promote = failed_subjects == 0 and total_subjects > 0
+                # NEW: Determine pass/fail based on AVERAGE score
+                # ជាប់/ធ្លាក់ដោយផ្អែកលើពិន្ទុមធ្យម
+                # If average >= passing_percentage → can promote
+                can_promote = avg_percentage >= passing_percentage and total_subjects > 0
+                
+                # Also calculate individual subject pass/fail for display
+                passed_subjects = sum(1 for score in scores if score.is_passing(passing_percentage))
+                failed_subjects = total_subjects - passed_subjects
                 
                 students_data.append({
                     'student': student,
