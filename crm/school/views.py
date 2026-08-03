@@ -1632,10 +1632,11 @@ def report_card_add(request):
     # Get filter parameters
     classroom_id = request.GET.get('classroom', '')
     academic_year_id = request.GET.get('academic_year', '')
+    term = request.GET.get('term', '')
     
     classrooms = Classroom.objects.select_related('grade', 'academic_year')
     academic_years = AcademicYear.objects.all()
-    students = []
+    students_data = []
     
     # Load students if classroom is selected
     if classroom_id:
@@ -1644,26 +1645,88 @@ def report_card_add(request):
             classroom=classroom,
             is_active=True
         ).order_by('last_name', 'first_name')
+        
+        # Get academic year
+        if academic_year_id:
+            academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
+        else:
+            academic_year = classroom.academic_year
+        
+        # Prepare student data with scores
+        for student in students:
+            scores = student.scores.filter(academic_year=academic_year) if academic_year else student.scores.all()
+            avg_score = scores.aggregate(avg=Avg('score'))['avg'] or 0
+            
+            # Check if report card already exists
+            existing_card = ReportCard.objects.filter(
+                student=student,
+                academic_year=academic_year,
+                term=term
+            ).first() if academic_year and term else None
+            
+            students_data.append({
+                'student': student,
+                'avg_score': round(avg_score, 2),
+                'total_subjects': scores.count(),
+                'existing_card': existing_card,
+            })
     
-    # Handle POST - create report card
+    # Handle POST - create multiple report cards
     if request.method == 'POST':
-        form = ReportCardForm(request.POST)
-        if form.is_valid():
-            card = form.save(commit=False)
-            card.generated_by = request.user
-            card.save()
-            messages.success(request, 'សៀវភៅប័ណ្ណបានបង្កើត។')
+        student_ids = request.POST.getlist('student_ids')
+        next_academic_year_id = request.POST.get('academic_year')
+        next_term = request.POST.get('term')
+        status = request.POST.get('status', 'Draft')
+        teacher_remarks = request.POST.get('teacher_remarks', '')
+        principal_remarks = request.POST.get('principal_remarks', '')
+        conduct = request.POST.get('conduct', '')
+        attendance_days = int(request.POST.get('attendance_days', 0))
+        absent_days = int(request.POST.get('absent_days', 0))
+        
+        if student_ids and next_academic_year_id and next_term:
+            academic_year = get_object_or_404(AcademicYear, pk=next_academic_year_id)
+            created_count = 0
+            
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(pk=student_id)
+                    
+                    # Check if already exists
+                    existing = ReportCard.objects.filter(
+                        student=student,
+                        academic_year=academic_year,
+                        term=next_term
+                    ).first()
+                    
+                    if not existing:
+                        ReportCard.objects.create(
+                            student=student,
+                            academic_year=academic_year,
+                            term=next_term,
+                            status=status,
+                            teacher_remarks=teacher_remarks,
+                            principal_remarks=principal_remarks,
+                            conduct=conduct,
+                            attendance_days=attendance_days,
+                            absent_days=absent_days,
+                            generated_by=request.user
+                        )
+                        created_count += 1
+                except Exception as e:
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to create report card for student {student_id}: {e}")
+            
+            if created_count > 0:
+                messages.success(request, f'បានបង្កើតសៀវភៅប័ណ្ណ {created_count} ចំណុះ។')
             return redirect('school:report_card_list')
-    else:
-        form = ReportCardForm()
     
     return render(request, 'school/report_card_add.html', {
-        'form': form,
         'classrooms': classrooms,
         'academic_years': academic_years,
-        'students': students,
+        'students_data': students_data,
         'classroom_id': classroom_id,
         'academic_year_id': academic_year_id,
+        'term': term,
     })
 
 @login_required

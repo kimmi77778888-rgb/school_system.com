@@ -4,8 +4,17 @@
 {% block page_title %}បង្កើតសៀវភៅប័ណ្ណ{% endblock %}
 
 {% block content %}
+<style>
+.student-row:hover {
+  background: #f8fafc;
+}
+.card-exists {
+  background: #fef3c7 !important;
+}
+</style>
+
 <div class="page-header">
-  <h2><i class="bi bi-journal-text me-2 text-primary"></i>បង្កើតសៀវភៅប័ណ្ណ</h2>
+  <h2><i class="bi bi-journal-text me-2 text-primary"></i>បង្កើតសៀវភៅប័ណ្ណជាក្រុម</h2>
   <div class="actions">
     <a href="{% url 'school:report_card_list' %}" class="btn btn-outline-secondary btn-sm">
       <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅបញ្ជី
@@ -13,14 +22,19 @@
   </div>
 </div>
 
-{% if not students %}
+{% if not students_data %}
 <!-- Step 1: Select Classroom -->
+<div class="alert alert-info mb-3">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>របៀបប្រើ:</strong> ជ្រើសរើសថ្នាក់ ឆ្នាំសិក្សា និងវគ្គ ហើយចុច "ផ្ទុកសិស្ស" ដើម្បីមើលបញ្ជីសិស្សទាំងអស់។
+</div>
+
 <div class="card shadow-sm">
   <div class="card-body p-4">
-    <h5 class="mb-4"><i class="bi bi-filter me-2 text-primary"></i>ជ្រើសរើសថ្នាក់</h5>
+    <h5 class="mb-4"><i class="bi bi-filter me-2 text-primary"></i>ជ្រើសរើសថ្នាក់ និងវគ្គ</h5>
     <form method="get">
       <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label class="form-label fw-semibold">ថ្នាក់រៀន *</label>
           <select name="classroom" class="form-select" required>
             <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
@@ -32,7 +46,7 @@
           </select>
         </div>
         
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label class="form-label fw-semibold">ឆ្នាំសិក្សា (ជម្រើស)</label>
           <select name="academic_year" class="form-select">
             <option value="">-- ប្រើឆ្នាំនៃថ្នាក់ --</option>
@@ -41,6 +55,16 @@
               {{ year }}
             </option>
             {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">វគ្គ *</label>
+          <select name="term" class="form-select" required>
+            <option value="">-- ជ្រើសរើសវគ្គ --</option>
+            <option value="Term 1" {% if term == 'Term 1' %}selected{% endif %}>វគ្គ ១</option>
+            <option value="Term 2" {% if term == 'Term 2' %}selected{% endif %}>វគ្គ ២</option>
+            <option value="Final" {% if term == 'Final' %}selected{% endif %}>វគ្គចុងក្រោយ</option>
           </select>
         </div>
       </div>
@@ -55,31 +79,85 @@
 </div>
 
 {% else %}
-<!-- Step 2: Select Student and Fill Form -->
-<div class="card shadow-sm">
-  <div class="card-header bg-white">
-    <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>ជ្រើសរើសសិស្ស និងបំពេញព័ត៌មាន</h5>
+<!-- Step 2: Show All Students in Table -->
+<div class="alert alert-success mb-3">
+  <i class="bi bi-check-circle me-2"></i>
+  <strong>រកឃើញសិស្ស {{ students_data|length }} នាក់</strong> - ជ្រើសរើសសិស្សដែលចង់បង្កើតសៀវភៅប័ណ្ណ ហើយបំពេញព័ត៌មាន
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>បញ្ជីសិស្ស</h5>
+        <a href="{% url 'school:report_card_add' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i>ជ្រើសថ្នាក់ផ្សេង
+        </a>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 50px;">
+              <input type="checkbox" id="selectAll" class="form-check-input">
+            </th>
+            <th>#</th>
+            <th>លេខសិស្ស</th>
+            <th>ឈ្មោះសិស្ស</th>
+            <th>មធ្យមភាគ</th>
+            <th>មុខវិជ្ជា</th>
+            <th>ស្ថានភាព</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for data in students_data %}
+        <tr class="student-row {% if data.existing_card %}card-exists{% endif %}">
+          <td>
+            {% if data.existing_card %}
+            <input type="checkbox" class="form-check-input" disabled>
+            {% else %}
+            <input type="checkbox" name="student_ids" value="{{ data.student.pk }}" class="form-check-input student-checkbox" checked>
+            {% endif %}
+          </td>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge bg-light text-dark border">{{ data.student.student_id }}</span></td>
+          <td><strong>{{ data.student.last_name }} {{ data.student.first_name }}</strong></td>
+          <td><strong class="text-primary">{{ data.avg_score }}%</strong></td>
+          <td><span class="badge bg-info">{{ data.total_subjects }}</span></td>
+          <td>
+            {% if data.existing_card %}
+              <span class="badge bg-warning"><i class="bi bi-exclamation-triangle me-1"></i>មានរួចហើយ</span>
+            {% else %}
+              <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>អាចបង្កើត</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            មិនមានសិស្សក្នុងថ្នាក់នេះ
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="card-body p-4">
-    <form method="post">
-      {% csrf_token %}
-      
+  
+  {% if students_data %}
+  <!-- Common Report Card Fields -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-light">
+      <h5 class="mb-0"><i class="bi bi-pencil-square me-2 text-success"></i>ព័ត៌មានទូទៅសម្រាប់ប័ណ្ណទាំងអស់</h5>
+    </div>
+    <div class="card-body p-4">
       <div class="row g-3">
-        <!-- Student Selection -->
-        <div class="col-md-6">
-          <label class="form-label fw-semibold">សិស្ស *</label>
-          <select name="student" class="form-select" required>
-            <option value="">-- ជ្រើសរើសសិស្ស --</option>
-            {% for student in students %}
-            <option value="{{ student.pk }}">
-              {{ student.student_id }} - {{ student.last_name }} {{ student.first_name }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-        
         <!-- Academic Year -->
-        <div class="col-md-6">
+        <div class="col-md-3">
           <label class="form-label fw-semibold">ឆ្នាំសិក្សា *</label>
           <select name="academic_year" class="form-select" required>
             <option value="">-- ជ្រើសរើសឆ្នាំ --</option>
@@ -92,18 +170,18 @@
         </div>
         
         <!-- Term -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label fw-semibold">វគ្គ *</label>
           <select name="term" class="form-select" required>
             <option value="">-- ជ្រើសរើសវគ្គ --</option>
-            <option value="Term 1">វគ្គ ១</option>
-            <option value="Term 2">វគ្គ ២</option>
-            <option value="Final">វគ្គចុងក្រោយ</option>
+            <option value="Term 1" {% if term == 'Term 1' %}selected{% endif %}>វគ្គ ១</option>
+            <option value="Term 2" {% if term == 'Term 2' %}selected{% endif %}>វគ្គ ២</option>
+            <option value="Final" {% if term == 'Final' %}selected{% endif %}>វគ្គចុងក្រោយ</option>
           </select>
         </div>
         
         <!-- Status -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label fw-semibold">ស្ថានភាព *</label>
           <select name="status" class="form-select" required>
             <option value="Draft">ព្រាង</option>
@@ -112,16 +190,15 @@
         </div>
         
         <!-- Conduct -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label fw-semibold">អាកប្បកិរិយា</label>
-          <input type="text" name="conduct" class="form-control" placeholder="ឧ. Excellent / Good / Fair">
-          <small class="text-muted">ឧ. Excellent / Good / Fair</small>
+          <input type="text" name="conduct" class="form-control" placeholder="Excellent / Good / Fair" value="Good">
         </div>
         
         <!-- Attendance Days -->
         <div class="col-md-6">
           <label class="form-label fw-semibold">ថ្ងៃវត្តមានសរុប *</label>
-          <input type="number" name="attendance_days" class="form-control" min="0" value="0" required>
+          <input type="number" name="attendance_days" class="form-control" min="0" value="180" required>
         </div>
         
         <!-- Absent Days -->
@@ -133,30 +210,40 @@
         <!-- Teacher Remarks -->
         <div class="col-md-6">
           <label class="form-label fw-semibold">មតិយោបល់គ្រូ</label>
-          <textarea name="teacher_remarks" class="form-control" rows="3"></textarea>
+          <textarea name="teacher_remarks" class="form-control" rows="3" placeholder="មតិយោបល់ទូទៅសម្រាប់សិស្សទាំងអស់..."></textarea>
         </div>
         
         <!-- Principal Remarks -->
         <div class="col-md-6">
           <label class="form-label fw-semibold">មតិយោបល់នាយក</label>
-          <textarea name="principal_remarks" class="form-control" rows="3"></textarea>
+          <textarea name="principal_remarks" class="form-control" rows="3" placeholder="មតិយោបល់ទូទៅសម្រាប់សិស្សទាំងអស់..."></textarea>
         </div>
       </div>
-      
-      <div class="mt-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-check-circle me-1"></i>រក្សាទុក
-        </button>
-        <a href="{% url 'school:report_card_add' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>ជ្រើសថ្នាក់ផ្សេង
-        </a>
-        <a href="{% url 'school:report_card_list' %}" class="btn btn-outline-danger">
-          <i class="bi bi-x-circle me-1"></i>បោះបង់
-        </a>
+    </div>
+    
+    <div class="card-footer bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <small>ព័ត៌មានទាំងនេះនឹងត្រូវបានប្រើសម្រាប់សិស្សទាំងអស់ដែលបានជ្រើសរើស</small>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-success" onclick="return confirm('តើអ្នកប្រាកដជាចង់បង្កើតសៀវភៅប័ណ្ណទាំងនេះមែនទេ?')">
+            <i class="bi bi-check-circle me-1"></i>បង្កើតប័ណ្ណជាក្រុម
+          </button>
+        </div>
       </div>
-    </form>
+    </div>
   </div>
-</div>
+  {% endif %}
+</form>
 {% endif %}
+
+<script>
+document.getElementById('selectAll')?.addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.student-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+});
+</script>
 
 {% endblock %}
