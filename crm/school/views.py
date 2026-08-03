@@ -1569,6 +1569,125 @@ def score_multi_subject_entry(request):
     })
 
 
+@admin_or_teacher
+def score_grid_entry(request):
+    """
+    Excel-style grade book: Enter scores for multiple students and subjects at once
+    សៀវភៅពិន្ទុបែបតារាង៖ បញ្ចូលពិន្ទុច្រើននាក់និងច្រើនមុខវិជ្ជាតែម្តង
+    """
+    from django.http import JsonResponse
+    
+    # Get filter parameters
+    classroom_id = request.GET.get('classroom', '')
+    academic_year_id = request.GET.get('academic_year', '')
+    exam_type_id = request.GET.get('exam_type', '')
+    max_score = float(request.GET.get('max_score', 100))
+    
+    # Get all options for filters
+    classrooms = Classroom.objects.select_related('grade', 'academic_year').filter(academic_year__is_active=True)
+    academic_years = AcademicYear.objects.all()
+    exam_types = ExamType.objects.all()
+    
+    students = []
+    subjects = []
+    
+    # Load data if all filters are selected
+    if classroom_id and academic_year_id and exam_type_id:
+        classroom = get_object_or_404(Classroom, pk=classroom_id)
+        academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
+        exam_type = get_object_or_404(ExamType, pk=exam_type_id)
+        
+        # Get students in classroom
+        students = classroom.students.filter(is_active=True).order_by('student_id')
+        
+        # Get subjects for this grade
+        subjects = Subject.objects.filter(grade=classroom.grade).order_by('name')
+        
+        # Load existing scores
+        existing_scores = {}
+        if students and subjects:
+            scores = Score.objects.filter(
+                student__in=students,
+                subject__in=subjects,
+                exam_type=exam_type,
+                academic_year=academic_year
+            ).select_related('student', 'subject')
+            
+            for score in scores:
+                key = f"{score.student.id}_{score.subject.id}"
+                existing_scores[key] = score.score
+    
+    # Handle POST - Save scores
+    if request.method == 'POST':
+        saved_count = 0
+        errors = []
+        
+        for key, value in request.POST.items():
+            if key.startswith('score_'):
+                # Parse key: score_studentid_subjectid
+                try:
+                    parts = key.split('_')
+                    if len(parts) != 3:
+                        continue
+                    
+                    student_id = int(parts[1])
+                    subject_id = int(parts[2])
+                    score_value = float(value) if value else None
+                    
+                    if score_value is None or score_value < 0:
+                        continue
+                    
+                    student = Student.objects.get(pk=student_id)
+                    subject = Subject.objects.get(pk=subject_id)
+                    exam_type = ExamType.objects.get(pk=exam_type_id)
+                    academic_year = AcademicYear.objects.get(pk=academic_year_id)
+                    
+                    # Create or update score
+                    Score.objects.update_or_create(
+                        student=student,
+                        subject=subject,
+                        exam_type=exam_type,
+                        academic_year=academic_year,
+                        defaults={
+                            'score': score_value,
+                            'max_score': max_score
+                        }
+                    )
+                    saved_count += 1
+                    
+                except Exception as e:
+                    errors.append(str(e))
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to save score {key}: {e}")
+        
+        # Return JSON response
+        return JsonResponse({
+            'success': True,
+            'saved_count': saved_count,
+            'errors': errors
+        })
+    
+    # Safely get role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'student'
+    
+    return render(request, 'school/score_grid_entry.html', {
+        'classrooms': classrooms,
+        'academic_years': academic_years,
+        'exam_types': exam_types,
+        'students': students,
+        'subjects': subjects,
+        'classroom_id': classroom_id,
+        'academic_year_id': academic_year_id,
+        'exam_type_id': exam_type_id,
+        'max_score': max_score,
+        'existing_scores': existing_scores if 'existing_scores' in locals() else {},
+        'role': role,
+    })
+
+
 # ── Parent/Student view results ────────────────
 @role_required('parent')
 def parent_child_results(request):
