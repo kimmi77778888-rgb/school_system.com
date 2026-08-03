@@ -676,9 +676,6 @@ body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
         <a class="sb-a sb-sub {% if 'student' in request.resolver_match.url_name and 'promote' not in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_list' %}">
           <i class="bi bi-person-fill"></i><span class="t">សិស្ស</span>
         </a>
-        <a class="sb-a sb-sub {% if 'promote' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_promote' %}">
-          <i class="bi bi-arrow-up-circle-fill"></i><span class="t">ឡើងថ្នាក់</span>
-        </a>
         <a class="sb-a sb-sub {% if 'teacher' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_list' %}">
           <i class="bi bi-mortarboard-fill"></i><span class="t">គ្រូបង្រៀន</span>
         </a>
@@ -695,7 +692,7 @@ body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
         </a>
       </div>
       {% endwith %}{% endwith %}
-      <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name or 'teacher_attendance' in request.resolver_match.url_name %}open{% endif %}"
+      <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name or 'teacher_attendance' in request.resolver_match.url_name or 'promote' in request.resolver_match.url_name %}open{% endif %}"
               onclick="togGrp(this)" data-tip="ការបង្រៀន">
         <span class="sb-grp-left">
           <i class="bi bi-pencil-square"></i><span class="t">ការបង្រៀន</span>
@@ -717,6 +714,9 @@ body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
         </a>
         <a class="sb-a sb-sub {% if 'score' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}">
           <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
+        </a>
+        <a class="sb-a sb-sub {% if 'promote' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_promote' %}">
+          <i class="bi bi-arrow-up-circle-fill"></i><span class="t">ឡើងថ្នាក់</span>
         </a>
       </div>
 
