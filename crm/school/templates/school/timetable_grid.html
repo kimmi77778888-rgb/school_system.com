@@ -1,0 +1,226 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}តារាងម៉ោង{% endblock %}
+{% block page_title %}កាលវិភាគប្រចាំសប្តាហ៍{% endblock %}
+
+{% block top_actions %}
+<!-- Export/Print Buttons -->
+<button onclick="exportToExcel()" class="top-btn success" title="នាំចេញជា Excel">
+  <i class="bi bi-file-earmark-excel"></i>
+  <span class="d-none d-md-inline">Excel</span>
+</button>
+<button onclick="window.print()" class="top-btn" title="បោះពុម្ព">
+  <i class="bi bi-printer"></i>
+  <span class="d-none d-md-inline">Print</span>
+</button>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Cambodia School Colors */
+:root {
+  --cam-blue: #003893;
+  --cam-red: #e00025;
+  --cam-gold: #ffd700;
+}
+
+.timetable-header {
+  background: linear-gradient(135deg, var(--cam-blue), #0052cc);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
+  border: 3px solid var(--cam-red);
+  border-bottom: none;
+}
+
+.filter-section {
+  background: white;
+  padding: 1.25rem;
+  border: 3px solid var(--cam-red);
+  border-top: none;
+  border-bottom: none;
+}
+
+.weekly-grid-container {
+  background: white;
+  border: 3px solid var(--cam-red);
+  border-radius: 0 0 12px 12px;
+  overflow-x: auto;
+}
+
+.weekly-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.weekly-grid th {
+  background: linear-gradient(180deg, var(--cam-blue), #002a6b);
+  color: white;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 700;
+  border: 2px solid var(--cam-red);
+  font-size: 0.9rem;
+}
+
+.weekly-grid td {
+  border: 2px solid #e2e8f0;
+  padding: 8px 6px;
+  vertical-align: top;
+  min-height: 70px;
+  background: white;
+}
+
+.weekly-grid td.period-header {
+  background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+  font-weight: 700;
+  color: var(--cam-blue);
+  text-align: center;
+  width: 100px;
+}
+
+.weekly-grid td.break-row {
+  background: linear-gradient(135deg, var(--cam-gold), #ffc107);
+  text-align: center;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 8px;
+}
+
+.subject-cell {
+  min-height: 60px;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.subject-cell .subject-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.subject-cell .teacher-name {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* Subject Colors */
+.subject-math { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.subject-khmer { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+.subject-science { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.subject-english { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+
+@media print {
+  .no-print, .top, .sb, .filter-section { display: none !important; }
+  .main { margin-left: 0 !important; padding: 10mm !important; }
+  .weekly-grid { font-size: 9pt; }
+  @page { size: A4 landscape; margin: 10mm; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="timetable-header">
+  <h2>
+    <i class="bi bi-calendar3-week-fill me-2"></i>
+    កាលវិភាគប្រចាំសប្តាហ៍
+    {% if selected_classroom_obj %} - {{ selected_classroom_obj }}{% endif %}
+  </h2>
+</div>
+
+<div class="filter-section">
+  <form method="get" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">ថ្នាក់រៀន *</label>
+      <select name="classroom" class="form-select" required onchange="this.form.submit()">
+        <option value="">-- ជ្រើសរើស --</option>
+        {% for c in classrooms %}
+        <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-bold">ឆ្នាំសិក្សា</label>
+      <select name="year" class="form-select" onchange="this.form.submit()">
+        <option value="">ទាំងអស់</option>
+        {% for y in years %}
+        <option value="{{ y.pk }}" {% if selected_year == y.pk|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+</div>
+
+{% if selected_classroom %}
+<div class="weekly-grid-container" id="timetableGrid">
+  <table class="weekly-grid">
+    <thead>
+      <tr>
+        <th style="width:100px;">ម៉ោង</th>
+        {% for day_name in day_names.values %}
+        <th>{{ day_name }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for period in periods %}
+      {% if period == 'break1' %}
+      <tr><td colspan="7" class="break-row"><i class="bi bi-cup-hot-fill me-2"></i>សម្រាក (08:40-08:55)</td></tr>
+      {% elif period == 'break2' %}
+      <tr><td colspan="7" class="break-row"><i class="bi bi-cup-hot-fill me-2"></i>សម្រាក (15:10-15:25)</td></tr>
+      {% else %}
+      <tr>
+        <td class="period-header">
+          <div style="font-size:1.1rem;">{% if period == 1 %}១{% elif period == 2 %}២{% elif period == 3 %}៣{% elif period == 4 %}៤{% elif period == 5 %}៥{% elif period == 6 %}៦{% elif period == 7 %}៧{% elif period == 8 %}៨{% elif period == 9 %}៩{% endif %}</div>
+          <div style="font-size:0.75rem;font-weight:normal;">{{ period_times|get_item:period }}</div>
+        </td>
+        {% for day in "123456" %}
+        <td>
+          {% for tt in timetables %}
+            {% if tt.time_slot.day|stringformat:"s" == day and tt.time_slot.period == period %}
+              <div class="subject-cell {% if 'គណិត' in tt.subject.name or 'Math' in tt.subject.name %}subject-math{% elif 'ខ្មែរ' in tt.subject.name %}subject-khmer{% elif 'វិទ្យា' in tt.subject.name or 'Science' in tt.subject.name %}subject-science{% elif 'អង់' in tt.subject.name or 'English' in tt.subject.name %}subject-english{% endif %}">
+                <div class="subject-name">{{ tt.subject.name }}</div>
+                {% if tt.teacher %}<div class="teacher-name">{{ tt.teacher }}</div>{% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div style="text-align:center;padding:3rem;background:white;border-radius:12px;border:3px solid var(--cam-red);">
+  <i class="bi bi-calendar-x" style="font-size:3rem;color:#cbd5e1;"></i>
+  <h5 class="mt-3">សូមជ្រើសរើសថ្នាក់រៀន</h5>
+</div>
+{% endif %}
+
+<script>
+function exportToExcel() {
+  const table = document.getElementById('timetableGrid');
+  if (!table) { alert('សូមជ្រើសរើសថ្នាក់រៀន'); return; }
+  
+  let csv = [];
+  table.querySelectorAll('tr').forEach(row => {
+    const csvRow = [];
+    row.querySelectorAll('td, th').forEach(col => {
+      csvRow.push('"' + col.innerText.replace(/\n/g, ' ').replace(/"/g, '""') + '"');
+    });
+    csv.push(csvRow.join(','));
+  });
+  
+  const blob = new Blob(['\ufeff' + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'timetable.csv';
+  link.click();
+}
+</script>
+{% endblock %}

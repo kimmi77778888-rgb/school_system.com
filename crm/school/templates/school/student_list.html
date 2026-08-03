@@ -3,6 +3,19 @@
 {% block title %}បញ្ជីសិស្ស{% endblock %}
 {% block page_title %}គ្រប់គ្រងសិស្ស{% endblock %}
 
+{% block top_actions %}
+<!-- Export/Print Buttons in Topbar -->
+<a href="{% url 'school:student_list_export_excel' %}?{% if q %}q={{ q }}{% endif %}{% if selected_classroom %}&classroom={{ selected_classroom }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" 
+   class="top-btn success" title="នាំចេញជា Excel">
+  <i class="bi bi-file-earmark-excel"></i>
+  <span class="d-none d-md-inline">Excel</span>
+</a>
+<button onclick="window.print()" class="top-btn" title="បោះពុម្ព">
+  <i class="bi bi-printer"></i>
+  <span class="d-none d-md-inline">Print</span>
+</button>
+{% endblock %}
+
 {% block content %}
 <style>
 /* ── Filter bar ── */

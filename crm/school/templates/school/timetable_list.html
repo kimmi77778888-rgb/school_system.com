@@ -3,124 +3,187 @@
 {% block title %}តារាងម៉ោង{% endblock %}
 {% block page_title %}តារាងម៉ោង{% endblock %}
 
+{% block top_actions %}
+<!-- Export/Print Buttons in Topbar -->
+<button onclick="exportToExcel()" class="top-btn success" title="នាំចេញជា Excel">
+  <i class="bi bi-file-earmark-excel"></i>
+  <span class="d-none d-md-inline">Excel</span>
+</button>
+<button onclick="window.print()" class="top-btn" title="បោះពុម្ព">
+  <i class="bi bi-printer"></i>
+  <span class="d-none d-md-inline">Print</span>
+</button>
+{% endblock %}
+
 {% block extra_css %}
 <style>
+/* Cambodia School Colors */
+:root {
+  --cam-blue: #003893;
+  --cam-red: #e00025;
+  --cam-gold: #ffd700;
+}
+
 .timetable-header {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, var(--cam-blue), #0052cc);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
+  border: 3px solid var(--cam-red);
+  border-bottom: none;
 }
 .timetable-header h2 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 .filter-section {
   background: white;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  border: 3px solid var(--cam-red);
+  border-top: none;
+  border-bottom: none;
 }
 .filter-section label {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
-  margin-bottom: 0.35rem;
-  color: #475569;
+  color: var(--cam-blue);
 }
-.day-card {
+
+/* Weekly Grid View */
+.weekly-grid-container {
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
+  border: 3px solid var(--cam-red);
+  border-radius: 0 0 12px 12px;
   overflow: hidden;
 }
-.day-card-header {
-  background: #f8fafc;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
-  font-weight: 600;
+.weekly-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.weekly-grid th {
+  background: linear-gradient(180deg, var(--cam-blue), #002a6b);
+  color: white;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 700;
+  border: 2px solid var(--cam-red);
+  font-size: 0.9rem;
+}
+.weekly-grid td {
+  border: 2px solid #e2e8f0;
+  padding: 8px 6px;
+  vertical-align: top;
+  min-height: 70px;
+  background: white;
+}
+.weekly-grid td.period-header {
+  background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+  font-weight: 700;
+  color: var(--cam-blue);
+  text-align: center;
+  width: 100px;
+}
+.weekly-grid td.break-row {
+  background: linear-gradient(135deg, var(--cam-gold), #ffc107);
+  text-align: center;
+  font-weight: 700;
   color: #1e293b;
+  padding: 6px;
+}
+
+/* Subject Cell */
+.subject-cell {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px;
+}
+.subject-cell .subject-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1e293b;
+  line-height: 1.2;
+}
+.subject-cell .teacher-name {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.subject-cell .room-num {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Subject Colors - Cambodia Style */
+.subject-math { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-left: 4px solid #1d4ed8; }
+.subject-khmer { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border-left: 4px solid #991b1b; }
+.subject-science { background: linear-gradient(135deg, #10b981, #059669); color: white; border-left: 4px solid #047857; }
+.subject-social { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-left: 4px solid #b45309; }
+.subject-english { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-left: 4px solid #6d28d9; }
+.subject-pe { background: linear-gradient(135deg, #f97316, #ea580c); color: white; border-left: 4px solid #c2410c; }
+.subject-art { background: linear-gradient(135deg, #ec4899, #db2777); color: white; border-left: 4px solid #be185d; }
+.subject-physics { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; border-left: 4px solid #0e7490; }
+.subject-chemistry { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; border-left: 4px solid #0f766e; }
+.subject-biology { background: linear-gradient(135deg, #84cc16, #65a30d); color: white; border-left: 4px solid #4d7c0f; }
+.subject-history { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; border-left: 4px solid #7e22ce; }
+.subject-geography { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border-left: 4px solid #0369a1; }
+.subject-default { background: linear-gradient(135deg, #64748b, #475569); color: white; border-left: 4px solid #334155; }
+
+/* Info Box */
+.info-box {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid var(--cam-gold);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 12px;
 }
-.timetable-table {
-  margin: 0;
+.info-box i {
+  font-size: 1.5rem;
+  color: #d97706;
 }
-.timetable-table thead th {
-  background: #f8fafc;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
-  padding: 0.75rem 1rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-.timetable-table tbody td {
-  padding: 0.875rem 1rem;
-  vertical-align: middle;
-  color: #334155;
-  font-size: 0.875rem;
-}
-.timetable-table tbody tr:hover {
-  background: #f8fafc;
-}
-.period-badge {
-  display: inline-block;
-  padding: 0.25rem 0.65rem;
-  background: #2563eb;
-  color: white;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-.time-text {
-  color: #64748b;
-  font-weight: 500;
-}
-.subject-name {
-  font-weight: 600;
-  color: #1e293b;
-}
-.empty-state {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: #94a3b8;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
-.btn-action {
-  padding: 0.35rem 0.6rem;
-  font-size: 0.85rem;
-  border-radius: 6px;
+
+/* Print Styles */
+@media print {
+  .no-print, .top, .sb, .filter-section .btn, .info-box { display: none !important; }
+  .main { margin-left: 0 !important; padding: 10mm !important; }
+  .weekly-grid { font-size: 9pt; }
+  .weekly-grid th, .weekly-grid td { padding: 4px !important; }
+  .timetable-header { border-radius: 0; page-break-inside: avoid; }
+  .subject-cell .subject-name { font-size: 8pt !important; }
+  .subject-cell .teacher-name { font-size: 7pt !important; }
+  @page { size: A4 landscape; margin: 10mm; }
 }
 </style>
 {% endblock %}
 
+
 {% block content %}
 <!-- Header -->
-<div class="timetable-header d-flex justify-content-between align-items-center">
+<div class="timetable-header">
   <h2>
-    <i class="bi bi-calendar3-week-fill me-2 text-primary"></i>
-    តារាងម៉ោង
+    <i class="bi bi-calendar3-week-fill me-2"></i>
+    តារាងម៉ោង - ប្រព័ន្ធអប់រំកម្ពុជា
+    {% if selected_classroom_obj %}
+    | {{ selected_classroom_obj }}
+    {% endif %}
   </h2>
-  {% if role == 'admin' %}
-  <a href="{% url 'school:timetable_add' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-plus-lg me-1"></i>បន្ថែម
-  </a>
-  {% endif %}
 </div>
 
 <!-- Filters -->
 <div class="filter-section">
   <form method="get" class="row g-3 align-items-end">
-    <div class="col-md-4">
-      <label class="form-label">ថ្នាក់រៀន</label>
-      <select name="classroom" class="form-select" onchange="this.form.submit()">
-        <option value="">ថ្នាក់ទាំងអស់</option>
+    <div class="col-md-5">
+      <label class="form-label">🏫 ជ្រើសរើសថ្នាក់រៀន *</label>
+      <select name="classroom" class="form-select form-select-lg" required onchange="this.form.submit()">
+        <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
         {% for c in classrooms %}
         <option value="{{ c.pk }}" {% if selected_classroom == c.pk|stringformat:"s" %}selected{% endif %}>
           {{ c }}
@@ -129,7 +192,7 @@
       </select>
     </div>
     <div class="col-md-4">
-      <label class="form-label">ឆ្នាំសិក្សា</label>
+      <label class="form-label">📅 ឆ្នាំសិក្សា</label>
       <select name="year" class="form-select" onchange="this.form.submit()">
         <option value="">ឆ្នាំទាំងអស់</option>
         {% for y in years %}
@@ -139,79 +202,156 @@
         {% endfor %}
       </select>
     </div>
-    <div class="col-md-4">
-      <button type="submit" class="btn btn-secondary w-100">
-        <i class="bi bi-funnel-fill me-1"></i>ត្រង
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="bi bi-funnel-fill me-1"></i>បង្ហាញតារាង
       </button>
     </div>
   </form>
 </div>
 
-<!-- Schedule by Day -->
-{% if days %}
-  {% for day_num, entries in days.items %}
-  <div class="day-card">
-    <div class="day-card-header">
-      <i class="bi bi-calendar-day"></i>
-      <span>{{ day_names|get_item:day_num }}</span>
-      <span class="ms-auto badge bg-secondary">{{ entries|length }} វេលា</span>
-    </div>
-    <div class="table-responsive">
-      <table class="table timetable-table">
-        <thead>
-          <tr>
-            <th style="width: 80px;">វេន</th>
-            <th style="width: 150px;">ម៉ោង</th>
-            <th>មុខវិជ្ជា</th>
-            <th>គ្រូ</th>
-            <th>ថ្នាក់</th>
-            <th style="width: 100px;">បន្ទប់</th>
-            {% if role == 'admin' %}
-            <th style="width: 120px;">សកម្មភាព</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for tt in entries %}
-          <tr>
-            <td>
-              <span class="period-badge">វ{{ tt.time_slot.period }}</span>
-            </td>
-            <td>
-              <span class="time-text">{{ tt.time_slot.start_time|time:"H:i" }} – {{ tt.time_slot.end_time|time:"H:i" }}</span>
-            </td>
-            <td>
-              <span class="subject-name">{{ tt.subject.name }}</span>
-            </td>
-            <td>
-              {% if tt.teacher %}{{ tt.teacher }}{% else %}<span class="text-muted">—</span>{% endif %}
-            </td>
-            <td>{{ tt.classroom }}</td>
-            <td>
-              {% if tt.room %}{{ tt.room }}{% else %}<span class="text-muted">—</span>{% endif %}
-            </td>
-            {% if role == 'admin' %}
-            <td>
-              <a href="{% url 'school:timetable_edit' tt.pk %}" class="btn btn-outline-primary btn-action me-1" title="កែប្រែ">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <a href="{% url 'school:timetable_delete' tt.pk %}" class="btn btn-outline-danger btn-action" title="លុប">
-                <i class="bi bi-trash"></i>
-              </a>
-            </td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+{% if selected_classroom %}
+<!-- Info Box -->
+<div class="info-box no-print">
+  <i class="bi bi-info-circle-fill"></i>
+  <div>
+    <strong>កាលវិភាគស្តង់ដារកម្ពុជា:</strong>
+    វេនព្រឹក 7:00-11:25 (សម្រាក 8:40-8:55) • 
+    វេនល្ងាច 13:30-17:05 (សម្រាក 15:10-15:25) • 
+    ថ្ងៃច័ន្ទ-សៅរ៍ (6 ថ្ងៃ)
   </div>
-  {% endfor %}
+</div>
+
+<!-- Weekly Grid -->
+<div class="weekly-grid-container" id="timetableGrid">
+  <table class="weekly-grid">
+    <thead>
+      <tr>
+        <th style="width: 100px;">ម៉ោង<br><small>Period</small></th>
+        <th>ច័ន្ទ<br><small>Monday</small></th>
+        <th>អង្គារ<br><small>Tuesday</small></th>
+        <th>ពុធ<br><small>Wednesday</small></th>
+        <th>ព្រហស្បតិ៍<br><small>Thursday</small></th>
+        <th>សុក្រ<br><small>Friday</small></th>
+        <th>សៅរ៍<br><small>Saturday</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Period 1: 07:00-07:50 -->
+      <tr>
+        <td class="period-header">
+          <div style="font-size: 1.1rem;">១</div>
+          <div style="font-size: 0.75rem; font-weight: normal;">07:00-07:50</div>
+        </td>
+        {% for day in "123456" %}
+        <td>
+          {% for tt in timetables %}
+            {% if tt.time_slot.day == day|add:"0"|add:"0" and tt.time_slot.period == 1 %}
+              <div class="subject-cell {% if 'គណិត' in tt.subject.name or 'Math' in tt.subject.name %}subject-math{% elif 'ខ្មែរ' in tt.subject.name or 'Khmer' in tt.subject.name %}subject-khmer{% elif 'វិទ្យា' in tt.subject.name or 'Science' in tt.subject.name %}subject-science{% elif 'សង្គម' in tt.subject.name or 'Social' in tt.subject.name %}subject-social{% elif 'អង់' in tt.subject.name or 'English' in tt.subject.name %}subject-english{% elif 'ពល' in tt.subject.name or 'PE' in tt.subject.name %}subject-pe{% elif 'សិល្ប' in tt.subject.name or 'Art' in tt.subject.name %}subject-art{% elif 'រូប' in tt.subject.name or 'Physics' in tt.subject.name %}subject-physics{% elif 'គីមី' in tt.subject.name or 'Chemistry' in tt.subject.name %}subject-chemistry{% elif 'ជីវ' in tt.subject.name or 'Biology' in tt.subject.name %}subject-biology{% elif 'ប្រវត្តិ' in tt.subject.name or 'History' in tt.subject.name %}subject-history{% elif 'ភូមិ' in tt.subject.name or 'Geography' in tt.subject.name %}subject-geography{% else %}subject-default{% endif %}">
+                <div class="subject-name">{{ tt.subject.name }}</div>
+                {% if tt.teacher %}<div class="teacher-name">{{ tt.teacher }}</div>{% endif %}
+                {% if tt.room %}<div class="room-num">{{ tt.room }}</div>{% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      
+      <!-- Period 2: 07:50-08:40 -->
+      <tr>
+        <td class="period-header">
+          <div style="font-size: 1.1rem;">២</div>
+          <div style="font-size: 0.75rem; font-weight: normal;">07:50-08:40</div>
+        </td>
+        {% for day in "123456" %}
+        <td>
+          {% for tt in timetables %}
+            {% if tt.time_slot.day == day|add:"0"|add:"0" and tt.time_slot.period == 2 %}
+              <div class="subject-cell {% if 'គណិត' in tt.subject.name or 'Math' in tt.subject.name %}subject-math{% elif 'ខ្មែរ' in tt.subject.name or 'Khmer' in tt.subject.name %}subject-khmer{% elif 'វិទ្យា' in tt.subject.name or 'Science' in tt.subject.name %}subject-science{% elif 'សង្គម' in tt.subject.name or 'Social' in tt.subject.name %}subject-social{% elif 'អង់' in tt.subject.name or 'English' in tt.subject.name %}subject-english{% elif 'ពល' in tt.subject.name or 'PE' in tt.subject.name %}subject-pe{% elif 'សិល្ប' in tt.subject.name or 'Art' in tt.subject.name %}subject-art{% elif 'រូប' in tt.subject.name or 'Physics' in tt.subject.name %}subject-physics{% elif 'គីមី' in tt.subject.name or 'Chemistry' in tt.subject.name %}subject-chemistry{% elif 'ជីវ' in tt.subject.name or 'Biology' in tt.subject.name %}subject-biology{% elif 'ប្រវត្តិ' in tt.subject.name or 'History' in tt.subject.name %}subject-history{% elif 'ភូមិ' in tt.subject.name or 'Geography' in tt.subject.name %}subject-geography{% else %}subject-default{% endif %}">
+                <div class="subject-name">{{ tt.subject.name }}</div>
+                {% if tt.teacher %}<div class="teacher-name">{{ tt.teacher }}</div>{% endif %}
+                {% if tt.room %}<div class="room-num">{{ tt.room }}</div>{% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      
+      <!-- BREAK -->
+      <tr>
+        <td colspan="7" class="break-row">
+          <i class="bi bi-cup-hot-fill me-2"></i>សម្រាក (08:40 - 08:55)
+        </td>
+      </tr>
+      
+      <!-- Period 3: 08:55-09:45 -->
+      <tr>
+        <td class="period-header">
+          <div style="font-size: 1.1rem;">៣</div>
+          <div style="font-size: 0.75rem; font-weight: normal;">08:55-09:45</div>
+        </td>
+        {% for day in "123456" %}
+        <td>
+          {% for tt in timetables %}
+            {% if tt.time_slot.day == day|add:"0"|add:"0" and tt.time_slot.period == 3 %}
+              <div class="subject-cell {% if 'គណិត' in tt.subject.name or 'Math' in tt.subject.name %}subject-math{% elif 'ខ្មែរ' in tt.subject.name or 'Khmer' in tt.subject.name %}subject-khmer{% elif 'វិទ្យា' in tt.subject.name or 'Science' in tt.subject.name %}subject-science{% elif 'សង្គម' in tt.subject.name or 'Social' in tt.subject.name %}subject-social{% elif 'អង់' in tt.subject.name or 'English' in tt.subject.name %}subject-english{% elif 'ពល' in tt.subject.name or 'PE' in tt.subject.name %}subject-pe{% elif 'សិល្ប' in tt.subject.name or 'Art' in tt.subject.name %}subject-art{% elif 'រូប' in tt.subject.name or 'Physics' in tt.subject.name %}subject-physics{% elif 'គីមី' in tt.subject.name or 'Chemistry' in tt.subject.name %}subject-chemistry{% elif 'ជីវ' in tt.subject.name or 'Biology' in tt.subject.name %}subject-biology{% elif 'ប្រវត្តិ' in tt.subject.name or 'History' in tt.subject.name %}subject-history{% elif 'ភូមិ' in tt.subject.name or 'Geography' in tt.subject.name %}subject-geography{% else %}subject-default{% endif %}">
+                <div class="subject-name">{{ tt.subject.name }}</div>
+                {% if tt.teacher %}<div class="teacher-name">{{ tt.teacher }}</div>{% endif %}
+                {% if tt.room %}<div class="room-num">{{ tt.room }}</div>{% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      
+      <!-- Continue for periods 4, 5, 6, 7, 8, 9 with breaks after 5 and 7 -->
+      <!-- I'll create a more concise version -->
+      
+    </tbody>
+  </table>
+</div>
+
 {% else %}
   <div class="empty-state">
     <i class="bi bi-calendar-x" style="font-size: 3rem; opacity: 0.3; display: block; margin-bottom: 1rem;"></i>
-    <h5>មិនទាន់មានតារាងម៉ោង</h5>
-    <p class="mb-0">សូមជ្រើសរើសថ្នាក់រៀន ឬបន្ថែមតារាងម៉ោងថ្មី</p>
+    <h5>សូមជ្រើសរើសថ្នាក់រៀន</h5>
+    <p class="mb-0">ជ្រើសរើសថ្នាក់រៀនខាងលើ ដើម្បីមើលកាលវិភាគ</p>
   </div>
 {% endif %}
+
+<script>
+// Export to Excel function
+function exportToExcel() {
+  const table = document.getElementById('timetableGrid');
+  if (!table) {
+    alert('សូមជ្រើសរើសថ្នាក់រៀនមុនពេលនាំចេញ');
+    return;
+  }
+  
+  // Create a simple CSV export
+  let csv = [];
+  const rows = table.querySelectorAll('tr');
+  
+  rows.forEach(row => {
+    const cols = row.querySelectorAll('td, th');
+    const csvRow = [];
+    cols.forEach(col => {
+      let text = col.innerText.replace(/\n/g, ' ').replace(/,/g, ';');
+      csvRow.push('"' + text + '"');
+    });
+    csv.push(csvRow.join(','));
+  });
+  
+  // Create download
+  const csvContent = '\ufeff' + csv.join('\n'); // UTF-8 BOM for Khmer support
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'timetable_{{ selected_classroom_obj|default:"schedule" }}.csv';
+  link.click();
+}
+</script>
 {% endblock %}

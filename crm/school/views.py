@@ -1795,21 +1795,40 @@ def student_my_results(request):
 # ══════════════════════════════════════════════
 @login_required
 def timetable_list(request):
+    """
+    Display timetable in Cambodia school weekly grid format
+    បង្ហាញកាលវិភាគជាទ្រង់ទ្រាយតារាងសប្តាហ៍ប្រភេទសាលាកម្ពុជា
+    """
     try:
         role = request.user.profile.role
     except Exception:
         role = 'student'
-    classroom_id = request.GET.get('classroom','')
-    year_id      = request.GET.get('year','')
-    classrooms   = Classroom.objects.select_related('grade','academic_year')
-    years        = AcademicYear.objects.all()
-    timetables   = Timetable.objects.select_related('subject','teacher','time_slot','classroom__grade').order_by('time_slot__day','time_slot__start_time')
+    
+    classroom_id = request.GET.get('classroom', '')
+    year_id = request.GET.get('year', '')
+    
+    classrooms = Classroom.objects.select_related('grade', 'academic_year')
+    years = AcademicYear.objects.all()
+    
+    # Get selected classroom object for display
+    selected_classroom_obj = None
+    if classroom_id:
+        try:
+            selected_classroom_obj = Classroom.objects.get(pk=classroom_id)
+        except Classroom.DoesNotExist:
+            pass
+    
+    timetables = Timetable.objects.select_related(
+        'subject', 'teacher', 'time_slot', 'classroom__grade', 'academic_year'
+    ).order_by('time_slot__day', 'time_slot__period')
+    
     # Student auto-filter to their class
     if role == 'student':
         try:
             student = request.user.profile.student
             if student and student.classroom:
                 timetables = timetables.filter(classroom=student.classroom)
+                selected_classroom_obj = student.classroom
         except Exception:
             pass
     else:
@@ -1817,14 +1836,47 @@ def timetable_list(request):
             timetables = timetables.filter(classroom_id=classroom_id)
         if year_id:
             timetables = timetables.filter(academic_year_id=year_id)
+    
+    # Organize by day for grid view
     days = {}
     for tt in timetables:
         days.setdefault(tt.time_slot.day, []).append(tt)
-    day_names = {1:'ចន្ទ', 2:'អង្គារ', 3:'ពុធ', 4:'ព្រហស្បតិ៍', 5:'សុក្រ', 6:'សៅរ៍'}
-    return render(request, 'school/timetable_list.html', {
-        'timetables': timetables, 'classrooms': classrooms,
-        'years': years, 'days': days, 'day_names': day_names,
-        'selected_classroom': classroom_id, 'selected_year': year_id, 'role': role,
+    
+    day_names = {
+        1: 'ច័ន្ទ', 
+        2: 'អង្គារ', 
+        3: 'ពុធ', 
+        4: 'ព្រហស្បតិ៍', 
+        5: 'សុក្រ', 
+        6: 'សៅរ៍'
+    }
+    
+    # Cambodia timetable structure
+    periods = [1, 2, 'break1', 3, 4, 5, 6, 7, 'break2', 8, 9]
+    period_times = {
+        1: '07:00-07:50',
+        2: '07:50-08:40',
+        3: '08:55-09:45',
+        4: '09:45-10:35',
+        5: '10:35-11:25',
+        6: '13:30-14:20',
+        7: '14:20-15:10',
+        8: '15:25-16:15',
+        9: '16:15-17:05',
+    }
+    
+    return render(request, 'school/timetable_grid.html', {
+        'timetables': timetables,
+        'classrooms': classrooms,
+        'years': years,
+        'days': days,
+        'day_names': day_names,
+        'periods': periods,
+        'period_times': period_times,
+        'selected_classroom': classroom_id,
+        'selected_classroom_obj': selected_classroom_obj,
+        'selected_year': year_id,
+        'role': role,
     })
 
 @admin_required
