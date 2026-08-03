@@ -1629,12 +1629,42 @@ def report_card_list(request):
 
 @admin_or_teacher
 def report_card_add(request):
-    form = ReportCardForm(request.POST or None)
-    if form.is_valid():
-        card = form.save(commit=False); card.generated_by = request.user; card.save()
-        messages.success(request, 'សៀវភៅប័ណ្ណបានបង្កើត។')
-        return redirect('school:report_card_list')
-    return render(request, 'school/form.html', {'form': form, 'title': 'បង្កើតសៀវភៅប័ណ្ណ', 'back_url': reverse('school:report_card_list')})
+    # Get filter parameters
+    classroom_id = request.GET.get('classroom', '')
+    academic_year_id = request.GET.get('academic_year', '')
+    
+    classrooms = Classroom.objects.select_related('grade', 'academic_year')
+    academic_years = AcademicYear.objects.all()
+    students = []
+    
+    # Load students if classroom is selected
+    if classroom_id:
+        classroom = get_object_or_404(Classroom, pk=classroom_id)
+        students = Student.objects.filter(
+            classroom=classroom,
+            is_active=True
+        ).order_by('last_name', 'first_name')
+    
+    # Handle POST - create report card
+    if request.method == 'POST':
+        form = ReportCardForm(request.POST)
+        if form.is_valid():
+            card = form.save(commit=False)
+            card.generated_by = request.user
+            card.save()
+            messages.success(request, 'សៀវភៅប័ណ្ណបានបង្កើត។')
+            return redirect('school:report_card_list')
+    else:
+        form = ReportCardForm()
+    
+    return render(request, 'school/report_card_add.html', {
+        'form': form,
+        'classrooms': classrooms,
+        'academic_years': academic_years,
+        'students': students,
+        'classroom_id': classroom_id,
+        'academic_year_id': academic_year_id,
+    })
 
 @login_required
 def report_card_view(request, pk):

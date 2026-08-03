@@ -1,0 +1,162 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}បង្កើតសៀវភៅប័ណ្ណ{% endblock %}
+{% block page_title %}បង្កើតសៀវភៅប័ណ្ណ{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-journal-text me-2 text-primary"></i>បង្កើតសៀវភៅប័ណ្ណ</h2>
+  <div class="actions">
+    <a href="{% url 'school:report_card_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅបញ្ជី
+    </a>
+  </div>
+</div>
+
+{% if not students %}
+<!-- Step 1: Select Classroom -->
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <h5 class="mb-4"><i class="bi bi-filter me-2 text-primary"></i>ជ្រើសរើសថ្នាក់</h5>
+    <form method="get">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">ថ្នាក់រៀន *</label>
+          <select name="classroom" class="form-select" required>
+            <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
+            {% for cls in classrooms %}
+            <option value="{{ cls.pk }}" {% if classroom_id == cls.pk|stringformat:"s" %}selected{% endif %}>
+              {{ cls }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">ឆ្នាំសិក្សា (ជម្រើស)</label>
+          <select name="academic_year" class="form-select">
+            <option value="">-- ប្រើឆ្នាំនៃថ្នាក់ --</option>
+            {% for year in academic_years %}
+            <option value="{{ year.pk }}" {% if academic_year_id == year.pk|stringformat:"s" %}selected{% endif %}>
+              {{ year }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search me-1"></i>ផ្ទុកសិស្ស
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% else %}
+<!-- Step 2: Select Student and Fill Form -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>ជ្រើសរើសសិស្ស និងបំពេញព័ត៌មាន</h5>
+  </div>
+  <div class="card-body p-4">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="row g-3">
+        <!-- Student Selection -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">សិស្ស *</label>
+          <select name="student" class="form-select" required>
+            <option value="">-- ជ្រើសរើសសិស្ស --</option>
+            {% for student in students %}
+            <option value="{{ student.pk }}">
+              {{ student.student_id }} - {{ student.last_name }} {{ student.first_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Academic Year -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">ឆ្នាំសិក្សា *</label>
+          <select name="academic_year" class="form-select" required>
+            <option value="">-- ជ្រើសរើសឆ្នាំ --</option>
+            {% for year in academic_years %}
+            <option value="{{ year.pk }}" {% if academic_year_id == year.pk|stringformat:"s" %}selected{% endif %}>
+              {{ year }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Term -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">វគ្គ *</label>
+          <select name="term" class="form-select" required>
+            <option value="">-- ជ្រើសរើសវគ្គ --</option>
+            <option value="Term 1">វគ្គ ១</option>
+            <option value="Term 2">វគ្គ ២</option>
+            <option value="Final">វគ្គចុងក្រោយ</option>
+          </select>
+        </div>
+        
+        <!-- Status -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">ស្ថានភាព *</label>
+          <select name="status" class="form-select" required>
+            <option value="Draft">ព្រាង</option>
+            <option value="Final">ចុងក្រោយ</option>
+          </select>
+        </div>
+        
+        <!-- Conduct -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">អាកប្បកិរិយា</label>
+          <input type="text" name="conduct" class="form-control" placeholder="ឧ. Excellent / Good / Fair">
+          <small class="text-muted">ឧ. Excellent / Good / Fair</small>
+        </div>
+        
+        <!-- Attendance Days -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">ថ្ងៃវត្តមានសរុប *</label>
+          <input type="number" name="attendance_days" class="form-control" min="0" value="0" required>
+        </div>
+        
+        <!-- Absent Days -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">ថ្ងៃអវត្តមាន *</label>
+          <input type="number" name="absent_days" class="form-control" min="0" value="0" required>
+        </div>
+        
+        <!-- Teacher Remarks -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">មតិយោបល់គ្រូ</label>
+          <textarea name="teacher_remarks" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <!-- Principal Remarks -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">មតិយោបល់នាយក</label>
+          <textarea name="principal_remarks" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
+      
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-circle me-1"></i>រក្សាទុក
+        </button>
+        <a href="{% url 'school:report_card_add' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>ជ្រើសថ្នាក់ផ្សេង
+        </a>
+        <a href="{% url 'school:report_card_list' %}" class="btn btn-outline-danger">
+          <i class="bi bi-x-circle me-1"></i>បោះបង់
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
