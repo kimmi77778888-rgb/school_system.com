@@ -151,8 +151,8 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             # Additional Documents
             'id_card_file',
             
-            # Status
-            'is_active'
+            # Status and History
+            'status', 'is_active', 'notes'
         ]
         labels = {
             'last_name':     'នាមត្រកូល (Last Name)',
@@ -188,13 +188,16 @@ class StudentForm(BootstrapMixin, forms.ModelForm):
             'allergies':     'ប្រតិកម្មហ្សែនសា',
             'medical_notes': 'កំណត់សម្គាល់សុខភាព',
             'id_card_file':  'អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន',
+            'status':        'ស្ថានភាព (Status)',
             'is_active':     'សកម្ម',
+            'notes':         'កំណត់ចំណាំ',
         }
         widgets = {
             'date_of_birth':  forms.DateInput(attrs={'type': 'date'}),
             'address':        forms.Textarea(attrs={'rows': 2}),
             'medical_notes':  forms.Textarea(attrs={'rows': 2}),
             'allergies':      forms.Textarea(attrs={'rows': 2}),
+            'notes':          forms.Textarea(attrs={'rows': 3}),
             'photo':          PhotoInput(),
             'birth_certificate_file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),
             'id_card_file':   forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png'}),

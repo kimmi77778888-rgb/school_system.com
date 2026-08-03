@@ -300,7 +300,10 @@ def student_list(request):
         role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'teacher'
     q = request.GET.get('q', '')
     classroom_id = request.GET.get('classroom', '')
+    status_filter = request.GET.get('status', '')  # New status filter
+    
     students = Student.objects.filter(is_active=True).select_related('classroom__grade')
+    
     # Teacher sees only their class students
     if role == 'teacher':
         try:
@@ -309,15 +312,25 @@ def student_list(request):
             students = students.filter(classroom__in=my_classes)
         except Exception:
             students = Student.objects.none()
+    
     if q:
         students = students.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(student_id__icontains=q))
     if classroom_id:
         students = students.filter(classroom_id=classroom_id)
+    if status_filter:
+        students = students.filter(status=status_filter)
+    
     classrooms = Classroom.objects.select_related('grade','academic_year')
+    
+    # Get status choices for filter dropdown
+    status_choices = Student.STATUS_CHOICES
+    
     return render(request, 'school/student_list.html', {
         'students': students, 'q': q,
         'classrooms': classrooms, 'selected_classroom': classroom_id, 'role': role,
+        'status_choices': status_choices, 'selected_status': status_filter,
     })
+
 
 
 @admin_or_teacher
@@ -476,11 +489,17 @@ def student_list_export_excel(request):
 
 
 @admin_or_teacher
+@admin_or_teacher
 def student_detail(request, pk):
     from django.db.models import Avg
+    from .models import StudentHistory
+    
     student = get_object_or_404(Student, pk=pk)
     attendances   = student.attendances.order_by('-date')[:10]
     scores        = student.scores.select_related('subject','exam_type','academic_year').order_by('-date_recorded')
+    
+    # Get student history records (previous grades)
+    history_records = student.history_records.select_related('academic_year', 'classroom').order_by('-academic_year__year')
     
     # Calculate statistics
     present_count = student.attendances.filter(status='P').count()
@@ -497,6 +516,7 @@ def student_detail(request, pk):
         'student': student, 
         'attendances': attendances, 
         'scores': scores,
+        'history_records': history_records,
         'present_count': present_count, 
         'absent_count': absent_count,
         'attendance_rate': attendance_rate,
@@ -553,12 +573,15 @@ def student_delete(request, pk):
 
 
 @admin_or_teacher
+@admin_or_teacher
 def student_promote(request):
     """
     Bulk promote students to next grade if they passed all exams.
     ដាក់សិស្សឡើងថ្នាក់ជាក្រុម បើប្រឡងជាប់
+    Creates historical records to preserve student data across academic years.
     """
     from django.db.models import Count, Avg, Q
+    from .models import StudentHistory
     
     # Get filter parameters
     current_classroom_id = request.GET.get('classroom', '')
@@ -629,21 +652,90 @@ def student_promote(request):
         next_classroom_id = request.POST.get('next_classroom')
         
         if student_ids and next_classroom_id:
+            from django.utils import timezone
             next_classroom = get_object_or_404(Classroom, pk=next_classroom_id)
             promoted_count = 0
             
             for student_id in student_ids:
                 try:
                     student = Student.objects.get(pk=student_id)
+                    old_classroom = student.classroom
+                    
+                    # === CREATE HISTORY RECORD ===
+                    # Save current academic year data before promotion
+                    if old_classroom and old_classroom.academic_year:
+                        # Get academic year data
+                        year = old_classroom.academic_year
+                        
+                        # Calculate scores for this academic year
+                        year_scores = student.scores.filter(academic_year=year)
+                        total_subjects = year_scores.count()
+                        if total_subjects > 0:
+                            avg_score = sum(s.score for s in year_scores) / total_subjects
+                            passed = sum(1 for s in year_scores if s.is_passing(passing_percentage))
+                            failed = total_subjects - passed
+                        else:
+                            avg_score = 0
+                            passed = 0
+                            failed = 0
+                        
+                        # Calculate attendance for this academic year
+                        year_attendance = student.attendances.filter(
+                            date__gte=year.year.split('-')[0] + '-01-01',
+                            date__lte=year.year.split('-')[1] + '-12-31'
+                        ) if '-' in year.year else student.attendances.all()
+                        
+                        total_days = year_attendance.count()
+                        present_days = year_attendance.filter(status='P').count()
+                        absent_days = year_attendance.filter(status='A').count()
+                        
+                        # Create or update history record
+                        history, created = StudentHistory.objects.update_or_create(
+                            student=student,
+                            academic_year=year,
+                            defaults={
+                                'classroom': old_classroom,
+                                'grade_name': str(old_classroom.grade),
+                                'status': 'PROMOTED',
+                                'average_score': avg_score,
+                                'total_subjects': total_subjects,
+                                'passed_subjects': passed,
+                                'failed_subjects': failed,
+                                'total_days': total_days,
+                                'present_days': present_days,
+                                'absent_days': absent_days,
+                                'end_date': timezone.now().date(),
+                                'notes': f"ឡើងថ្នាក់ទៅ {next_classroom.grade} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}"
+                            }
+                        )
+                    
+                    # === UPDATE STUDENT RECORD ===
+                    old_classroom_name = old_classroom.name if old_classroom else 'N/A'
+                    student.previous_classroom = old_classroom_name
+                    student.promotion_date = timezone.now().date()
+                    
+                    # Keep status as ACTIVE (they're active in new grade)
+                    student.status = 'ACTIVE'
+                    
+                    # Move to new classroom
                     student.classroom = next_classroom
+                    
+                    # Add note
+                    promotion_note = f"ឡើងថ្នាក់ពី {old_classroom_name} ទៅ {next_classroom} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}"
+                    if student.notes:
+                        student.notes += f"\n{promotion_note}"
+                    else:
+                        student.notes = promotion_note
+                    
                     student.save()
                     promoted_count += 1
+                    
                 except Exception as e:
                     import logging
                     logging.getLogger(__name__).error(f"Failed to promote student {student_id}: {e}")
             
             if promoted_count > 0:
-                messages.success(request, f'បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។')
+                messages.success(request, f'✅ បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។ ប្រវត្តិត្រូវបានរក្សាទុក។')
             return redirect('school:student_list')
     
     # Get available next grade classrooms

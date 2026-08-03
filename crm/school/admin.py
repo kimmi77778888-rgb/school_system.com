@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    AcademicYear, Grade, Teacher, TeacherDocument, Classroom, Student, Subject,
+    AcademicYear, Grade, Teacher, TeacherDocument, Classroom, Student, StudentHistory, Subject,
     Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, Score, TimeSlot, Timetable,
     Notification, NotificationRead, ReportCard, SchoolEvent,
     UserProfile, LoginHistory, SchoolSettings
@@ -73,10 +73,10 @@ class ClassroomAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display  = ('student_id', 'first_name', 'last_name', 'gender', 'classroom', 'is_active')
+    list_display  = ('student_id', 'first_name', 'last_name', 'gender', 'classroom', 'status', 'is_active')
     search_fields = ('student_id', 'first_name', 'last_name', 'birth_certificate_number')
-    list_filter   = ('is_active', 'gender', 'classroom', 'blood_group')
-    readonly_fields = ('student_id', 'enrolled_date')
+    list_filter   = ('is_active', 'status', 'gender', 'classroom', 'blood_group')
+    readonly_fields = ('student_id', 'enrolled_date', 'previous_classroom', 'promotion_date')
     
     fieldsets = (
         ('ព័ត៌មានមូលដ្ឋាន (Basic Information)', {
@@ -104,7 +104,11 @@ class StudentAdmin(admin.ModelAdmin):
             'fields': ('emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation')
         }),
         ('ព័ត៌មានសាលារៀន (School Information)', {
-            'fields': ('classroom', 'enrolled_date', 'previous_school', 'is_active')
+            'fields': ('classroom', 'enrolled_date', 'previous_school', 'status', 'is_active')
+        }),
+        ('ប្រវត្តិសិស្ស (Student History)', {
+            'fields': ('previous_classroom', 'promotion_date', 'graduation_date', 'notes'),
+            'classes': ('collapse',)
         }),
         ('ព័ត៌មានសុខភាព (Health Information)', {
             'fields': ('blood_group', 'allergies', 'medical_notes')
@@ -114,6 +118,37 @@ class StudentAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(StudentHistory)
+class StudentHistoryAdmin(admin.ModelAdmin):
+    list_display = ('student', 'grade_name', 'academic_year', 'status', 'average_score', 
+                   'passed_subjects', 'failed_subjects', 'attendance_percentage')
+    list_filter = ('status', 'academic_year', 'grade_name')
+    search_fields = ('student__student_id', 'student__first_name', 'student__last_name')
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('ព័ត៌មានមូលដ្ឋាន (Basic Information)', {
+            'fields': ('student', 'academic_year', 'classroom', 'grade_name', 'status')
+        }),
+        ('លទ្ធផលសិក្សា (Academic Performance)', {
+            'fields': ('average_score', 'total_subjects', 'passed_subjects', 'failed_subjects')
+        }),
+        ('វត្តមាន (Attendance)', {
+            'fields': ('total_days', 'present_days', 'absent_days')
+        }),
+        ('កាលបរិច្ឆេទ (Dates)', {
+            'fields': ('start_date', 'end_date', 'created_at', 'updated_at')
+        }),
+        ('កំណត់ចំណាំ (Notes)', {
+            'fields': ('notes',)
+        }),
+    )
+    
+    def attendance_percentage(self, obj):
+        return f"{obj.attendance_percentage()}%"
+    attendance_percentage.short_description = 'វត្តមាន %'
 
 
 @admin.register(Subject)

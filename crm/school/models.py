@@ -245,6 +245,15 @@ class Classroom(models.Model):
 # ══════════════════════════════════════════════════════
 class Student(models.Model):
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female')]
+    
+    STATUS_CHOICES = [
+        ('ACTIVE', 'សកម្ម (Active)'),
+        ('PROMOTED', 'ឡើងថ្នាក់ (Promoted)'),
+        ('GRADUATED', 'បញ្ចប់ការសិក្សា (Graduated)'),
+        ('TRANSFERRED', 'ផ្ទេរសាលា (Transferred)'),
+        ('WITHDRAWN', 'ឈប់រៀន (Withdrawn)'),
+        ('SUSPENDED', 'ផ្អាកការសិក្សា (Suspended)'),
+    ]
 
     student_id    = models.CharField(max_length=20, unique=True, blank=True)
     first_name    = models.CharField(max_length=100, verbose_name='នាមខ្លួន (ខ្មែរ)')
@@ -301,7 +310,14 @@ class Student(models.Model):
     id_card_file = models.FileField(upload_to='documents/students/id_cards/', null=True, blank=True, verbose_name='អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន')
     
     # Status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE', verbose_name='ស្ថានភាព')
     is_active     = models.BooleanField(default=True, verbose_name='សកម្ម')
+    
+    # History tracking
+    previous_classroom = models.CharField(max_length=200, blank=True, verbose_name='ថ្នាក់មុន', help_text='ថ្នាក់រៀនមុននេះ')
+    promotion_date = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃឡើងថ្នាក់')
+    graduation_date = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃបញ្ចប់ការសិក្សា')
+    notes = models.TextField(blank=True, verbose_name='កំណត់ចំណាំ', help_text='ព័ត៌មានបន្ថែមអំពីសិស្ស')
 
     def save(self, *args, **kwargs):
         # Clean Khmer text to remove invisible characters
@@ -459,6 +475,54 @@ class Exam(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+
+class StudentHistory(models.Model):
+    """
+    Track student progression through grades - one record per academic year
+    រក្សាទុកប្រវត្តិសិស្ស - កំណត់ត្រាមួយសម្រាប់មួយឆ្នាំសិក្សា
+    """
+    student        = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='history_records')
+    academic_year  = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='student_histories')
+    classroom      = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, related_name='student_histories')
+    grade_name     = models.CharField(max_length=100, verbose_name='ឈ្មោះថ្នាក់', help_text='Stored for historical reference')
+    status         = models.CharField(max_length=20, choices=Student.STATUS_CHOICES, default='ACTIVE', verbose_name='ស្ថានភាព')
+    
+    # Academic performance
+    average_score  = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='ពិន្ទុមធ្យម')
+    total_subjects = models.IntegerField(default=0, verbose_name='ចំនួនមុខវិជ្ជា')
+    passed_subjects = models.IntegerField(default=0, verbose_name='ជាប់មុខវិជ្ជា')
+    failed_subjects = models.IntegerField(default=0, verbose_name='ធ្លាក់មុខវិជ្ជា')
+    
+    # Attendance tracking
+    total_days     = models.IntegerField(default=0, verbose_name='ថ្ងៃសរុប')
+    present_days   = models.IntegerField(default=0, verbose_name='ថ្ងៃមកវត្តមាន')
+    absent_days    = models.IntegerField(default=0, verbose_name='ថ្ងៃអវត្តមាន')
+    
+    # Dates
+    start_date     = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃចាប់ផ្តើម')
+    end_date       = models.DateField(null=True, blank=True, verbose_name='ថ្ងៃបញ្ចប់')
+    
+    # Notes
+    notes          = models.TextField(blank=True, verbose_name='កំណត់ចំណាំ')
+    
+    # Metadata
+    created_at     = models.DateTimeField(auto_now_add=True)
+    updated_at     = models.DateTimeField(auto_now=True)
+    
+    def attendance_percentage(self):
+        if self.total_days > 0:
+            return round((self.present_days / self.total_days) * 100, 1)
+        return 0
+    
+    def __str__(self):
+        return f"{self.student.student_id} - {self.grade_name} ({self.academic_year.year})"
+    
+    class Meta:
+        ordering = ['-academic_year__year', 'student']
+        unique_together = ('student', 'academic_year')
+        verbose_name = 'ប្រវត្តិសិស្ស'
+        verbose_name_plural = 'ប្រវត្តិសិស្ស'
 
 
 class Score(models.Model):
