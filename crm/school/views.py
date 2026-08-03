@@ -552,7 +552,7 @@ def student_delete(request, pk):
     })
 
 
-@admin_required
+@admin_or_teacher
 def student_promote(request):
     """
     Bulk promote students to next grade if they passed all exams.
