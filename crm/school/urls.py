@@ -76,11 +76,12 @@ urlpatterns = [
     path('exams/bulk-delete/',      views.exam_bulk_delete, name='exam_bulk_delete'),
 
     # Scores
-    path('scores/',                 views.score_list,       name='score_list'),
-    path('scores/add/',             views.score_add,        name='score_add'),
-    path('scores/bulk-entry/',      views.score_bulk_entry, name='score_bulk_entry'),
-    path('scores/<int:pk>/edit/',   views.score_edit,       name='score_edit'),
-    path('scores/<int:pk>/delete/', views.score_delete,     name='score_delete'),
+    path('scores/',                      views.score_list,                name='score_list'),
+    path('scores/add/',                  views.score_add,                 name='score_add'),
+    path('scores/bulk-entry/',           views.score_bulk_entry,          name='score_bulk_entry'),
+    path('scores/multi-subject-entry/',  views.score_multi_subject_entry, name='score_multi_subject_entry'),
+    path('scores/<int:pk>/edit/',        views.score_edit,                name='score_edit'),
+    path('scores/<int:pk>/delete/',      views.score_delete,              name='score_delete'),
 
     # Timetable
     path('timetable/',                  views.timetable_list,   name='timetable_list'),

@@ -369,6 +369,133 @@ class ScoreForm(BootstrapMixin, forms.ModelForm):
         fields = ['student', 'subject', 'exam_type', 'exam', 'academic_year', 'score', 'max_score', 'remarks']
 
 
+class BulkScoreEntryForm(BootstrapMixin, forms.Form):
+    """
+    Bulk score entry for one student - multiple subjects at once
+    បញ្ចូលពិន្ទុច្រើនមុខវិជ្ជាសម្រាប់សិស្សម្នាក់
+    """
+    student = forms.ModelChoiceField(
+        queryset=Student.objects.filter(is_active=True),
+        label='សិស្ស (Student)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    exam_type = forms.ModelChoiceField(
+        queryset=ExamType.objects.all(),
+        label='ប្រភេទប្រឡង (Exam Type)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    academic_year = forms.ModelChoiceField(
+        queryset=AcademicYear.objects.all(),
+        label='ឆ្នាំសិក្សា (Academic Year)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    max_score = forms.DecimalField(
+        initial=100,
+        label='ពិន្ទុអតិបរមា (Max Score)',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
+    )
+    
+    # Subject 1
+    subject_1 = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=False,
+        label='មុខវិជ្ជាទី១ (Subject 1)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    score_1 = forms.DecimalField(
+        required=False,
+        label='ពិន្ទុ (Score)',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'})
+    )
+    remarks_1 = forms.CharField(
+        required=False,
+        label='កំណត់សម្គាល់ (Remarks)',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    # Subject 2
+    subject_2 = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=False,
+        label='មុខវិជ្ជាទី២ (Subject 2)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    score_2 = forms.DecimalField(
+        required=False,
+        label='ពិន្ទុ (Score)',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'})
+    )
+    remarks_2 = forms.CharField(
+        required=False,
+        label='កំណត់សម្គាល់ (Remarks)',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    # Subject 3
+    subject_3 = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=False,
+        label='មុខវិជ្ជាទី៣ (Subject 3)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    score_3 = forms.DecimalField(
+        required=False,
+        label='ពិន្ទុ (Score)',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'})
+    )
+    remarks_3 = forms.CharField(
+        required=False,
+        label='កំណត់សម្គាល់ (Remarks)',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    # Subject 4
+    subject_4 = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=False,
+        label='មុខវិជ្ជាទី៤ (Subject 4)',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    score_4 = forms.DecimalField(
+        required=False,
+        label='ពិន្ទុ (Score)',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'})
+    )
+    remarks_4 = forms.CharField(
+        required=False,
+        label='កំណត់សម្គាល់ (Remarks)',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Check that at least one subject is filled
+        has_subject = any([
+            cleaned_data.get(f'subject_{i}') and cleaned_data.get(f'score_{i}') is not None
+            for i in range(1, 5)
+        ])
+        
+        if not has_subject:
+            raise forms.ValidationError('សូមបញ្ចូលយ៉ាងហោចណាស់មួយមុខវិជ្ជា (Please enter at least one subject)')
+        
+        # Validate that if subject is selected, score must be provided
+        for i in range(1, 5):
+            subject = cleaned_data.get(f'subject_{i}')
+            score = cleaned_data.get(f'score_{i}')
+            
+            if subject and score is None:
+                raise forms.ValidationError(f'សូមបញ្ចូលពិន្ទុសម្រាប់មុខវិជ្ជាទី{i} (Please enter score for subject {i})')
+            
+            if score is not None and not subject:
+                raise forms.ValidationError(f'សូមជ្រើសរើសមុខវិជ្ជាទី{i} (Please select subject {i})')
+        
+        return cleaned_data
+
+
 class ExamForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model  = Exam

@@ -1489,6 +1489,84 @@ def score_bulk_entry(request):
         'role': role,
     })
 
+
+@admin_or_teacher
+def score_multi_subject_entry(request):
+    """
+    Enter scores for multiple subjects (up to 4) for one student at once
+    បញ្ចូលពិន្ទុច្រើនមុខវិជ្ជា (រហូតដល់ ៤ មុខ) សម្រាប់សិស្សម្នាក់តែម្តង
+    """
+    from .forms import BulkScoreEntryForm
+    
+    if request.method == 'POST':
+        form = BulkScoreEntryForm(request.POST)
+        if form.is_valid():
+            student = form.cleaned_data['student']
+            exam_type = form.cleaned_data['exam_type']
+            academic_year = form.cleaned_data['academic_year']
+            max_score = form.cleaned_data['max_score']
+            
+            success_count = 0
+            errors = []
+            
+            # Process each subject (1-4)
+            for i in range(1, 5):
+                subject = form.cleaned_data.get(f'subject_{i}')
+                score_value = form.cleaned_data.get(f'score_{i}')
+                remarks = form.cleaned_data.get(f'remarks_{i}', '')
+                
+                # Skip if subject or score not provided
+                if not subject or score_value is None:
+                    continue
+                
+                try:
+                    # Create or update score
+                    score_obj, created = Score.objects.update_or_create(
+                        student=student,
+                        subject=subject,
+                        exam_type=exam_type,
+                        academic_year=academic_year,
+                        defaults={
+                            'score': score_value,
+                            'max_score': max_score,
+                            'remarks': remarks
+                        }
+                    )
+                    success_count += 1
+                except Exception as e:
+                    errors.append(f"មុខវិជ្ជា {subject.name}: {str(e)}")
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to save score: {e}")
+            
+            # Display results
+            if success_count > 0:
+                messages.success(
+                    request, 
+                    f'✅ បានរក្សាទុកពិន្ទុ {success_count} មុខវិជ្ជាសម្រាប់សិស្ស {student.first_name} {student.last_name}'
+                )
+            
+            if errors:
+                for error in errors:
+                    messages.error(request, f'❌ {error}')
+            
+            if success_count > 0:
+                return redirect('school:score_list')
+    else:
+        form = BulkScoreEntryForm()
+    
+    # Safely get role
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'admin' if (request.user.is_superuser or request.user.is_staff) else 'student'
+    
+    return render(request, 'school/score_multi_subject_entry.html', {
+        'form': form,
+        'role': role,
+        'title': 'បញ្ចូលពិន្ទុច្រើនមុខវិជ្ជា (Multi-Subject Score Entry)'
+    })
+
+
 # ── Parent/Student view results ────────────────
 @role_required('parent')
 def parent_child_results(request):

@@ -44,6 +44,9 @@
       <input type="text" name="q" value="{{ q }}" placeholder="ស្វែងរកសិស្ស..." class="form-control form-control-sm" style="width:200px;"/>
       <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
     </form>
+    <a href="{% url 'school:score_multi_subject_entry' %}" class="btn btn-info btn-sm">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i>បញ្ចូលពិន្ទុច្រើនមុខ
+    </a>
     <a href="{% url 'school:score_bulk_entry' %}" class="btn btn-success btn-sm">
       <i class="bi bi-list-check me-1"></i>បញ្ចូលពិន្ទុជាក្រុម
     </a>

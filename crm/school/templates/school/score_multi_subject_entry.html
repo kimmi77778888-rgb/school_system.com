@@ -1,0 +1,287 @@
+{% extends 'school/base.html' %}
+{% load static %}
+
+{% block title %}បញ្ចូលពិន្ទុច្រើនមុខវិជ្ជា - Multi-Subject Score Entry{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="bi bi-file-earmark-spreadsheet text-primary"></i>
+                        បញ្ចូលពិន្ទុច្រើនមុខវិជ្ជា
+                    </h2>
+                    <p class="text-muted">Enter Scores for Multiple Subjects (One Student)</p>
+                </div>
+                <a href="{% url 'school:score_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> ត្រឡប់​ក្រោយ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="bi bi-info-circle"></i> របៀបប្រើប្រាស់ (Instructions)</h5>
+                <ul class="mb-0">
+                    <li>ជ្រើសរើសសិស្ស ប្រភេទប្រឡង និងឆ្នាំសិក្សា (Select student, exam type, and academic year)</li>
+                    <li>បញ្ចូលពិន្ទុសម្រាប់រហូតដល់ ៤ មុខវិជ្ជា (Enter scores for up to 4 subjects)</li>
+                    <li>អ្នកអាចបញ្ចូលតិចជាង ៤ មុខវិជ្ជា (You can enter less than 4 subjects)</li>
+                    <li>ពិន្ទុនឹងត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ (Scores will be saved automatically)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Entry Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i>
+                        ទម្រង់បញ្ចូលពិន្ទុ (Score Entry Form)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="scoreForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="bi bi-info-circle"></i> ព័ត៌មានមូលដ្ឋាន (Basic Information)
+                                </h6>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.student.label }}</label>
+                                {{ form.student }}
+                                {% if form.student.errors %}
+                                    <div class="text-danger">{{ form.student.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.exam_type.label }}</label>
+                                {{ form.exam_type }}
+                                {% if form.exam_type.errors %}
+                                    <div class="text-danger">{{ form.exam_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.academic_year.label }}</label>
+                                {{ form.academic_year }}
+                                {% if form.academic_year.errors %}
+                                    <div class="text-danger">{{ form.academic_year.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.max_score.label }}</label>
+                                {{ form.max_score }}
+                                {% if form.max_score.errors %}
+                                    <div class="text-danger">{{ form.max_score.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Subject Scores -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6 class="text-primary border-bottom pb-2 mb-3">
+                                    <i class="bi bi-book"></i> មុខវិជ្ជានិងពិន្ទុ (Subjects and Scores)
+                                </h6>
+                            </div>
+                        </div>
+
+                        <!-- Subject 1 -->
+                        <div class="subject-row mb-3 p-3 border rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <strong class="text-primary">មុខវិជ្ជាទី១ (Subject 1)</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ form.subject_1.label }}</label>
+                                    {{ form.subject_1 }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">{{ form.score_1.label }}</label>
+                                    {{ form.score_1 }}
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">{{ form.remarks_1.label }}</label>
+                                    {{ form.remarks_1 }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject 2 -->
+                        <div class="subject-row mb-3 p-3 border rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <strong class="text-primary">មុខវិជ្ជាទី២ (Subject 2)</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ form.subject_2.label }}</label>
+                                    {{ form.subject_2 }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">{{ form.score_2.label }}</label>
+                                    {{ form.score_2 }}
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">{{ form.remarks_2.label }}</label>
+                                    {{ form.remarks_2 }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject 3 -->
+                        <div class="subject-row mb-3 p-3 border rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <strong class="text-primary">មុខវិជ្ជាទី៣ (Subject 3)</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ form.subject_3.label }}</label>
+                                    {{ form.subject_3 }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">{{ form.score_3.label }}</label>
+                                    {{ form.score_3 }}
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">{{ form.remarks_3.label }}</label>
+                                    {{ form.remarks_3 }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject 4 -->
+                        <div class="subject-row mb-3 p-3 border rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <strong class="text-primary">មុខវិជ្ជាទី៤ (Subject 4)</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">{{ form.subject_4.label }}</label>
+                                    {{ form.subject_4 }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">{{ form.score_4.label }}</label>
+                                    {{ form.score_4 }}
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">{{ form.remarks_4.label }}</label>
+                                    {{ form.remarks_4 }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'school:score_list' %}'">
+                                        <i class="bi bi-x-circle"></i> បោះបង់ (Cancel)
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-save"></i> រក្សាទុកពិន្ទុ (Save Scores)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.subject-row {
+    transition: all 0.3s ease;
+}
+
+.subject-row:hover {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+}
+
+.form-control:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.getElementById('scoreForm');
+    
+    form.addEventListener('submit', function(e) {
+        const student = document.querySelector('[name="student"]').value;
+        const examType = document.querySelector('[name="exam_type"]').value;
+        const academicYear = document.querySelector('[name="academic_year"]').value;
+        
+        if (!student || !examType || !academicYear) {
+            e.preventDefault();
+            alert('សូមបំពេញព័ត៌មានមូលដ្ឋានទាំងអស់។\nPlease fill in all basic information.');
+            return;
+        }
+        
+        // Check if at least one subject is filled
+        let hasSubject = false;
+        for (let i = 1; i <= 4; i++) {
+            const subject = document.querySelector(`[name="subject_${i}"]`).value;
+            const score = document.querySelector(`[name="score_${i}"]`).value;
+            
+            if (subject && score) {
+                hasSubject = true;
+                break;
+            }
+        }
+        
+        if (!hasSubject) {
+            e.preventDefault();
+            alert('សូមបញ្ចូលយ៉ាងហោចណាស់មួយមុខវិជ្ជា។\nPlease enter at least one subject.');
+            return;
+        }
+    });
+    
+    // Auto-calculate percentage
+    for (let i = 1; i <= 4; i++) {
+        const scoreInput = document.querySelector(`[name="score_${i}"]`);
+        if (scoreInput) {
+            scoreInput.addEventListener('blur', function() {
+                const maxScore = parseFloat(document.querySelector('[name="max_score"]').value) || 100;
+                const score = parseFloat(this.value);
+                
+                if (score && maxScore) {
+                    const percentage = ((score / maxScore) * 100).toFixed(1);
+                    console.log(`Subject ${i}: ${score}/${maxScore} = ${percentage}%`);
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -819,7 +819,7 @@ python manage.py runserver
 - 📧 Email integration for notifications
 - 📊 Advanced analytics dashboard
 - 💬 Chat system (teacher-parent)
-- 📅 Calendar integration
+- 📅 Calendar integration​
 
 **Phase 2: Medium-term (3-6 months)**
 - 💰 Fee management module
