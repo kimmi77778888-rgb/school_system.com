@@ -1,0 +1,397 @@
+{% extends 'school/base.html' %}
+{% load static %}
+
+{% block title %}{{ exam.name }} - លទ្ធផលប្រឡងលម្អិត{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-clipboard-data"></i> {{ exam.name }}
+            </h2>
+            <p class="text-muted mb-0">លទ្ធផលប្រឡងលម្អិត / Detailed Exam Results</p>
+        </div>
+        <div>
+            <a href="{% url 'school:exam_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> ត្រឡប់ក្រោយ
+            </a>
+        </div>
+    </div>
+
+    <!-- Exam Information Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> ព័ត៌មានការប្រឡង / Exam Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">លេខប្រឡង / Exam ID:</th>
+                                    <td><span class="badge bg-secondary">{{ exam.exam_id }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>ប្រភេទប្រឡង / Exam Type:</th>
+                                    <td><span class="badge bg-info">{{ exam.exam_type.name }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>មុខវិជ្ជា / Subject:</th>
+                                    <td><strong>{{ exam.subject.name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>ថ្នាក់ / Classroom:</th>
+                                    <td>{{ exam.classroom }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">ថ្ងៃប្រឡង / Date:</th>
+                                    <td>{{ exam.date|date:"d M Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ឆ្នាំសិក្សា / Academic Year:</th>
+                                    <td>{{ exam.academic_year.year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ពិន្ទុអតិបរមា / Max Score:</th>
+                                    <td><strong>{{ exam.max_score }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>ពិន្ទុជាប់ / Passing Score:</th>
+                                    <td><strong class="text-success">{{ exam.passing_score }}</strong> ({{ exam.passing_percentage }}%)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    {% if exam.description %}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <strong><i class="bi bi-sticky"></i> ការពិពណ៌នា:</strong> {{ exam.description }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                ចំនួនសិស្សសរុប / Total Students
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                បានបញ្ចូលពិន្ទុ / Results Submitted
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_results }} <small class="text-muted">({{ completion_rate }}%)</small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-clipboard-check text-info" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ completion_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                ជាប់ / Passed
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ passed_count }} <small class="text-muted">({{ pass_rate }}%)</small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                ពិន្ទុមធ្យម / Average Score
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ avg_score }}/{{ exam.max_score }} <small class="text-muted">({{ avg_percentage }}%)</small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-graph-up text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Distribution -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> ការចែកចាយពិន្ទុ / Grade Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="h1 mb-2 text-success">{{ grade_distribution.A }}</div>
+                            <div class="h5">Grade A</div>
+                            <small class="text-muted">90-100%</small>
+                        </div>
+                        <div class="col">
+                            <div class="h1 mb-2 text-info">{{ grade_distribution.B }}</div>
+                            <div class="h5">Grade B</div>
+                            <small class="text-muted">80-89%</small>
+                        </div>
+                        <div class="col">
+                            <div class="h1 mb-2 text-primary">{{ grade_distribution.C }}</div>
+                            <div class="h5">Grade C</div>
+                            <small class="text-muted">70-79%</small>
+                        </div>
+                        <div class="col">
+                            <div class="h1 mb-2 text-warning">{{ grade_distribution.D }}</div>
+                            <div class="h5">Grade D</div>
+                            <small class="text-muted">60-69%</small>
+                        </div>
+                        <div class="col">
+                            <div class="h1 mb-2 text-danger">{{ grade_distribution.F }}</div>
+                            <div class="h5">Grade F</div>
+                            <small class="text-muted">&lt;60%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performers & Low Performers -->
+    <div class="row mb-4">
+        <!-- Top Performers -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> សិស្សពូកែបំផុត / Top Performers</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_results %}
+                    <div class="list-group list-group-flush">
+                        {% for result in top_results %}
+                        <a href="{% url 'school:exam_result_detail' result.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-warning text-dark me-2">#{{ forloop.counter }}</span>
+                                    <strong>{{ result.student.last_name }} {{ result.student.first_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ result.student.student_id }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{{ result.grade_color }} fs-5">{{ result.grade_letter }}</span>
+                                    <div><strong>{{ result.score }}/{{ exam.max_score }}</strong></div>
+                                    <small class="text-muted">{{ result.percentage }}%</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-4">មិនមានលទ្ធផលនៅឡើយទេ / No results yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Needing Help -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> សិស្សត្រូវការជំនួយ / Students Needing Help</h5>
+                </div>
+                <div class="card-body">
+                    {% if low_results %}
+                    <div class="list-group list-group-flush">
+                        {% for result in low_results %}
+                        <a href="{% url 'school:exam_result_detail' result.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ result.student.last_name }} {{ result.student.first_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ result.student.student_id }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{{ result.grade_color }} fs-5">{{ result.grade_letter }}</span>
+                                    <div><strong>{{ result.score }}/{{ exam.max_score }}</strong></div>
+                                    <small class="text-danger">{{ result.percentage }}%</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-success text-center py-4"><i class="bi bi-check-circle"></i> គ្រប់សិស្សទាំងអស់ជាប់ / All students passed!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Results Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> លទ្ធផលសិស្សទាំងអស់ / All Student Results</h5>
+                    <span class="badge bg-light text-dark">{{ total_results }}/{{ total_students }}</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="15%">លេខសិស្ស / ID</th>
+                                    <th width="20%">ឈ្មោះសិស្ស / Student Name</th>
+                                    <th width="10%" class="text-center">ពិន្ទុ / Score</th>
+                                    <th width="10%" class="text-center">ភាគរយ / %</th>
+                                    <th width="10%" class="text-center">ពិន្ទុអក្សរ / Grade</th>
+                                    <th width="10%" class="text-center">ស្ថានភាព / Status</th>
+                                    <th width="10%" class="text-center">វត្តមាន / Present</th>
+                                    <th width="10%" class="text-center">សកម្មភាព / Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><span class="badge bg-secondary">{{ result.student.student_id }}</span></td>
+                                    <td>
+                                        <strong>{{ result.student.last_name }} {{ result.student.first_name }}</strong>
+                                        {% if result.student.first_name_en %}
+                                        <br><small class="text-muted">{{ result.student.last_name_en }} {{ result.student.first_name_en }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center"><strong>{{ result.score }}/{{ exam.max_score }}</strong></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ result.grade_color }}">{{ result.percentage }}%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ result.grade_color }} fs-5">{{ result.grade_letter }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if result.is_passed %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> ជាប់</span>
+                                        {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> ធ្លាក់</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if result.was_present %}
+                                        <span class="text-success"><i class="bi bi-check-circle-fill"></i></span>
+                                        {% else %}
+                                        <span class="text-danger" title="{{ result.absent_reason }}"><i class="bi bi-x-circle-fill"></i></span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'school:exam_result_detail' result.id %}" class="btn btn-sm btn-outline-primary" title="មើលលម្អិត">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                        <p class="text-muted mt-3">មិនទាន់មានលទ្ធផលប្រឡងនៅឡើយទេ / No exam results yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Without Results -->
+    {% if students_without_results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-circle"></i> សិស្សមិនទាន់បានបញ្ចូលពិន្ទុ / Students Without Results
+                        <span class="badge bg-dark">{{ students_without_results.count }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for student in students_without_results %}
+                        <div class="col-md-3 mb-2">
+                            <div class="alert alert-warning mb-2 py-2">
+                                <strong>{{ student.student_id }}</strong> - {{ student.last_name }} {{ student.first_name }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+</style>
+{% endblock %}

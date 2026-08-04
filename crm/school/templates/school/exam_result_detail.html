@@ -1,0 +1,315 @@
+{% extends 'school/base.html' %}
+{% load static %}
+
+{% block title %}លទ្ធផលប្រឡងលម្អិត - {{ result.student.last_name }} {{ result.student.first_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-file-earmark-text"></i> លទ្ធផលប្រឡងលម្អិត
+            </h2>
+            <p class="text-muted mb-0">Detailed Exam Result</p>
+        </div>
+        <div>
+            <a href="{% url 'school:exam_detail' result.exam.id %}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> ត្រឡប់ទៅការប្រឡង
+            </a>
+            <a href="{% url 'school:student_detail' result.student.id %}" class="btn btn-outline-primary">
+                <i class="bi bi-person"></i> មើលសិស្ស
+            </a>
+        </div>
+    </div>
+
+    <!-- Student Info Card -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge"></i> ព័ត៌មានសិស្ស / Student Info</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if result.student.photo %}
+                    <img src="{{ result.student.photo.url }}" alt="{{ result.student.last_name }} {{ result.student.first_name }}" 
+                         class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 120px; height: 120px; font-size: 3rem;">
+                        {{ result.student.first_name.0 }}{{ result.student.last_name.0 }}
+                    </div>
+                    {% endif %}
+                    <h4 class="mb-1">{{ result.student.last_name }} {{ result.student.first_name }}</h4>
+                    {% if result.student.first_name_en %}
+                    <p class="text-muted mb-2">{{ result.student.last_name_en }} {{ result.student.first_name_en }}</p>
+                    {% endif %}
+                    <p class="mb-2"><span class="badge bg-secondary">{{ result.student.student_id }}</span></p>
+                    <p class="mb-0"><strong>ថ្នាក់:</strong> {{ result.student.classroom }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> ព័ត៌មានការប្រឡង / Exam Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="45%">ឈ្មោះប្រឡង / Name:</th>
+                                    <td><strong>{{ result.exam.name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>មុខវិជ្ជា / Subject:</th>
+                                    <td>{{ result.exam.subject.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ប្រភេទប្រឡង / Type:</th>
+                                    <td><span class="badge bg-info">{{ result.exam.exam_type.name }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>ថ្ងៃប្រឡង / Date:</th>
+                                    <td>{{ result.exam.date|date:"d F Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="45%">ឆ្នាំសិក្សា / Year:</th>
+                                    <td>{{ result.exam.academic_year.year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ថ្នាក់ / Classroom:</th>
+                                    <td>{{ result.exam.classroom }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ពិន្ទុអតិបរមា / Max:</th>
+                                    <td><strong>{{ result.exam.max_score }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>ពិន្ទុជាប់ / Passing:</th>
+                                    <td><strong class="text-success">{{ result.exam.passing_score }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-trophy-fill"></i> លទ្ធផល / Result</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <h6 class="text-muted mb-2">ពិន្ទុ / Score</h6>
+                                <h1 class="display-4 mb-0 text-primary">{{ result.score }}</h1>
+                                <p class="text-muted">/ {{ result.exam.max_score }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <h6 class="text-muted mb-2">ភាគរយ / Percentage</h6>
+                                <h1 class="display-4 mb-0 text-info">{{ result.percentage }}%</h1>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <h6 class="text-muted mb-2">ពិន្ទុអក្សរ / Grade</h6>
+                                <h1 class="display-1 mb-0 text-{{ result.grade_color }}">{{ result.grade_letter }}</h1>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <h6 class="text-muted mb-2">ស្ថានភាព / Status</h6>
+                                {% if result.is_passed %}
+                                <h2 class="text-success mb-0">
+                                    <i class="bi bi-check-circle-fill"></i><br>
+                                    <span class="h4">ជាប់</span>
+                                </h2>
+                                {% else %}
+                                <h2 class="text-danger mb-0">
+                                    <i class="bi bi-x-circle-fill"></i><br>
+                                    <span class="h4">ធ្លាក់</span>
+                                </h2>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-bar-chart-fill"></i> ចំណាត់ថ្នាក់ក្នុងថ្នាក់ / Class Rank</h6>
+                                <h3 class="mb-0">អនុក្រឹត្យទី #{{ rank_in_class }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-secondary">
+                                <h6><i class="bi bi-graph-up"></i> ពិន្ទុមធ្យមថ្នាក់ / Class Average</h6>
+                                <h3 class="mb-0">{{ class_avg }}/{{ result.exam.max_score }}</h3>
+                                {% if result.score > class_avg %}
+                                <small class="text-success"><i class="bi bi-arrow-up"></i> លើសពីមធ្យម</small>
+                                {% elif result.score < class_avg %}
+                                <small class="text-danger"><i class="bi bi-arrow-down"></i> ក្រោមមធ្យម</small>
+                                {% else %}
+                                <small class="text-info">ស្មើនឹងមធ្យម</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Info -->
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="alert {% if result.was_present %}alert-success{% else %}alert-danger{% endif %}">
+                                <h6><i class="bi bi-calendar-check"></i> វត្តមាន / Attendance</h6>
+                                {% if result.was_present %}
+                                <p class="mb-0"><strong>បានមកប្រឡង</strong> - សិស្សបានចូលរួមក្នុងការប្រឡងនេះ</p>
+                                {% else %}
+                                <p class="mb-0">
+                                    <strong>អវត្តមាន</strong>
+                                    {% if result.absent_reason %}
+                                    <br><em>មូលហេតុ: {{ result.absent_reason }}</em>
+                                    {% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Feedback -->
+    {% if result.remarks or result.strengths or result.areas_to_improve %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> មតិយោបល់របស់គ្រូ / Teacher Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if result.remarks %}
+                    <div class="mb-3">
+                        <h6><i class="bi bi-pencil"></i> មតិយោបល់ទូទៅ / General Remarks:</h6>
+                        <p class="border-start border-4 border-warning ps-3 py-2 bg-light">{{ result.remarks }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if result.strengths %}
+                    <div class="mb-3">
+                        <h6 class="text-success"><i class="bi bi-check-circle"></i> ចំណុចខ្លាំង / Strengths:</h6>
+                        <p class="border-start border-4 border-success ps-3 py-2 bg-light">{{ result.strengths }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if result.areas_to_improve %}
+                    <div class="mb-0">
+                        <h6 class="text-info"><i class="bi bi-arrow-up-circle"></i> ចំណុចត្រូវកែលម្អ / Areas to Improve:</h6>
+                        <p class="border-start border-4 border-info ps-3 py-2 bg-light mb-0">{{ result.areas_to_improve }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Performance History in Same Subject -->
+    {% if other_results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> ប្រវត្តិលទ្ធផល - {{ result.exam.subject.name }} / Performance History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ថ្ងៃ / Date</th>
+                                    <th>ប្រភេទប្រឡង / Exam Type</th>
+                                    <th>ឈ្មោះប្រឡង / Name</th>
+                                    <th class="text-center">ពិន្ទុ / Score</th>
+                                    <th class="text-center">ភាគរយ / %</th>
+                                    <th class="text-center">ពិន្ទុអក្សរ / Grade</th>
+                                    <th class="text-center">ស្ថានភាព / Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for other in other_results %}
+                                <tr>
+                                    <td>{{ other.exam.date|date:"d M Y" }}</td>
+                                    <td><span class="badge bg-secondary">{{ other.exam.exam_type.name }}</span></td>
+                                    <td>{{ other.exam.name }}</td>
+                                    <td class="text-center"><strong>{{ other.score }}/{{ other.exam.max_score }}</strong></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ other.grade_color }}">{{ other.percentage }}%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ other.grade_color }} fs-5">{{ other.grade_letter }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if other.is_passed %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> ជាប់</span>
+                                        {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> ធ្លាក់</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Metadata -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <div class="row text-muted small">
+                        <div class="col-md-6">
+                            <i class="bi bi-clock-history"></i> <strong>បានបញ្ចូលពិន្ទុ:</strong> {{ result.recorded_at|date:"d M Y, H:i" }}
+                            {% if result.recorded_by %}
+                            <br><i class="bi bi-person"></i> <strong>បញ្ចូលដោយ:</strong> {{ result.recorded_by.get_full_name|default:result.recorded_by.username }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            {% if result.updated_at != result.recorded_at %}
+                            <i class="bi bi-pencil-square"></i> <strong>ធ្វើបច្ចុប្បន្នភាព:</strong> {{ result.updated_at|date:"d M Y, H:i" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-4 {
+    border-left-width: 4px !important;
+}
+</style>
+{% endblock %}

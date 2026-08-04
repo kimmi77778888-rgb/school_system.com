@@ -9,7 +9,7 @@ from django.urls import reverse
 from .decorators import admin_required, admin_or_teacher, all_roles, role_required
 from .models import (
     Student, Teacher, Classroom, Grade, Subject,
-    Attendance, TeacherAttendance, Score, AcademicYear, ExamType, Exam,
+    Attendance, TeacherAttendance, Score, AcademicYear, ExamType, Exam, ExamResult,
     Timetable, TimeSlot, Notification, NotificationRead,
     ReportCard, SchoolEvent, UserProfile, SchoolSettings
 )
@@ -1615,6 +1615,134 @@ def exam_bulk_delete(request):
         else:
             messages.warning(request, 'មិនមានការប្រឡងដែលបានជ្រើសរើស។')
     return redirect('school:exam_list')
+
+@admin_or_teacher
+def exam_detail(request, pk):
+    """
+    Display exam details with all student results
+    បង្ហាញលទ្ធផលប្រឡងលម្អិត
+    """
+    from django.db.models import Avg, Count, Q
+    
+    exam = get_object_or_404(Exam.objects.select_related(
+        'subject', 'classroom', 'classroom__grade', 'exam_type', 'academic_year', 'created_by'
+    ), pk=pk)
+    
+    # Get all exam results for this exam
+    results = exam.exam_results.select_related('student').order_by('-score', 'student__last_name')
+    
+    # Calculate statistics
+    total_students = exam.classroom.students.filter(is_active=True).count()
+    total_results = results.count()
+    completion_rate = round((total_results / total_students * 100), 1) if total_students > 0 else 0
+    
+    # Score statistics
+    if results.exists():
+        avg_score = results.aggregate(Avg('score'))['score__avg']
+        avg_percentage = round(avg_score / exam.max_score * 100, 1) if exam.max_score > 0 else 0
+        passed_count = results.filter(is_passed=True).count()
+        failed_count = total_results - passed_count
+        pass_rate = round((passed_count / total_results * 100), 1) if total_results > 0 else 0
+        
+        # Grade distribution
+        grade_distribution = {
+            'A': results.filter(grade_letter='A').count(),
+            'B': results.filter(grade_letter='B').count(),
+            'C': results.filter(grade_letter='C').count(),
+            'D': results.filter(grade_letter='D').count(),
+            'F': results.filter(grade_letter='F').count(),
+        }
+        
+        # Top performers
+        top_results = results[:5]
+        
+        # Students who need help
+        low_results = results.filter(Q(score__lt=exam.passing_score) | Q(is_passed=False))[:10]
+    else:
+        avg_score = 0
+        avg_percentage = 0
+        passed_count = 0
+        failed_count = 0
+        pass_rate = 0
+        grade_distribution = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0}
+        top_results = []
+        low_results = []
+    
+    # Get students without results
+    students_with_results = results.values_list('student_id', flat=True)
+    students_without_results = exam.classroom.students.filter(
+        is_active=True
+    ).exclude(id__in=students_with_results).order_by('last_name', 'first_name')
+    
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
+    
+    context = {
+        'exam': exam,
+        'results': results,
+        'total_students': total_students,
+        'total_results': total_results,
+        'completion_rate': completion_rate,
+        'avg_score': round(avg_score, 2) if avg_score else 0,
+        'avg_percentage': avg_percentage,
+        'passed_count': passed_count,
+        'failed_count': failed_count,
+        'pass_rate': pass_rate,
+        'grade_distribution': grade_distribution,
+        'top_results': top_results,
+        'low_results': low_results,
+        'students_without_results': students_without_results,
+        'role': role,
+    }
+    
+    return render(request, 'school/exam_detail.html', context)
+
+@admin_or_teacher
+def exam_result_detail(request, pk):
+    """
+    Display individual exam result detail for a student
+    បង្ហាញលទ្ធផលប្រឡងលម្អិតសម្រាប់សិស្សម្នាក់
+    """
+    from .models import ExamResult
+    
+    result = get_object_or_404(ExamResult.objects.select_related(
+        'exam', 'exam__subject', 'exam__classroom', 'exam__exam_type', 
+        'exam__academic_year', 'student', 'recorded_by'
+    ), pk=pk)
+    
+    # Get student's other results in same subject
+    other_results = ExamResult.objects.filter(
+        student=result.student,
+        exam__subject=result.exam.subject
+    ).exclude(id=result.id).select_related('exam', 'exam__exam_type').order_by('-exam__date')
+    
+    # Calculate student's rank in class for this exam
+    better_results = ExamResult.objects.filter(
+        exam=result.exam,
+        score__gt=result.score
+    ).count()
+    rank_in_class = better_results + 1
+    
+    # Get class average for comparison
+    from django.db.models import Avg
+    class_avg = ExamResult.objects.filter(exam=result.exam).aggregate(Avg('score'))['score__avg']
+    
+    try:
+        role = request.user.profile.role
+    except Exception:
+        role = 'teacher'
+    
+    context = {
+        'result': result,
+        'other_results': other_results,
+        'rank_in_class': rank_in_class,
+        'class_avg': round(class_avg, 2) if class_avg else 0,
+        'role': role,
+    }
+    
+    return render(request, 'school/exam_result_detail.html', context)
 
 @admin_or_teacher
 def score_list(request):

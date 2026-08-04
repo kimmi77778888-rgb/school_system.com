@@ -43,6 +43,7 @@
       <td>{{ exam.date }}</td>
       <td>{{ exam.max_score }}</td>
       <td>
+        <a href="{% url 'school:exam_detail' exam.pk %}" class="btn btn-outline-info btn-sm" title="មើលលម្អិត"><i class="bi bi-eye"></i></a>
         <a href="{% url 'school:exam_edit' exam.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
         <a href="{% url 'school:exam_delete' exam.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
       </td>
