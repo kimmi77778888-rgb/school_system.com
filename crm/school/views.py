@@ -1525,9 +1525,25 @@ def teacher_attendance_bulk(request):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def exam_list(request):
-    exams = Exam.objects.select_related('subject','classroom','exam_type','academic_year').order_by('-date')
+    from django.core.paginator import Paginator
+    
+    exams = Exam.objects.select_related(
+        'subject', 'classroom', 'exam_type', 'academic_year',
+        'classroom__grade'
+    ).order_by('-date')
+    
+    # Add pagination to prevent timeout
+    paginator = Paginator(exams, 50)  # Show 50 exams per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     role = getattr(request.user.profile, 'role', 'teacher') if hasattr(request.user, 'profile') else 'teacher'
-    return render(request, 'school/exam_list.html', {'exams': exams, 'role': role})
+    
+    return render(request, 'school/exam_list.html', {
+        'exams': page_obj,
+        'page_obj': page_obj,
+        'role': role
+    })
 
 @admin_or_teacher
 def exam_add(request):
