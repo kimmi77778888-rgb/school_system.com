@@ -516,8 +516,8 @@ class Exam(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled', verbose_name='ស្ថានភាព')
     
     # Metadata
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams_created', verbose_name='បង្កើតដោយ')
 
     def save(self, *args, **kwargs):
@@ -596,8 +596,8 @@ class ExamResult(models.Model):
     areas_to_improve = models.TextField(blank=True, verbose_name='ចំណុចត្រូវកែលម្អ')
     
     # Metadata
-    recorded_at   = models.DateTimeField(auto_now_add=True, verbose_name='ថ្ងៃបញ្ចូលពិន្ទុ')
-    updated_at    = models.DateTimeField(auto_now=True)
+    recorded_at   = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='ថ្ងៃបញ្ចូលពិន្ទុ')
+    updated_at    = models.DateTimeField(auto_now=True, null=True, blank=True)
     recorded_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exam_results_recorded', verbose_name='បញ្ចូលដោយ')
     
     def save(self, *args, **kwargs):
