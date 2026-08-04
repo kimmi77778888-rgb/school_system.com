@@ -819,8 +819,6 @@ def student_promote(request):
         'next_classrooms': next_classrooms,
         'next_classrooms_with_info': next_classrooms_with_timetable_info,
     })
-        'next_classrooms': next_classrooms,
-    })
 
 
 # ══════════════════════════════════════════════
