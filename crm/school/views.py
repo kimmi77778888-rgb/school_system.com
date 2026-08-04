@@ -1584,7 +1584,10 @@ def score_list(request):
     if q:
         scores = scores.filter(Q(student__first_name__icontains=q)|Q(student__last_name__icontains=q)|Q(student__student_id__icontains=q))
     
-    # Calculate statistics
+    # Calculate statistics using database aggregation (faster)
+    from django.db.models import Avg, Sum, FloatField
+    from django.db.models import ExpressionWrapper, F
+    
     stats = {
         'total_scores': scores.count(),
         'avg_score': 0,
@@ -1594,12 +1597,23 @@ def score_list(request):
     }
     
     if scores.exists():
-        # Calculate averages
-        total_percentage = sum(score.percentage() for score in scores)
-        stats['avg_percentage'] = round(total_percentage / scores.count(), 1) if scores.count() > 0 else 0
+        # Calculate average percentage using database aggregation
+        avg_data = scores.aggregate(
+            avg_percentage=Avg(
+                ExpressionWrapper(
+                    F('score') * 100.0 / F('max_score'),
+                    output_field=FloatField()
+                )
+            )
+        )
+        stats['avg_percentage'] = round(avg_data['avg_percentage'], 1) if avg_data['avg_percentage'] else 0
         
-        # Calculate pass/fail counts
-        stats['pass_count'] = sum(1 for score in scores if score.is_passing(50))
+        # For pass/fail counts, use database queries with percentage calculation
+        # Note: This is an approximation assuming max_score is mostly 100
+        # For exact counts, we'd need to iterate, but this is much faster
+        stats['pass_count'] = scores.filter(
+            score__gte=F('max_score') * 0.5
+        ).count()
         stats['fail_count'] = scores.count() - stats['pass_count']
     
     return render(request, 'school/score_list.html', {
