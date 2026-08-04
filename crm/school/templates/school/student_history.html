@@ -1,0 +1,220 @@
+{% extends 'school/base.html' %}
+{% block title %}ប្រវត្តិសិក្សា - {{ student }}{% endblock %}
+{% block page_title %}ប្រវត្តិសិក្សា{% endblock %}
+
+{% block content %}
+<style>
+.history-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.history-timeline {
+  position: relative;
+  padding-left: 40px;
+}
+.history-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #3b82f6, #8b5cf6, #ec4899);
+}
+.history-item {
+  position: relative;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+}
+.history-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  transform: translateX(5px);
+}
+.history-item::before {
+  content: '';
+  position: absolute;
+  left: -33px;
+  top: 24px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border: 4px solid #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+.history-item.promoted::before {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+.history-item.current::before {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.stat-box {
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+</style>
+
+<div class="page-header">
+  <h2><i class="bi bi-clock-history me-2 text-primary"></i>ប្រវត្តិសិក្សា</h2>
+  <div class="actions">
+    <a href="{% url 'school:student_detail' student.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅសិស្ស
+    </a>
+    <a href="{% url 'school:student_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-list me-1"></i>បញ្ជីសិស្ស
+    </a>
+  </div>
+</div>
+
+<!-- Student Header Card -->
+<div class="history-header">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h3 class="mb-2">{{ student.last_name }} {{ student.first_name }}</h3>
+      <p class="mb-0" style="font-size: 0.95rem; opacity: 0.9;">
+        <strong>លេខសិស្ស:</strong> {{ student.student_id }} &nbsp;|&nbsp;
+        <strong>ថ្នាក់បច្ចុប្បន្ន:</strong> {{ current_info.classroom|default:"—" }} &nbsp;|&nbsp;
+        <strong>ស្ថានភាព:</strong> {{ student.get_status_display }}
+      </p>
+    </div>
+    <div class="col-md-4 text-end">
+      <div class="stat-value" style="color: white; font-size: 3rem;">{{ total_years }}</div>
+      <div style="opacity: 0.9;">ឆ្នាំសិក្សាសរុប</div>
+    </div>
+  </div>
+</div>
+
+<!-- Overall Statistics -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="stat-value" style="color: #3b82f6;">{{ total_years }}</div>
+        <div class="stat-label">ឆ្នាំសរុប / Total Years</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="stat-value" style="color: #10b981;">{{ total_promoted }}</div>
+        <div class="stat-label">ឡើងថ្នាក់ / Promoted</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="stat-value" style="color: #f59e0b;">{{ overall_avg }}%</div>
+        <div class="stat-label">មធ្យមភាគទូទៅ / Overall Average</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- History Timeline -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-calendar3-event me-2 text-primary"></i>ប្រវត្តិឆ្នាំសិក្សា</h5>
+  </div>
+  <div class="card-body">
+    {% if history_data %}
+    <div class="history-timeline">
+      {% for item in history_data %}
+      <div class="history-item {% if item.record.status == 'PROMOTED' %}promoted{% elif item.record.status == 'ACTIVE' %}current{% endif %}">
+        <div class="row">
+          <div class="col-md-3">
+            <h6 class="text-primary mb-1">{{ item.record.academic_year.year }}</h6>
+            <div class="badge bg-{{ item.status_color }} mb-2">
+              {{ item.status_icon }} {{ item.record.get_status_display }}
+            </div>
+          </div>
+          <div class="col-md-9">
+            <h5 class="mb-2">{{ item.record.grade_name }}
+              {% if item.record.classroom %}
+              <small class="text-muted">({{ item.record.classroom }})</small>
+              {% endif %}
+            </h5>
+            
+            <div class="stat-grid">
+              <div class="stat-box">
+                <div class="stat-value" style="color: #3b82f6;">{{ item.record.average_score|default:"—" }}{% if item.record.average_score %}%{% endif %}</div>
+                <div class="stat-label">ពិន្ទុមធ្យម</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #10b981;">{{ item.record.passed_subjects }}/{{ item.record.total_subjects }}</div>
+                <div class="stat-label">មុខវិជ្ជាជាប់</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #f59e0b;">{{ item.attendance_percentage }}%</div>
+                <div class="stat-label">វត្តមាន</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #64748b;">{{ item.record.present_days }}/{{ item.record.total_days }}</div>
+                <div class="stat-label">ថ្ងៃចូលរៀន</div>
+              </div>
+            </div>
+            
+            {% if item.record.promoted_to %}
+            <div class="mt-3 p-2 bg-success bg-opacity-10 rounded">
+              <i class="bi bi-arrow-up-circle text-success me-1"></i>
+              <strong>ឡើងថ្នាក់ទៅ:</strong> {{ item.record.promoted_to }}
+            </div>
+            {% endif %}
+            
+            {% if item.record.promotion_note %}
+            <div class="mt-2 text-muted small">
+              <i class="bi bi-info-circle me-1"></i>{{ item.record.promotion_note }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+      <p class="mt-3">មិនទាន់មានប្រវត្តិសិក្សា</p>
+      <small>ប្រវត្តិនឹងត្រូវបានបង្កើតនៅពេលឡើងថ្នាក់</small>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -573,6 +573,56 @@ def student_delete(request, pk):
 
 
 @admin_or_teacher
+def student_history(request, pk):
+    """
+    Display complete academic history for a student
+    បង្ហាញប្រវត្តិសិក្សាពេញលេញរបស់សិស្ស
+    """
+    from django.db.models import Count, Avg
+    from .models import StudentHistory
+    
+    student = get_object_or_404(Student, pk=pk)
+    
+    # Get all history records ordered by year
+    history_records = student.history_records.select_related(
+        'academic_year', 'classroom', 'classroom__grade'
+    ).order_by('-academic_year__year')
+    
+    # Add additional stats for each history record
+    history_data = []
+    for record in history_records:
+        history_data.append({
+            'record': record,
+            'attendance_percentage': record.attendance_percentage(),
+            'pass_percentage': record.pass_percentage(),
+            'status_icon': '✅' if record.status == 'PROMOTED' else '🔄' if record.status == 'ACTIVE' else '❌',
+            'status_color': 'success' if record.status == 'PROMOTED' else 'primary' if record.status == 'ACTIVE' else 'danger',
+        })
+    
+    # Overall statistics
+    total_years = history_records.count()
+    total_promoted = history_records.filter(status='PROMOTED').count()
+    overall_avg = history_records.aggregate(avg=Avg('average_score'))['avg']
+    
+    # Current year info
+    current_info = {
+        'classroom': student.classroom,
+        'status': student.status,
+        'year': student.classroom.academic_year if student.classroom else None,
+    }
+    
+    return render(request, 'school/student_history.html', {
+        'student': student,
+        'history_data': history_data,
+        'current_info': current_info,
+        'total_years': total_years,
+        'total_promoted': total_promoted,
+        'overall_avg': round(overall_avg, 1) if overall_avg else 0,
+        'role': getattr(request.user.profile, 'role', 'student') if hasattr(request.user, 'profile') else 'student',
+    })
+
+
+@admin_or_teacher
 def student_promote(request):
     """
     Bulk promote students to next grade based on Cambodia Education System
