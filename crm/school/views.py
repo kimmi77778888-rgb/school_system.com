@@ -294,6 +294,8 @@ def user_delete(request, pk):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def student_list(request):
+    from django.core.paginator import Paginator
+    
     try:
         role = request.user.profile.role
     except Exception:
@@ -320,13 +322,18 @@ def student_list(request):
     if status_filter:
         students = students.filter(status=status_filter)
     
+    # Add pagination
+    paginator = Paginator(students, 50)  # 50 students per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     classrooms = Classroom.objects.select_related('grade','academic_year')
     
     # Get status choices for filter dropdown
     status_choices = Student.STATUS_CHOICES
     
     return render(request, 'school/student_list.html', {
-        'students': students, 'q': q,
+        'students': page_obj, 'page_obj': page_obj, 'q': q,
         'classrooms': classrooms, 'selected_classroom': classroom_id, 'role': role,
         'status_choices': status_choices, 'selected_status': status_filter,
     })
