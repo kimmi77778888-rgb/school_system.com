@@ -55,38 +55,70 @@
 - `promoted_to`: ឡើងថ្នាក់ទៅណា
 - `promotion_note`: កំណត់សំគាល់ពិសេស (រួមទាំងការផ្ទេរកម្រិត)
 
-### 3. **Student Promotion Logic** - កែតម្រូវពេញលេញ
+### 3. **Student Promotion Logic** - កែតម្រូវពេញលេញតាមស្តង់ដាកម្ពុជា
 
-#### តក្កវិធីឡើងថ្នាក់ | Promotion Logic
+#### លក្ខខណ្ឌឡើងថ្នាក់ | Promotion Criteria (Cambodia Education Standards)
 ```python
-# ជាប់/ធ្លាក់ផ្អែកលើពិន្ទុមធ្យម
-can_promote = avg_percentage >= passing_percentage and total_subjects > 0
+# 1. ពិន្ទុមធ្យម >= passing_percentage (លំនាំដើម: 50%)
+avg_percentage >= passing_percentage
 
-# លំនាំដើម: 50%
-passing_percentage = 50
+# 2. វត្តមាន >= 80% (ត្រូវមកសាលារៀងរាល់ថ្ងៃ)
+attendance_rate >= 80.0
+
+# 3. ត្រូវមានយ៉ាងហោចណាស់ 1 មុខវិជ្ជា
+total_subjects > 0
+
+# លក្ខខណ្ឌសរុប
+can_promote = (
+    avg_percentage >= passing_percentage and 
+    total_subjects > 0 and
+    attendance_rate >= 80.0
+)
 ```
 
 #### ការផ្ទេរកម្រិត | Level Transition Detection
 ```python
 # ថ្នាក់ទី៦ → ថ្នាក់ទី៧ (បឋមសិក្សា → បឋមភូមិ)
 if old_grade_number == 6 and new_grade_number == 7:
-    level_transition = "ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ"
+    level_transition = "✅ ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ"
 
 # ថ្នាក់ទី៩ → ថ្នាក់ទី១០ (បឋមភូមិ → មធ្យមភូមិ)
 if old_grade_number == 9 and new_grade_number == 10:
-    level_transition = "ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ"
+    level_transition = "✅ ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ"
 
 # ថ្នាក់ទី១២ (បញ្ចប់ការសិក្សា)
 if old_grade_number == 12:
-    level_transition = "បញ្ចប់ការសិក្សា"
+    level_transition = "🎓 បញ្ចប់ការសិក្សា"
 ```
 
-#### Strict Grade Progression
+#### Strict Grade Progression (មិនអនុញ្ញាតរំលងថ្នាក់)
 ```python
-# អនុញ្ញាតឡើងតែថ្នាក់បន្ទាប់ប៉ុណ្ណោះ
-# Only allow promotion to immediate next grade
-if classroom.grade.grade_number == current_grade_num + 1:
-    next_classrooms.append(classroom)
+# VALIDATION: ត្រូវឡើងថ្នាក់បន្ទាប់ប៉ុណ្ណោះ
+if new_grade_number != old_grade_number + 1:
+    raise ValidationError("មិនអាចរំលងថ្នាក់បានទេ")
+
+# ឧទាហរណ៍:
+# ថ្នាក់ 1 → ថ្នាក់ 2 ✅
+# ថ្នាក់ 1 → ថ្នាក់ 3 ❌ (រំលងថ្នាក់)
+# ថ្នាក់ 6 → ថ្នាក់ 8 ❌ (រំលងថ្នាក់)
+```
+
+#### Level Transition Validation (ពិនិត្យការផ្ទេរកម្រិត)
+```python
+# ពិនិត្យថាការផ្ទេរកម្រិតត្រឹមត្រូវ
+if old_grade == 6 and new_grade == 7:
+    # ត្រូវផ្ទេរពី primary → lower_secondary
+    if new_level != 'lower_secondary':
+        raise ValidationError("ត្រូវផ្ទេរទៅបឋមភូមិ")
+
+if old_grade == 9 and new_grade == 10:
+    # ត្រូវផ្ទេរពី lower_secondary → upper_secondary
+    if new_level != 'upper_secondary':
+        raise ValidationError("ត្រូវផ្ទេរទៅមធ្យមភូមិ")
+
+# មិនអនុញ្ញាតឡើងថ្នាក់លើសថ្នាក់ទី 12
+if old_grade == 12:
+    raise ValidationError("បញ្ចប់ការសិក្សាហើយ")
 ```
 
 ## 📝 របៀបប្រើប្រាស់ | Usage Guide
@@ -122,9 +154,17 @@ Grade.objects.create(
 3. ជ្រើសរើស **Academic Year** (ឆ្នាំសិក្សា) - optional
 4. កំណត់ **Passing Percentage** (ពិន្ទុជាប់) - default 50%
 5. ចុច **ពិនិត្យលទ្ធផល** ដើម្បីមើលបញ្ជីសិស្ស
-6. ជ្រើសរើស **Next Classroom** (ថ្នាក់ថ្មី)
-7. ធីកសិស្សដែលចង់ឡើងថ្នាក់
-8. ចុច **ដាក់ឡើងថ្នាក់**
+6. **ពិនិត្យលក្ខខណ្ឌឡើងថ្នាក់:**
+   - ✅ ពិន្ទុមធ្យម ≥ 50%
+   - ✅ វត្តមាន ≥ 80%
+   - ✅ មានពិន្ទុយ៉ាងហោចណាស់ 1 មុខវិជ្ជា
+7. ជ្រើសរើស **Next Classroom** (ថ្នាក់ថ្មី) - តែថ្នាក់បន្ទាប់ប៉ុណ្ណោះ
+8. ធីកសិស្សដែលចង់ឡើងថ្នាក់
+9. ចុច **ដាក់ឡើងថ្នាក់**
+10. **ប្រព័ន្ធនឹងពិនិត្យ:**
+    - មិនអនុញ្ញាតរំលងថ្នាក់ ❌
+    - ពិនិត្យការផ្ទេរកម្រិតត្រឹមត្រូវ (6→7, 9→10)
+    - មិនអនុញ្ញាតឡើងថ្នាក់លើសថ្នាក់ទី 12 ❌
 
 ### ជំហានទី៣: មើលប្រវត្តិ | View History
 
@@ -291,4 +331,31 @@ Grade(name="Grade 1", grade_number=None)  # ❌
 ---
 
 **ចុងក្រោយធ្វើបច្ចុប្បន្នភាព:** ថ្ងៃទី 04/08/2026  
-**កំណែ:** 2.0 - Cambodia Education System Aligned
+**កំណែ:** 3.0 - Cambodia Education System Standards Compliance
+
+### 🆕 ការកែលម្អថ្មីនៅកំណែ 3.0
+
+#### 1. ✅ បន្ថែមលក្ខខណ្ឌវត្តមាន (Attendance Requirement)
+- សិស្សត្រូវមានវត្តមាន ≥ 80% ដើម្បីអាចឡើងថ្នាក់
+- បង្ហាញភាគរយវត្តមាននៅក្នុងតារាងឡើងថ្នាក់
+- ពណ៌សញ្ញា: បៃតង (≥80%), លឿង (60-79%), ក្រហម (<60%)
+
+#### 2. ✅ Strict Grade Progression Validation
+- មិនអនុញ្ញាតឱ្យរំលងថ្នាក់ឡើយ
+- ត្រូវឡើងតែថ្នាក់បន្ទាប់ប៉ុណ្ណោះ (Grade N → Grade N+1)
+- ប្រព័ន្ធនឹងបដិសេធសិស្សដែលព្យាយាមរំលងថ្នាក់
+
+#### 3. ✅ Level Transition Validation
+- ពិនិត្យថាការផ្ទេរពី Primary → Lower Secondary (Grade 6→7) ត្រឹមត្រូវ
+- ពិនិត្យថាការផ្ទេរពី Lower Secondary → Upper Secondary (Grade 9→10) ត្រឹមត្រូវ
+- មិនអនុញ្ញាតឡើងថ្នាក់លើសថ្នាក់ទី 12
+
+#### 4. ✅ Enhanced Error Messages
+- សារកំហុសជាភាសាខ្មែរច្បាស់លាស់
+- បង្ហាញបញ្ជីសិស្សដែលមិនអាចឡើងថ្នាក់ និងហេតុផល
+- ការព្រមានមុនពេលដាក់ឡើងថ្នាក់
+
+#### 5. ✅ UI/UX Improvements
+- បង្ហាញលក្ខខណ្ឌឡើងថ្នាក់ច្បាស់លាស់នៅផ្ទាំង Help
+- អេក្រង់បញ្ជាក់ជាមួយព័ត៌មានពេញលេញ
+- Status badges សម្រាប់វត្តមាន និងសមត្ថភាពឡើងថ្នាក់
