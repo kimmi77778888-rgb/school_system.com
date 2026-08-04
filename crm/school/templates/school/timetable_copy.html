@@ -1,0 +1,171 @@
+{% extends 'school/base.html' %}
+{% block title %}ចម្លងកាលវិភាគ{% endblock %}
+{% block page_title %}ចម្លងកាលវិភាគ{% endblock %}
+
+{% block content %}
+<style>
+.copy-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.classroom-option {
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.no-timetable {
+  color: #dc3545;
+  font-weight: bold;
+}
+.has-timetable {
+  color: #28a745;
+  font-weight: bold;
+}
+</style>
+
+<div class="page-header">
+  <h2><i class="bi bi-files me-2 text-primary"></i>ចម្លងកាលវិភាគ</h2>
+  <div class="actions">
+    <a href="{% url 'school:timetable_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ត្រឡប់ទៅកាលវិភាគ
+    </a>
+  </div>
+</div>
+
+<div class="copy-card shadow">
+  <h5><i class="bi bi-info-circle me-2"></i>ព័ត៌មាន</h5>
+  <p class="mb-0">
+    មុខងារនេះអនុញ្ញាតឱ្យអ្នកចម្លងកាលវិភាគពីថ្នាក់មួយទៅថ្នាក់ផ្សេង។ 
+    វាមានប្រយោជន៍នៅពេលបង្កើតកាលវិភាគសម្រាប់ឆ្នាំសិក្សាថ្មីឬថ្នាក់ស្រដៀងគ្នា។
+  </p>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="row g-4">
+        <!-- Source Classroom -->
+        <div class="col-md-6">
+          <h6 class="text-primary mb-3"><i class="bi bi-box-arrow-right me-2"></i>ចម្លងពី (ប្រភព)</h6>
+          
+          <label class="form-label fw-semibold">ថ្នាក់ប្រភព <span class="text-danger">*</span></label>
+          <select name="source_classroom" id="source_classroom" class="form-select" required>
+            <option value="">-- ជ្រើសរើសថ្នាក់ប្រភព --</option>
+            {% for item in classrooms_with_count %}
+            <option value="{{ item.classroom.pk }}" data-count="{{ item.timetable_count }}">
+              {{ item.classroom }} 
+              {% if item.timetable_count > 0 %}
+                ({{ item.timetable_count }} ធាតុ)
+              {% else %}
+                (គ្មានកាលវិភាគ)
+              {% endif %}
+            </option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">ជ្រើសថ្នាក់ដែលមានកាលវិភាគដើម្បីចម្លង</small>
+          
+          <div id="source-warning" class="alert alert-warning mt-3" style="display: none;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            ថ្នាក់នេះមិនមានកាលវិភាគទេ។ សូមជ្រើសថ្នាក់ផ្សេង។
+          </div>
+        </div>
+        
+        <!-- Target Classroom -->
+        <div class="col-md-6">
+          <h6 class="text-success mb-3"><i class="bi bi-box-arrow-in-down me-2"></i>ចម្លងទៅ (គោលដៅ)</h6>
+          
+          <label class="form-label fw-semibold">ថ្នាក់គោលដៅ <span class="text-danger">*</span></label>
+          <select name="target_classroom" id="target_classroom" class="form-select" required>
+            <option value="">-- ជ្រើសរើសថ្នាក់គោលដៅ --</option>
+            {% for item in classrooms_with_count %}
+            <option value="{{ item.classroom.pk }}" data-count="{{ item.timetable_count }}">
+              {{ item.classroom }}
+              {% if item.timetable_count > 0 %}
+                (មាន {{ item.timetable_count }} ធាតុ)
+              {% else %}
+                (ទទេ)
+              {% endif %}
+            </option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">ថ្នាក់ដែលនឹងទទួលកាលវិភាគថ្មី</small>
+          
+          <label class="form-label fw-semibold mt-3">ឆ្នាំសិក្សាគោលដៅ (ជម្រើស)</label>
+          <select name="target_academic_year" class="form-select">
+            <option value="">-- ប្រើឆ្នាំនៃថ្នាក់គោលដៅ --</option>
+            {% for year in academic_years %}
+            <option value="{{ year.pk }}">{{ year }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">ទុកទទេដើម្បីប្រើឆ្នាំសិក្សានៃថ្នាក់គោលដៅ</small>
+          
+          <div id="target-info" class="alert alert-info mt-3" style="display: none;">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            ថ្នាក់នេះមានកាលវិភាគស្រាប់។ សូមពិនិត្យជម្រើសខាងក្រោម។
+          </div>
+        </div>
+      </div>
+      
+      <!-- Replace Option -->
+      <div class="mt-4 pt-4 border-top">
+        <label class="form-label fw-semibold">ប្រសិនថ្នាក់គោលដៅមានកាលវិភាគស្រាប់៖</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="replace_existing" id="replace_no" value="no" checked>
+          <label class="form-check-label" for="replace_no">
+            រក្សាទុកកាលវិភាគចាស់ និងរំលងធាតុដែលមានស្រាប់
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="replace_existing" id="replace_yes" value="yes">
+          <label class="form-check-label text-danger" for="replace_yes">
+            <strong>លុបកាលវិភាគចាស់ទាំងអស់ និងជំនួសដោយកាលវិភាគថ្មី</strong>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Submit -->
+      <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('តើអ្នកប្រាកដជាចង់ចម្លងកាលវិភាគមែនទេ?')">
+          <i class="bi bi-files me-2"></i>ចម្លងកាលវិភាគ
+        </button>
+        <a href="{% url 'school:timetable_list' %}" class="btn btn-outline-secondary btn-lg ms-2">
+          <i class="bi bi-x-circle me-1"></i>បោះបង់
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Check source classroom
+document.getElementById('source_classroom')?.addEventListener('change', function() {
+  const selectedOption = this.options[this.selectedIndex];
+  const count = parseInt(selectedOption.getAttribute('data-count') || '0');
+  const warning = document.getElementById('source-warning');
+  
+  if (this.value && count === 0) {
+    warning.style.display = 'block';
+  } else {
+    warning.style.display = 'none';
+  }
+});
+
+// Check target classroom
+document.getElementById('target_classroom')?.addEventListener('change', function() {
+  const selectedOption = this.options[this.selectedIndex];
+  const count = parseInt(selectedOption.getAttribute('data-count') || '0');
+  const info = document.getElementById('target-info');
+  
+  if (this.value && count > 0) {
+    info.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+  }
+});
+</script>
+
+{% endblock %}

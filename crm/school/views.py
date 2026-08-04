@@ -782,8 +782,9 @@ def student_promote(request):
                 messages.success(request, f'✅ បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។ ប្រវត្តិត្រូវបានរក្សាទុក។')
             return redirect('school:student_list')
     
-    # Get available next grade classrooms
+    # Get available next grade classrooms with timetable info
     next_classrooms = []
+    next_classrooms_with_timetable_info = []
     if current_classroom_id:
         current_classroom = Classroom.objects.get(pk=current_classroom_id)
         current_grade = current_classroom.grade
@@ -798,6 +799,15 @@ def student_promote(request):
                     # Allow promotion to next grade only (strict progression)
                     if classroom.grade.grade_number == current_grade_num + 1:
                         next_classrooms.append(classroom)
+                        
+                        # Check if classroom has timetable
+                        has_timetable = classroom.timetables.exists()
+                        timetable_count = classroom.timetables.count()
+                        next_classrooms_with_timetable_info.append({
+                            'classroom': classroom,
+                            'has_timetable': has_timetable,
+                            'timetable_count': timetable_count
+                        })
     
     return render(request, 'school/student_promote.html', {
         'classrooms': classrooms,
@@ -806,6 +816,9 @@ def student_promote(request):
         'current_classroom_id': current_classroom_id,
         'academic_year_id': academic_year_id,
         'passing_percentage': passing_percentage,
+        'next_classrooms': next_classrooms,
+        'next_classrooms_with_info': next_classrooms_with_timetable_info,
+    })
         'next_classrooms': next_classrooms,
     })
 
@@ -1886,6 +1899,94 @@ def timetable_add(request):
         form.save(); messages.success(request, 'តារាងម៉ោងបានបន្ថែម។')
         return redirect('school:timetable_list')
     return render(request, 'school/form.html', {'form': form, 'title': 'បន្ថែមតារាងម៉ោង', 'back_url': reverse('school:timetable_list')})
+
+@admin_required
+def timetable_copy(request):
+    """
+    Copy timetable from one classroom/year to another
+    ចម្លងកាលវិភាគពីថ្នាក់មួយទៅថ្នាក់ផ្សេង
+    """
+    if request.method == 'POST':
+        source_classroom_id = request.POST.get('source_classroom')
+        target_classroom_id = request.POST.get('target_classroom')
+        target_academic_year_id = request.POST.get('target_academic_year')
+        
+        if source_classroom_id and target_classroom_id:
+            source_classroom = get_object_or_404(Classroom, pk=source_classroom_id)
+            target_classroom = get_object_or_404(Classroom, pk=target_classroom_id)
+            
+            # Use target academic year if specified, otherwise use target classroom's year
+            if target_academic_year_id:
+                target_year = get_object_or_404(AcademicYear, pk=target_academic_year_id)
+            else:
+                target_year = target_classroom.academic_year
+            
+            # Get source timetables
+            source_timetables = Timetable.objects.filter(classroom=source_classroom)
+            
+            if not source_timetables.exists():
+                messages.warning(request, f'⚠️ ថ្នាក់ {source_classroom} មិនមានកាលវិភាគទេ។')
+                return redirect('school:timetable_copy')
+            
+            # Delete existing timetables for target if requested
+            replace_existing = request.POST.get('replace_existing') == 'yes'
+            if replace_existing:
+                deleted_count = Timetable.objects.filter(
+                    classroom=target_classroom,
+                    academic_year=target_year
+                ).delete()[0]
+                if deleted_count > 0:
+                    messages.info(request, f'🗑️ បានលុបកាលវិភាគចាស់ {deleted_count} ធាតុ។')
+            
+            # Copy timetables
+            copied_count = 0
+            skipped_count = 0
+            
+            for source_tt in source_timetables:
+                # Check if already exists (to avoid duplicates)
+                exists = Timetable.objects.filter(
+                    classroom=target_classroom,
+                    time_slot=source_tt.time_slot,
+                    academic_year=target_year
+                ).exists()
+                
+                if not exists:
+                    Timetable.objects.create(
+                        classroom=target_classroom,
+                        subject=source_tt.subject,
+                        teacher=source_tt.teacher,
+                        time_slot=source_tt.time_slot,
+                        academic_year=target_year,
+                        room=source_tt.room
+                    )
+                    copied_count += 1
+                else:
+                    skipped_count += 1
+            
+            if copied_count > 0:
+                messages.success(request, f'✅ បានចម្លងកាលវិភាគ {copied_count} ធាតុទៅ {target_classroom} ({target_year})។')
+            if skipped_count > 0:
+                messages.info(request, f'ℹ️ រំលងធាតុដែលមានស្រាប់ {skipped_count} ធាតុ។')
+            
+            return redirect('school:timetable_list')
+    
+    # GET request - show form
+    classrooms = Classroom.objects.select_related('grade', 'academic_year').order_by('grade__grade_number')
+    academic_years = AcademicYear.objects.all()
+    
+    # Add timetable count to classrooms
+    classrooms_with_count = []
+    for classroom in classrooms:
+        count = classroom.timetables.count()
+        classrooms_with_count.append({
+            'classroom': classroom,
+            'timetable_count': count
+        })
+    
+    return render(request, 'school/timetable_copy.html', {
+        'classrooms_with_count': classrooms_with_count,
+        'academic_years': academic_years,
+    })
 
 @admin_required
 def timetable_edit(request, pk):

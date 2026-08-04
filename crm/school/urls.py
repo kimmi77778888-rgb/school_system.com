@@ -87,6 +87,7 @@ urlpatterns = [
     # Timetable
     path('timetable/',                  views.timetable_list,   name='timetable_list'),
     path('timetable/add/',              views.timetable_add,    name='timetable_add'),
+    path('timetable/copy/',             views.timetable_copy,   name='timetable_copy'),
     path('timetable/<int:pk>/edit/',    views.timetable_edit,   name='timetable_edit'),
     path('timetable/<int:pk>/delete/',  views.timetable_delete, name='timetable_delete'),
 

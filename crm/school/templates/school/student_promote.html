@@ -122,13 +122,26 @@
         <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>បញ្ជីសិស្ស</h5>
         <div>
           <label class="form-label fw-semibold me-2 mb-0">ថ្នាក់ថ្មី:</label>
-          <select name="next_classroom" class="form-select d-inline-block" style="width: auto;" required>
+          <select name="next_classroom" id="next_classroom_select" class="form-select d-inline-block" style="width: auto;" required>
             <option value="">-- ជ្រើសរើសថ្នាក់ថ្មី --</option>
-            {% for cls in next_classrooms %}
-            <option value="{{ cls.pk }}">{{ cls }}</option>
+            {% for info in next_classrooms_with_info %}
+            <option value="{{ info.classroom.pk }}" 
+                    data-has-timetable="{{ info.has_timetable }}"
+                    data-timetable-count="{{ info.timetable_count }}">
+              {{ info.classroom }}
+              {% if not info.has_timetable %} ⚠️ គ្មានកាលវិភាគ{% endif %}
+            </option>
             {% endfor %}
           </select>
         </div>
+      </div>
+      <!-- Timetable Warning Alert -->
+      <div id="timetable-warning" class="alert alert-warning mt-3 mb-0" style="display: none;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>ប្រយ័ត្ន:</strong> ថ្នាក់ដែលបានជ្រើសរើស <strong>មិនទាន់មានកាលវិភាគ</strong>។ 
+        សិស្សនឹងមិនឃើញកាលវិភាគនៅពេលឡើងថ្នាក់ទេ។
+        សូមបង្កើតកាលវិភាគសម្រាប់ថ្នាក់ថ្មីមុន ឬបន្ទាប់ពីឡើងថ្នាក់។
+        <a href="{% url 'school:timetable_list' %}" target="_blank" class="alert-link">បង្កើតកាលវិភាគ »</a>
       </div>
     </div>
     <div class="table-responsive">
@@ -206,9 +219,23 @@
 {% endif %}
 
 <script>
+// Select All checkbox
 document.getElementById('selectAll')?.addEventListener('change', function() {
   const checkboxes = document.querySelectorAll('.student-checkbox');
   checkboxes.forEach(cb => cb.checked = this.checked);
+});
+
+// Timetable warning when selecting next classroom
+document.getElementById('next_classroom_select')?.addEventListener('change', function() {
+  const selectedOption = this.options[this.selectedIndex];
+  const hasTimetable = selectedOption.getAttribute('data-has-timetable') === 'True';
+  const warningDiv = document.getElementById('timetable-warning');
+  
+  if (this.value && !hasTimetable) {
+    warningDiv.style.display = 'block';
+  } else {
+    warningDiv.style.display = 'none';
+  }
 });
 </script>
 
