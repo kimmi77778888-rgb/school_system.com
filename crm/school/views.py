@@ -1010,12 +1010,21 @@ def student_promote(request):
 # ══════════════════════════════════════════════
 @admin_or_teacher
 def teacher_list(request):
+    from django.core.paginator import Paginator
+    
     q = request.GET.get('q', '')
-    teachers = Teacher.objects.filter(is_active=True)
+    teachers = Teacher.objects.filter(is_active=True).select_related('user')
     if q:
         teachers = teachers.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(subject_specialty__icontains=q))
+    
+    # Add pagination
+    paginator = Paginator(teachers, 50)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     return render(request, 'school/teacher_list.html', {
-        'teachers': teachers, 'q': q, 'role': getattr(request.user.profile, 'role', 'admin') if hasattr(request.user, 'profile') else 'admin'
+        'teachers': page_obj, 'page_obj': page_obj, 'q': q, 
+        'role': getattr(request.user.profile, 'role', 'admin') if hasattr(request.user, 'profile') else 'admin'
     })
 
 @admin_or_teacher
@@ -2228,6 +2237,8 @@ def timetable_delete(request, pk):
 # ══════════════════════════════════════════════
 @login_required
 def notification_list(request):
+    from django.core.paginator import Paginator
+    
     try:
         role = request.user.profile.role
     except Exception:
@@ -2240,8 +2251,16 @@ def notification_list(request):
         notifs = notifs.filter(audience__in=['all','parents'])
     elif role == 'student':
         notifs = notifs.filter(audience__in=['all','students'])
+    
+    notifs = notifs.order_by('-created_at')
+    
+    # Add pagination
+    paginator = Paginator(notifs, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
     return render(request, 'school/notification_list.html', {
-        'notifications': notifs.order_by('-created_at'), 'role': role
+        'notifications': page_obj, 'page_obj': page_obj, 'role': role
     })
 
 @admin_or_teacher
