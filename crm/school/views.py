@@ -177,16 +177,26 @@ def dashboard(request):
 
     # ── ADMIN dashboard ──────────────────────
     if role == 'admin':
+        # Use count() directly on filtered querysets for better performance
+        from django.db.models import Count, Q
+        
+        # Get attendance stats efficiently
+        today_attendance = Attendance.objects.filter(date=today).aggregate(
+            present=Count('id', filter=Q(status='P')),
+            absent=Count('id', filter=Q(status='A')),
+            late=Count('id', filter=Q(status='L'))
+        )
+        
         return render(request, 'school/dashboard.html', {
             'role': role,
             'total_students':   Student.objects.filter(is_active=True).count(),
             'total_teachers':   Teacher.objects.filter(is_active=True).count(),
             'total_classrooms': Classroom.objects.count(),
             'total_subjects':   Subject.objects.count(),
-            'today_present': Attendance.objects.filter(date=today, status='P').count(),
-            'today_absent':  Attendance.objects.filter(date=today, status='A').count(),
-            'today_late':    Attendance.objects.filter(date=today, status='L').count(),
-            'recent_students': Student.objects.filter(is_active=True).order_by('-enrolled_date')[:5],
+            'today_present': today_attendance['present'] or 0,
+            'today_absent':  today_attendance['absent'] or 0,
+            'today_late':    today_attendance['late'] or 0,
+            'recent_students': Student.objects.filter(is_active=True).select_related('classroom').order_by('-enrolled_date')[:5],
             'recent_scores':   Score.objects.select_related('student','subject','exam_type').order_by('-date_recorded')[:5],
             'notifications': notifications,
             'upcoming_events': upcoming_events,
@@ -195,20 +205,29 @@ def dashboard(request):
 
     # ── TEACHER dashboard ────────────────────
     if role == 'teacher':
+        from django.db.models import Count, Q
+        
         try:
             teacher = request.user.profile.teacher
         except Exception:
             teacher = None
         my_classes   = Classroom.objects.filter(homeroom_teacher=teacher) if teacher else Classroom.objects.none()
         my_students  = Student.objects.filter(classroom__in=my_classes, is_active=True) if teacher else Student.objects.none()
-        today_att    = Attendance.objects.filter(date=today, student__in=my_students)
+        
+        # Optimize attendance counting
+        today_att_stats = Attendance.objects.filter(date=today, student__in=my_students).aggregate(
+            present=Count('id', filter=Q(status='P')),
+            absent=Count('id', filter=Q(status='A')),
+            late=Count('id', filter=Q(status='L'))
+        )
+        
         return render(request, 'school/dashboard_teacher.html', {
             'role': role, 'teacher': teacher,
             'my_classes': my_classes,
             'my_students_count': my_students.count(),
-            'today_present': today_att.filter(status='P').count(),
-            'today_absent':  today_att.filter(status='A').count(),
-            'today_late':    today_att.filter(status='L').count(),
+            'today_present': today_att_stats['present'] or 0,
+            'today_absent':  today_att_stats['absent'] or 0,
+            'today_late':    today_att_stats['late'] or 0,
             'recent_scores': Score.objects.filter(student__in=my_students).select_related('student','subject','exam_type').order_by('-date_recorded')[:5],
             'notifications': notifications,
             'upcoming_events': upcoming_events,
