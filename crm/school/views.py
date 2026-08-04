@@ -1932,7 +1932,7 @@ def timetable_list(request):
         9: '16:15-17:05',
     }
     
-    return render(request, 'school/timetable_grid.html', {
+    return render(request, 'school/timetable_list.html', {
         'timetables': timetables,
         'classrooms': classrooms,
         'years': years,
