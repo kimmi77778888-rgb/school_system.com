@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     AcademicYear, Grade, Teacher, TeacherDocument, Classroom, Student, StudentHistory, Subject,
-    Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, Score, TimeSlot, Timetable,
+    Attendance, TeacherAttendance, TeacherEmploymentHistory, ExamType, Exam, ExamResult, Score, TimeSlot, Timetable,
     Notification, NotificationRead, ReportCard, SchoolEvent,
     UserProfile, LoginHistory, SchoolSettings
 )
@@ -185,15 +185,96 @@ class TeacherEmploymentHistoryAdmin(admin.ModelAdmin):
 
 @admin.register(ExamType)
 class ExamTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'code', 'weight_percentage', 'is_active')
+    list_editable = ('is_active',)
+    search_fields = ('name', 'code')
 
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'exam_type', 'subject', 'classroom', 'date', 'max_score')
-    list_filter  = ('exam_type', 'academic_year', 'classroom')
+    list_display = ('exam_id', 'name', 'exam_type', 'subject', 'classroom', 'date', 'status', 
+                   'total_students', 'total_results_submitted', 'completion_percentage', 'average_score', 'pass_rate')
+    list_filter = ('status', 'exam_type', 'academic_year', 'classroom')
+    search_fields = ('name', 'exam_id', 'subject__name')
+    readonly_fields = ('exam_id', 'created_at', 'updated_at', 'total_students', 
+                      'total_results_submitted', 'completion_percentage', 'average_score', 'pass_rate')
     date_hierarchy = 'date'
-    readonly_fields = ('exam_id',)
+    
+    fieldsets = (
+        ('ព័ត៌មានមូលដ្ឋាន (Basic Information)', {
+            'fields': ('exam_id', 'name', 'exam_type', 'subject', 'classroom', 'academic_year')
+        }),
+        ('កាលបរិច្ឆេទនិងពេលវេលា (Date & Time)', {
+            'fields': ('date', 'exam_time', 'duration_minutes')
+        }),
+        ('ពិន្ទុ (Scoring)', {
+            'fields': ('max_score', 'passing_score')
+        }),
+        ('ស្ថានភាព (Status)', {
+            'fields': ('status',)
+        }),
+        ('ព័ត៌មានបន្ថែម (Additional Info)', {
+            'fields': ('description', 'instructions')
+        }),
+        ('សារសង្ខេប (Summary)', {
+            'fields': ('total_students', 'total_results_submitted', 'completion_percentage', 
+                      'average_score', 'pass_rate'),
+            'classes': ('collapse',)
+        }),
+        ('ទិន្នន័យមេតា (Metadata)', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def completion_percentage(self, obj):
+        return f"{obj.completion_percentage()}%"
+    completion_percentage.short_description = 'បញ្ចប់ %'
+    
+    def pass_rate(self, obj):
+        return f"{obj.pass_rate()}%"
+    pass_rate.short_description = 'អត្រាជាប់ %'
+
+
+@admin.register(ExamResult)
+class ExamResultAdmin(admin.ModelAdmin):
+    list_display = ('student', 'exam', 'score', 'percentage', 'grade_letter', 'is_passed', 
+                   'was_present', 'rank_in_class', 'recorded_at')
+    list_filter = ('is_passed', 'was_present', 'grade_letter', 'exam__exam_type', 'exam__academic_year')
+    search_fields = ('student__student_id', 'student__first_name', 'student__last_name', 
+                    'exam__name', 'exam__subject__name')
+    readonly_fields = ('recorded_at', 'updated_at', 'percentage', 'grade_letter', 'is_passed')
+    date_hierarchy = 'recorded_at'
+    autocomplete_fields = ['student', 'exam']
+    
+    fieldsets = (
+        ('ព័ត៌មានមូលដ្ឋាន (Basic Information)', {
+            'fields': ('exam', 'student')
+        }),
+        ('ពិន្ទុ (Score)', {
+            'fields': ('score', 'percentage', 'grade_letter', 'is_passed', 'rank_in_class')
+        }),
+        ('វត្តមាន (Attendance)', {
+            'fields': ('was_present', 'absent_reason')
+        }),
+        ('មតិយោបល់ពីគ្រូ (Teacher Feedback)', {
+            'fields': ('remarks', 'strengths', 'areas_to_improve'),
+            'classes': ('collapse',)
+        }),
+        ('ទិន្នន័យមេតា (Metadata)', {
+            'fields': ('recorded_by', 'recorded_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def percentage(self, obj):
+        return f"{obj.percentage()}%"
+    percentage.short_description = 'ភាគរយ'
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only set on creation
+            obj.recorded_by = request.user
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Score)

@@ -464,22 +464,61 @@ class Attendance(models.Model):
 #  EXAM & SCORE
 # ══════════════════════════════════════════════════════
 class ExamType(models.Model):
-    name = models.CharField(max_length=100)
-
+    """
+    Types of exams (ប្រភេទប្រឡង)
+    Examples: Midterm (កណ្តាលឆមាស), Final (ចុងឆមាស), Quiz (តេស្តតូច)
+    """
+    name = models.CharField(max_length=100, verbose_name='ឈ្មោះប្រភេទប្រឡង')
+    code = models.CharField(max_length=20, blank=True, verbose_name='លេខកូដ')
+    description = models.TextField(blank=True, verbose_name='ការពិពណ៌នា')
+    weight_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, default=100, 
+        verbose_name='ភាគរយទម្ងន់',
+        help_text='Weight in final grade calculation (e.g., Midterm=30%, Final=70%)'
+    )
+    is_active = models.BooleanField(default=True, verbose_name='ដំណើរការ')
+    
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = 'ប្រភេទប្រឡង'
+        verbose_name_plural = 'ប្រភេទប្រឡង'
+        ordering = ['name']
 
 
 class Exam(models.Model):
+    """
+    Exam Schedule (កាលវិភាគប្រឡង)
+    Represents a specific exam session for a subject and classroom
+    """
     exam_id       = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    name          = models.CharField(max_length=200)
-    exam_type     = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name='exams')
-    subject       = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
-    classroom     = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='exams')
-    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='exams')
-    date          = models.DateField()
-    max_score     = models.DecimalField(max_digits=5, decimal_places=2, default=100)
-    description   = models.TextField(blank=True)
+    name          = models.CharField(max_length=200, verbose_name='ឈ្មោះប្រឡង')
+    exam_type     = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name='exams', verbose_name='ប្រភេទប្រឡង')
+    subject       = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams', verbose_name='មុខវិជ្ជា')
+    classroom     = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='exams', verbose_name='ថ្នាក់')
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='exams', verbose_name='ឆ្នាំសិក្សា')
+    date          = models.DateField(verbose_name='ថ្ងៃប្រឡង')
+    exam_time     = models.TimeField(null=True, blank=True, verbose_name='ម៉ោងប្រឡង')
+    duration_minutes = models.IntegerField(default=60, verbose_name='រយៈពេល (នាទី)')
+    max_score     = models.DecimalField(max_digits=5, decimal_places=2, default=100, verbose_name='ពិន្ទុអតិបរមា')
+    passing_score = models.DecimalField(max_digits=5, decimal_places=2, default=50, verbose_name='ពិន្ទុជាប់')
+    description   = models.TextField(blank=True, verbose_name='ការពិពណ៌នា')
+    instructions  = models.TextField(blank=True, verbose_name='សេចក្តីណែនាំ')
+    
+    # Exam status
+    STATUS_CHOICES = [
+        ('scheduled', 'កំណត់ពេល (Scheduled)'),
+        ('ongoing', 'កំពុងប្រឡង (Ongoing)'),
+        ('completed', 'បានបញ្ចប់ (Completed)'),
+        ('cancelled', 'បោះបង់ (Cancelled)'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled', verbose_name='ស្ថានភាព')
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams_created', verbose_name='បង្កើតដោយ')
 
     def save(self, *args, **kwargs):
         if not self.exam_id:
@@ -491,9 +530,127 @@ class Exam(models.Model):
 
     def __str__(self):
         return f"{self.name} – {self.subject} ({self.classroom})"
+    
+    def passing_percentage(self):
+        """Calculate passing percentage"""
+        if self.max_score > 0:
+            return round((self.passing_score / self.max_score) * 100, 2)
+        return 50
+    
+    def total_students(self):
+        """Count total students in classroom"""
+        return self.classroom.students.filter(is_active=True).count()
+    
+    def total_results_submitted(self):
+        """Count how many results have been submitted"""
+        return self.exam_results.count()
+    
+    def completion_percentage(self):
+        """Calculate what percentage of students have results"""
+        total = self.total_students()
+        if total > 0:
+            return round((self.total_results_submitted() / total) * 100, 1)
+        return 0
+    
+    def average_score(self):
+        """Calculate average score of all results"""
+        from django.db.models import Avg
+        avg = self.exam_results.aggregate(Avg('score'))['score__avg']
+        return round(avg, 2) if avg else 0
+    
+    def pass_rate(self):
+        """Calculate percentage of students who passed"""
+        total = self.total_results_submitted()
+        if total > 0:
+            passed = self.exam_results.filter(score__gte=self.passing_score).count()
+            return round((passed / total) * 100, 1)
+        return 0
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['-date', 'exam_time']
+        verbose_name = 'ប្រឡង'
+        verbose_name_plural = 'ប្រឡង'
+
+
+class ExamResult(models.Model):
+    """
+    Individual Exam Results (លទ្ធផលប្រឡង)
+    Stores detailed exam results for each student
+    """
+    exam          = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_results', verbose_name='ប្រឡង')
+    student       = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_results', verbose_name='សិស្ស')
+    score         = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='ពិន្ទុ')
+    
+    # Additional grading info
+    grade_letter  = models.CharField(max_length=2, blank=True, verbose_name='ពិន្ទុអក្សរ', help_text='A, B, C, D, F')
+    is_passed     = models.BooleanField(default=False, verbose_name='ជាប់')
+    rank_in_class = models.IntegerField(null=True, blank=True, verbose_name='ចំណាត់ថ្នាក់')
+    
+    # Attendance for this exam
+    was_present   = models.BooleanField(default=True, verbose_name='មកប្រឡង')
+    absent_reason = models.CharField(max_length=255, blank=True, verbose_name='មូលហេតុអវត្តមាន')
+    
+    # Teacher feedback
+    remarks       = models.TextField(blank=True, verbose_name='មតិយោបល់')
+    strengths     = models.TextField(blank=True, verbose_name='ចំណុចខ្លាំង')
+    areas_to_improve = models.TextField(blank=True, verbose_name='ចំណុចត្រូវកែលម្អ')
+    
+    # Metadata
+    recorded_at   = models.DateTimeField(auto_now_add=True, verbose_name='ថ្ងៃបញ្ចូលពិន្ទុ')
+    updated_at    = models.DateTimeField(auto_now=True)
+    recorded_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='exam_results_recorded', verbose_name='បញ្ចូលដោយ')
+    
+    def save(self, *args, **kwargs):
+        """Auto-calculate grade letter and pass/fail on save"""
+        # Calculate percentage
+        percentage = self.percentage()
+        
+        # Determine grade letter (A-F scale)
+        if percentage >= 90:
+            self.grade_letter = 'A'
+        elif percentage >= 80:
+            self.grade_letter = 'B'
+        elif percentage >= 70:
+            self.grade_letter = 'C'
+        elif percentage >= 60:
+            self.grade_letter = 'D'
+        else:
+            self.grade_letter = 'F'
+        
+        # Determine pass/fail
+        self.is_passed = self.score >= self.exam.passing_score and self.was_present
+        
+        super().save(*args, **kwargs)
+    
+    def percentage(self):
+        """Calculate percentage score"""
+        if self.exam.max_score > 0:
+            return round((self.score / self.exam.max_score) * 100, 2)
+        return 0
+    
+    def grade_color(self):
+        """Return Bootstrap color class for grade"""
+        grade_colors = {
+            'A': 'success',
+            'B': 'info',
+            'C': 'primary',
+            'D': 'warning',
+            'F': 'danger'
+        }
+        return grade_colors.get(self.grade_letter, 'secondary')
+    
+    def pass_fail_khmer(self):
+        """Return 'ជាប់' or 'ធ្លាក់'"""
+        return 'ជាប់' if self.is_passed else 'ធ្លាក់'
+    
+    def __str__(self):
+        return f"{self.student} - {self.exam.name}: {self.score}/{self.exam.max_score}"
+    
+    class Meta:
+        unique_together = ('exam', 'student')
+        ordering = ['-score']
+        verbose_name = 'លទ្ធផលប្រឡង'
+        verbose_name_plural = 'លទ្ធផលប្រឡង'
 
 
 class StudentHistory(models.Model):
