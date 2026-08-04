@@ -780,7 +780,7 @@ def student_promote(request):
                     old_classroom = student.classroom
                     
                     if not old_classroom:
-                        failed_promotions.append(f"{student.full_name}: មិនមានថ្នាក់បច្ចុប្បន្ន")
+                        failed_promotions.append(f"{student}: មិនមានថ្នាក់បច្ចុប្បន្ន")
                         continue
                     
                     # Get grade information
@@ -793,7 +793,7 @@ def student_promote(request):
                     # មិនអនុញ្ញាតឱ្យរំលងថ្នាក់
                     if new_grade_number != old_grade_number + 1:
                         failed_promotions.append(
-                            f"{student.full_name}: មិនអាចរំលងថ្នាក់បានទេ (ថ្នាក់ {old_grade_number} → ថ្នាក់ {new_grade_number})"
+                            f"{student}: មិនអាចរំលងថ្នាក់បានទេ (ថ្នាក់ {old_grade_number} → ថ្នាក់ {new_grade_number})"
                         )
                         continue
                     
@@ -807,21 +807,21 @@ def student_promote(request):
                         if old_level == 'primary' and old_grade_number == 6:
                             if new_level != 'lower_secondary' or new_grade_number != 7:
                                 failed_promotions.append(
-                                    f"{student.full_name}: ត្រូវផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Grade 6 → Grade 7)"
+                                    f"{student}: ត្រូវផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Grade 6 → Grade 7)"
                                 )
                                 continue
                         
                         elif old_level == 'lower_secondary' and old_grade_number == 9:
                             if new_level != 'upper_secondary' or new_grade_number != 10:
                                 failed_promotions.append(
-                                    f"{student.full_name}: ត្រូវផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Grade 9 → Grade 10)"
+                                    f"{student}: ត្រូវផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Grade 9 → Grade 10)"
                                 )
                                 continue
                         
                         # No promotion beyond Grade 12
                         elif old_grade_number == 12:
                             failed_promotions.append(
-                                f"{student.full_name}: បញ្ចប់ការសិក្សាហើយ (Grade 12)"
+                                f"{student}: បញ្ចប់ការសិក្សាហើយ (Grade 12)"
                             )
                             continue
                     
