@@ -628,10 +628,21 @@ def student_promote(request):
     Bulk promote students to next grade based on Cambodia Education System
     ដាក់សិស្សឡើងថ្នាក់ជាក្រុមតាមប្រព័ន្ធអប់រំកម្ពុជា
     
-    Cambodia Education System:
+    Cambodia Education System Standards:
     - Primary (បឋមសិក្សា): Grade 1-6
     - Lower Secondary (បឋមភូមិ): Grade 7-9
     - Upper Secondary (មធ្យមភូមិ): Grade 10-12
+    
+    Promotion Criteria (លក្ខខណ្ឌឡើងថ្នាក់):
+    1. Average score ≥ 50% across all subjects (ពិន្ទុមធ្យម ≥ 50%)
+    2. Must have at least 1 subject with scores (ត្រូវមានពិន្ទុយ៉ាងហោចណាស់ 1 មុខវិជ្ជា)
+    3. Attendance rate ≥ 80% is recommended (វត្តមាន ≥ 80% ត្រូវបានផ្តល់អនុសាសន៍)
+    4. Can only promote to immediate next grade (ឡើងបានតែថ្នាក់បន្ទាប់ប៉ុណ្ណោះ)
+    
+    Special Level Transitions (ការផ្ទេរកម្រិតពិសេស):
+    - Grade 6 → Grade 7: Primary to Lower Secondary (បឋមសិក្សា → បឋមភូមិ)
+    - Grade 9 → Grade 10: Lower Secondary to Upper Secondary (បឋមភូមិ → មធ្យមភូមិ)
+    - Grade 12: Graduation (បញ្ចប់ការសិក្សា)
     
     Creates historical records to preserve student data across academic years.
     """
@@ -675,10 +686,53 @@ def student_promote(request):
                 total_subjects = scores.count()
                 avg_percentage = sum(score.percentage() for score in scores) / total_subjects if total_subjects > 0 else 0
                 
-                # Determine pass/fail based on AVERAGE score
-                # ជាប់/ធ្លាក់ដោយផ្អែកលើពិន្ទុមធ្យម
-                # If average >= passing_percentage → can promote
-                can_promote = avg_percentage >= passing_percentage and total_subjects > 0
+                # Calculate attendance rate (វត្តមាន)
+                if academic_year_id:
+                    year = get_object_or_404(AcademicYear, pk=academic_year_id)
+                    try:
+                        if '-' in year.year:
+                            start_year = year.year.split('-')[0]
+                            end_year = year.year.split('-')[1]
+                            year_attendance = student.attendances.filter(
+                                date__gte=f'{start_year}-01-01',
+                                date__lte=f'{end_year}-12-31'
+                            )
+                        else:
+                            year_attendance = student.attendances.all()
+                    except:
+                        year_attendance = student.attendances.all()
+                elif current_classroom.academic_year:
+                    year = current_classroom.academic_year
+                    try:
+                        if '-' in year.year:
+                            start_year = year.year.split('-')[0]
+                            end_year = year.year.split('-')[1]
+                            year_attendance = student.attendances.filter(
+                                date__gte=f'{start_year}-01-01',
+                                date__lte=f'{end_year}-12-31'
+                            )
+                        else:
+                            year_attendance = student.attendances.all()
+                    except:
+                        year_attendance = student.attendances.all()
+                else:
+                    year_attendance = student.attendances.all()
+                
+                total_days = year_attendance.count()
+                present_days = year_attendance.filter(status='P').count()
+                attendance_rate = (present_days / total_days * 100) if total_days > 0 else 0
+                
+                # Cambodia Education System Promotion Criteria:
+                # លក្ខខណ្ឌឡើងថ្នាក់តាមប្រព័ន្ធអប់រំកម្ពុជា:
+                # 1. ពិន្ទុមធ្យម >= passing_percentage (default 50%)
+                # 2. ត្រូវមានយ៉ាងហោចណាស់ 1 មុខវិជ្ជា
+                # 3. វត្តមាន >= 80% (អនុសាសន៍)
+                
+                can_promote = (
+                    avg_percentage >= passing_percentage and 
+                    total_subjects > 0 and
+                    attendance_rate >= 80.0  # Attendance requirement
+                )
                 
                 # Also calculate individual subject pass/fail for display
                 passed_subjects = sum(1 for score in scores if score.is_passing(passing_percentage))
@@ -690,6 +744,9 @@ def student_promote(request):
                     'passed_subjects': passed_subjects,
                     'failed_subjects': failed_subjects,
                     'avg_percentage': round(avg_percentage, 1),
+                    'attendance_rate': round(attendance_rate, 1),
+                    'total_days': total_days,
+                    'present_days': present_days,
                     'can_promote': can_promote,
                 })
             else:
@@ -700,6 +757,9 @@ def student_promote(request):
                     'passed_subjects': 0,
                     'failed_subjects': 0,
                     'avg_percentage': 0,
+                    'attendance_rate': 0,
+                    'total_days': 0,
+                    'present_days': 0,
                     'can_promote': False,
                 })
     
@@ -712,6 +772,7 @@ def student_promote(request):
             from django.utils import timezone
             next_classroom = get_object_or_404(Classroom, pk=next_classroom_id)
             promoted_count = 0
+            failed_promotions = []
             
             for student_id in student_ids:
                 try:
@@ -719,6 +780,7 @@ def student_promote(request):
                     old_classroom = student.classroom
                     
                     if not old_classroom:
+                        failed_promotions.append(f"{student.full_name}: មិនមានថ្នាក់បច្ចុប្បន្ន")
                         continue
                     
                     # Get grade information
@@ -726,6 +788,42 @@ def student_promote(request):
                     new_grade = next_classroom.grade
                     old_grade_number = old_grade.grade_number if old_grade else 0
                     new_grade_number = new_grade.grade_number if new_grade else 0
+                    
+                    # VALIDATION 1: Must promote to next grade only (strict progression)
+                    # មិនអនុញ្ញាតឱ្យរំលងថ្នាក់
+                    if new_grade_number != old_grade_number + 1:
+                        failed_promotions.append(
+                            f"{student.full_name}: មិនអាចរំលងថ្នាក់បានទេ (ថ្នាក់ {old_grade_number} → ថ្នាក់ {new_grade_number})"
+                        )
+                        continue
+                    
+                    # VALIDATION 2: Check level transitions
+                    # ពិនិត្យការផ្ទេរកម្រិត
+                    if old_grade:
+                        old_level = old_grade.level
+                        new_level = new_grade.level if new_grade else ''
+                        
+                        # Verify correct level transitions
+                        if old_level == 'primary' and old_grade_number == 6:
+                            if new_level != 'lower_secondary' or new_grade_number != 7:
+                                failed_promotions.append(
+                                    f"{student.full_name}: ត្រូវផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Grade 6 → Grade 7)"
+                                )
+                                continue
+                        
+                        elif old_level == 'lower_secondary' and old_grade_number == 9:
+                            if new_level != 'upper_secondary' or new_grade_number != 10:
+                                failed_promotions.append(
+                                    f"{student.full_name}: ត្រូវផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Grade 9 → Grade 10)"
+                                )
+                                continue
+                        
+                        # No promotion beyond Grade 12
+                        elif old_grade_number == 12:
+                            failed_promotions.append(
+                                f"{student.full_name}: បញ្ចប់ការសិក្សាហើយ (Grade 12)"
+                            )
+                            continue
                     
                     # === CREATE HISTORY RECORD ===
                     # Save current academic year data before promotion
@@ -763,15 +861,16 @@ def student_promote(request):
                         total_days = year_attendance.count()
                         present_days = year_attendance.filter(status='P').count()
                         absent_days = year_attendance.filter(status='A').count()
+                        attendance_rate = (present_days / total_days * 100) if total_days > 0 else 0
                         
                         # Determine next level transition
                         level_transition_note = ""
                         if old_grade_number == 6 and new_grade_number == 7:
-                            level_transition_note = " | ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Primary → Lower Secondary)"
+                            level_transition_note = " | ✅ ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ (Primary → Lower Secondary)"
                         elif old_grade_number == 9 and new_grade_number == 10:
-                            level_transition_note = " | ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Lower Secondary → Upper Secondary)"
+                            level_transition_note = " | ✅ ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ (Lower Secondary → Upper Secondary)"
                         elif old_grade_number == 12:
-                            level_transition_note = " | បញ្ចប់ការសិក្សា (Graduated)"
+                            level_transition_note = " | 🎓 បញ្ចប់ការសិក្សា (Graduated)"
                         
                         # Create or update history record
                         history, created = StudentHistory.objects.update_or_create(
@@ -793,7 +892,7 @@ def student_promote(request):
                                 'end_date': timezone.now().date(),
                                 'promoted_to': str(next_classroom),
                                 'promotion_note': f"ឡើងថ្នាក់ទៅ {next_classroom.grade} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}{level_transition_note}",
-                                'notes': f"ពិន្ទុមធ្យម: {avg_score:.1f} | វត្តមាន: {present_days}/{total_days} ថ្ងៃ ({round((present_days/total_days*100) if total_days > 0 else 0, 1)}%)"
+                                'notes': f"ពិន្ទុមធ្យម: {avg_score:.1f} | វត្តមាន: {present_days}/{total_days} ថ្ងៃ ({attendance_rate:.1f}%)"
                             }
                         )
                     
@@ -811,9 +910,9 @@ def student_promote(request):
                     # Add note with level transition info
                     level_note = ""
                     if old_grade_number == 6 and new_grade_number == 7:
-                        level_note = " (ចូលបឋមភូមិ)"
+                        level_note = " (✅ ចូលបឋមភូមិ)"
                     elif old_grade_number == 9 and new_grade_number == 10:
-                        level_note = " (ចូលមធ្យមភូមិ)"
+                        level_note = " (✅ ចូលមធ្យមភូមិ)"
                     
                     promotion_note = f"ឡើងថ្នាក់ពី {old_classroom_str} ទៅ {next_classroom} នៅថ្ងៃទី {timezone.now().strftime('%d/%m/%Y')}{level_note}"
                     if student.notes:
@@ -827,9 +926,22 @@ def student_promote(request):
                 except Exception as e:
                     import logging
                     logging.getLogger(__name__).error(f"Failed to promote student {student_id}: {e}")
+                    failed_promotions.append(f"Student ID {student_id}: {str(e)}")
             
+            # Show results
             if promoted_count > 0:
-                messages.success(request, f'✅ បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។ ប្រវត្តិត្រូវបានរក្សាទុក។')
+                messages.success(
+                    request, 
+                    f'✅ បានដាក់សិស្ស {promoted_count} នាក់ឡើងថ្នាក់ទៅ {next_classroom}។ ប្រវត្តិត្រូវបានរក្សាទុក។'
+                )
+            
+            if failed_promotions:
+                messages.warning(
+                    request,
+                    f'⚠️ មិនអាចដាក់ឡើងថ្នាក់បាន {len(failed_promotions)} នាក់:<br>' + 
+                    '<br>'.join(failed_promotions)
+                )
+            
             return redirect('school:student_list')
     
     # Get available next grade classrooms with timetable info
@@ -839,16 +951,26 @@ def student_promote(request):
         current_classroom = Classroom.objects.get(pk=current_classroom_id)
         current_grade = current_classroom.grade
         
+        # Debug logging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"DEBUG: Current classroom: {current_classroom}, Grade: {current_grade}")
+        
         if current_grade and current_grade.grade_number:
             current_grade_num = current_grade.grade_number
+            logger.info(f"DEBUG: Looking for Grade {current_grade_num + 1} classrooms")
             
             # Get classrooms with next grade number
             all_classrooms = Classroom.objects.all().select_related('grade', 'academic_year')
+            logger.info(f"DEBUG: Total classrooms in DB: {all_classrooms.count()}")
+            
             for classroom in all_classrooms:
                 if classroom.grade and classroom.grade.grade_number:
+                    logger.info(f"DEBUG: Checking {classroom} - Grade {classroom.grade.grade_number}")
                     # Allow promotion to next grade only (strict progression)
                     if classroom.grade.grade_number == current_grade_num + 1:
                         next_classrooms.append(classroom)
+                        logger.info(f"DEBUG: ✅ ADDED {classroom} to next classrooms")
                         
                         # Check if classroom has timetable
                         has_timetable = classroom.timetables.exists()
@@ -858,12 +980,17 @@ def student_promote(request):
                             'has_timetable': has_timetable,
                             'timetable_count': timetable_count
                         })
+            
+            logger.info(f"DEBUG: Final next_classrooms count: {len(next_classrooms_with_timetable_info)}")
+        else:
+            logger.warning(f"DEBUG: No grade or grade_number for {current_classroom}")
     
     return render(request, 'school/student_promote.html', {
         'classrooms': classrooms,
         'academic_years': academic_years,
         'students_data': students_data,
         'current_classroom_id': current_classroom_id,
+        'current_classroom': Classroom.objects.get(pk=current_classroom_id) if current_classroom_id else None,
         'academic_year_id': academic_year_id,
         'passing_percentage': passing_percentage,
         'next_classrooms': next_classrooms,

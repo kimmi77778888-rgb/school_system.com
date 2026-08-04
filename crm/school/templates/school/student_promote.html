@@ -188,6 +188,16 @@
           <code class="d-block mt-1">python manage.py create_missing_classrooms --year "{{ current_classroom.academic_year.year }}"</code>
         </div>
       </div>
+      {% else %}
+      <div class="alert alert-success mt-3 mb-0">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>រកឃើញថ្នាក់សម្រាប់ឡើង:</strong> {{ next_classrooms_with_info|length }} ថ្នាក់
+        <ul class="mb-0">
+        {% for info in next_classrooms_with_info %}
+          <li>{{ info.classroom }} {% if info.has_timetable %}✅ មានកាលវិភាគ{% else %}⚠️ គ្មានកាលវិភាគ{% endif %}</li>
+        {% endfor %}
+        </ul>
+      </div>
       {% endif %}
       <!-- Timetable Warning Alert -->
       <div id="timetable-warning" class="alert alert-warning mt-3 mb-0" style="display: none;">
