@@ -1173,8 +1173,14 @@ def classroom_list(request):
 def classroom_add(request):
     form = ClassroomForm(request.POST or None)
     if form.is_valid():
-        form.save(); messages.success(request, 'ថ្នាក់បានបន្ថែម។')
-        return redirect('school:classroom_list')
+        try:
+            form.save()
+            messages.success(request, 'ថ្នាក់បានបន្ថែម។')
+            return redirect('school:classroom_list')
+        except Exception as e:
+            import traceback, logging
+            logging.getLogger(__name__).error("classroom_add failed: %s\n%s", e, traceback.format_exc())
+            messages.error(request, f'បញ្ហា: {e}')
     return render(request, 'school/form.html', {'form': form, 'title': 'បន្ថែមថ្នាក់', 'back_url': reverse('school:classroom_list')})
 
 @admin_required
