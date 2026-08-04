@@ -44,14 +44,11 @@
       <input type="text" name="q" value="{{ q }}" placeholder="ស្វែងរកសិស្ស..." class="form-control form-control-sm" style="width:200px;"/>
       <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i></button>
     </form>
-    <a href="{% url 'school:score_grid_entry' %}" class="btn btn-primary btn-sm">
+    <a href="{% url 'school:score_grid_entry' %}" class="btn btn-success btn-sm">
       <i class="bi bi-table me-1"></i>បញ្ជីពិន្ទុតារាង
     </a>
-    <a href="{% url 'school:score_bulk_entry' %}" class="btn btn-success btn-sm">
+    <a href="{% url 'school:score_bulk_entry' %}" class="btn btn-primary btn-sm">
       <i class="bi bi-list-check me-1"></i>បញ្ចូលពិន្ទុជាក្រុម
-    </a>
-    <a href="{% url 'school:score_add' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg me-1"></i>បន្ថែមពិន្ទុ
     </a>
   </div>
 </div>
