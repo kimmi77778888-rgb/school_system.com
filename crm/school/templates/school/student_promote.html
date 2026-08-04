@@ -38,10 +38,20 @@
 <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
   <i class="bi bi-info-circle-fill me-3 fs-4"></i>
   <div>
-    <strong>របៀបប្រើប្រាស់:</strong> ជ្រើសរើសថ្នាក់បច្ចុប្បន្ន ហើយចុច "ពិនិត្យលទ្ធផល" ដើម្បីមើលបញ្ជីសិស្ស។ 
-    អ្នកអាចជ្រើសឆ្នាំសិក្សាជាក់លាក់ ឬទុកទទេដើម្បីប្រើឆ្នាំនៃថ្នាក់។
-    <strong>ការជាប់/ធ្លាក់ផ្អែកលើពិន្ទុមធ្យម:</strong> ប្រសិនបើមធ្យមភាគ >= {{ passing_percentage|default:50 }}% ត្រូវបានចាត់ទុកថាជាប់។
-    <a href="https://github.com/kimmi77778888-rgb/school_system.com/blob/main/crm/STUDENT_PROMOTION_GUIDE.md" target="_blank" class="alert-link">អានមគ្គុទ្ទេសន៍ពេញលេញ »</a>
+    <strong>លក្ខខណ្ឌឡើងថ្នាក់តាមប្រព័ន្ធអប់រំកម្ពុជា:</strong>
+    <ol class="mb-0 mt-2">
+      <li><strong>ពិន្ទុមធ្យម:</strong> ≥ {{ passing_percentage|default:50 }}% លើគ្រប់មុខវិជ្ជា</li>
+      <li><strong>វត្តមាន:</strong> ≥ 80% (ត្រូវមកសាលារៀងរាល់ថ្ងៃ)</li>
+      <li><strong>ការផ្ទេរកម្រិត:</strong>
+        <ul class="mb-0">
+          <li>ថ្នាក់ទី 6 → ថ្នាក់ទី 7: ផ្ទេរពីបឋមសិក្សាទៅបឋមភូមិ</li>
+          <li>ថ្នាក់ទី 9 → ថ្នាក់ទី 10: ផ្ទេរពីបឋមភូមិទៅមធ្យមភូមិ</li>
+          <li>ថ្នាក់ទី 12: បញ្ចប់ការសិក្សា</li>
+        </ul>
+      </li>
+      <li><strong>មិនអនុញ្ញាត:</strong> រំលងថ្នាក់ (ឧ: ថ្នាក់ 1 → ថ្នាក់ 3) ❌</li>
+    </ol>
+    <a href="https://github.com/kimmi77778888-rgb/school_system.com/blob/main/crm/STUDENT_PROMOTION_GUIDE.md" target="_blank" class="alert-link mt-2 d-block">អានមគ្គុទ្ទេសន៍ពេញលេញ »</a>
   </div>
 </div>
 
@@ -100,8 +110,28 @@
       <h5><i class="bi bi-info-circle me-2"></i>សង្ខេប</h5>
       <div class="mt-2">
         <div><strong>សិស្សសរុប:</strong> {{ students_data|length }} នាក់</div>
-        <div><strong>ប្រឡងជាប់:</strong> {{ students_data|length|add:"-1" }} នាក់</div>
-        <div><strong>ពិន្ទុជាប់:</strong> {{ passing_percentage }}% ឡើងទៅ</div>
+        <div>
+          <strong>អាចឡើងថ្នាក់:</strong> 
+          {% with eligible_count=0 %}
+            {% for data in students_data %}
+              {% if data.can_promote %}
+                {% with eligible_count=eligible_count|add:1 %}{% endwith %}
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+          <span id="eligible-count">0</span> នាក់
+          <script>
+            // Count eligible students
+            let eligibleCount = 0;
+            {% for data in students_data %}
+              {% if data.can_promote %}
+                eligibleCount++;
+              {% endif %}
+            {% endfor %}
+            document.getElementById('eligible-count').textContent = eligibleCount;
+          </script>
+        </div>
+        <div><strong>លក្ខខណ្ឌ:</strong> ពិន្ទុ ≥ {{ passing_percentage }}% និង វត្តមាន ≥ 80%</div>
       </div>
     </div>
     <div class="col-md-6 text-end">
@@ -122,7 +152,7 @@
         <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>បញ្ជីសិស្ស</h5>
         <div>
           <label class="form-label fw-semibold me-2 mb-0">ថ្នាក់ថ្មី:</label>
-          <select name="next_classroom" id="next_classroom_select" class="form-select d-inline-block" style="width: auto;" required>
+          <select name="next_classroom" id="next_classroom_select" class="form-select d-inline-block" style="width: auto;" required {% if not next_classrooms_with_info %}disabled{% endif %}>
             <option value="">-- ជ្រើសរើសថ្នាក់ថ្មី --</option>
             {% for info in next_classrooms_with_info %}
             <option value="{{ info.classroom.pk }}" 
@@ -131,10 +161,34 @@
               {{ info.classroom }}
               {% if not info.has_timetable %} ⚠️ គ្មានកាលវិភាគ{% endif %}
             </option>
+            {% empty %}
+            <option value="" disabled>គ្មានថ្នាក់ដែលត្រូវបានរកឃើញ</option>
             {% endfor %}
           </select>
         </div>
       </div>
+      <!-- No Next Classroom Warning -->
+      {% if not next_classrooms_with_info %}
+      <div class="alert alert-danger mt-3 mb-0">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>បញ្ហា:</strong> រកមិនឃើញថ្នាក់សម្រាប់ឡើង!
+        <ul class="mb-0 mt-2">
+          <li>ថ្នាក់បច្ចុប្បន្ន: <strong>{{ current_classroom }}</strong> (ថ្នាក់ទី{{ current_classroom.grade.grade_number }})</li>
+          <li>ត្រូវការថ្នាក់ថ្មី: <strong>ថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }}</strong></li>
+          <li><strong>ដំណោះស្រាយ:</strong> សូមបង្កើតថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }} មុន!</li>
+        </ul>
+        <div class="mt-2">
+          <strong>របៀបបង្កើត:</strong>
+          <ol class="mb-0">
+            <li>ទៅកាន់ <a href="{% url 'school:classroom_list' %}" class="alert-link"><strong>ថ្នាក់រៀន (Classrooms)</strong></a></li>
+            <li>ចុច "បន្ថែមថ្នាក់រៀន" (Add Classroom)</li>
+            <li>ជ្រើសរើសថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }} និងឆ្នាំសិក្សា</li>
+          </ol>
+          <strong>ឬប្រើ Command:</strong>
+          <code class="d-block mt-1">python manage.py create_missing_classrooms --year "{{ current_classroom.academic_year.year }}"</code>
+        </div>
+      </div>
+      {% endif %}
       <!-- Timetable Warning Alert -->
       <div id="timetable-warning" class="alert alert-warning mt-3 mb-0" style="display: none;">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -158,6 +212,7 @@
             <th>ជាប់</th>
             <th>ធ្លាក់</th>
             <th>មធ្យមភាគ</th>
+            <th>វត្តមាន</th>
             <th>ស្ថានភាព</th>
           </tr>
         </thead>
@@ -179,10 +234,24 @@
           <td><span class="badge bg-danger">{{ data.failed_subjects }}</span></td>
           <td><strong>{{ data.avg_percentage }}%</strong></td>
           <td>
+            {% if data.attendance_rate >= 80 %}
+              <span class="badge bg-success">{{ data.attendance_rate }}%</span>
+              <small class="text-muted d-block">({{ data.present_days }}/{{ data.total_days }})</small>
+            {% elif data.attendance_rate >= 60 %}
+              <span class="badge bg-warning text-dark">{{ data.attendance_rate }}%</span>
+              <small class="text-muted d-block">({{ data.present_days }}/{{ data.total_days }})</small>
+            {% else %}
+              <span class="badge bg-danger">{{ data.attendance_rate }}%</span>
+              <small class="text-muted d-block">({{ data.present_days }}/{{ data.total_days }})</small>
+            {% endif %}
+          </td>
+          <td>
             {% if data.can_promote %}
               <span class="badge bg-success status-badge">✓ អាចឡើងថ្នាក់</span>
             {% elif data.total_subjects == 0 %}
               <span class="badge bg-secondary status-badge">មិនមានពិន្ទុ</span>
+            {% elif data.attendance_rate < 80 %}
+              <span class="badge bg-warning text-dark status-badge">⚠ វត្តមានខ្សោយ</span>
             {% else %}
               <span class="badge bg-danger status-badge">✗ ប្រឡងធ្លាក់</span>
             {% endif %}
@@ -190,7 +259,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="9" class="text-center text-muted py-4">
+          <td colspan="10" class="text-center text-muted py-4">
             មិនមានសិស្សក្នុងថ្នាក់នេះ
           </td>
         </tr>
@@ -204,12 +273,17 @@
       <div class="d-flex justify-content-between align-items-center">
         <div class="text-muted">
           <i class="bi bi-info-circle me-1"></i>
-          <small>សិស្សដែលមានមធ្យមភាគ >= {{ passing_percentage }}% អាចឡើងថ្នាក់បាន</small>
+          <small><strong>លក្ខខណ្ឌឡើងថ្នាក់:</strong> ពិន្ទុមធ្យម ≥ {{ passing_percentage }}% និងវត្តមាន ≥ 80%</small>
         </div>
         <div>
-          <button type="submit" class="btn btn-success" onclick="return confirm('តើអ្នកប្រាកដជាចង់ដាក់សិស្សទាំងនេះឡើងថ្នាក់មែនទេ?')">
+          <button type="submit" class="btn btn-success" {% if not next_classrooms_with_info %}disabled{% endif %} onclick="return confirm('តើអ្នកប្រាកដជាចង់ដាក់សិស្សទាំងនេះឡើងថ្នាក់មែនទេ?\n\n⚠️ ប្រព័ន្ធនឹងពិនិត្យ:\n• ពិន្ទុមធ្យម\n• វត្តមាន\n• ការផ្ទេរកម្រិតត្រឹមត្រូវ (Grade 6→7, 9→10)\n• មិនអនុញ្ញាតរំលងថ្នាក់')">
             <i class="bi bi-arrow-up-circle me-1"></i>ដាក់ឡើងថ្នាក់
           </button>
+          {% if not next_classrooms_with_info %}
+          <small class="text-danger d-block mt-1">
+            <i class="bi bi-exclamation-circle me-1"></i>សូមបង្កើតថ្នាក់ថ្មីមុន
+          </small>
+          {% endif %}
         </div>
       </div>
     </div>
