@@ -1054,7 +1054,8 @@ def student_promote(request):
         'academic_year_id': academic_year_id,
         'passing_percentage': passing_percentage,
         'next_classrooms': next_classrooms,
-        'next_classrooms_with_info': next_classrooms_with_timetable_info,
+        'next_classrooms_with_info': next_classrooms_with_timetable_info,  # Match template variable name
+        'next_classrooms_with_timetable_info': next_classrooms_with_timetable_info,  # Keep for compatibility
         'target_academic_year': target_academic_year,
         'next_grade_number': next_grade_number,
     })
