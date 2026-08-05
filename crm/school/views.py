@@ -1032,12 +1032,19 @@ def student_promote(request):
         else:
             logger.warning(f"DEBUG: No grade or grade_number for {current_classroom}")
     
+    # Ensure next_grade_number is set even if classroom not selected
+    current_classroom_obj = None
+    if current_classroom_id:
+        current_classroom_obj = Classroom.objects.get(pk=current_classroom_id)
+        if not next_grade_number and current_classroom_obj.grade and current_classroom_obj.grade.grade_number:
+            next_grade_number = current_classroom_obj.grade.grade_number + 1
+    
     return render(request, 'school/student_promote.html', {
         'classrooms': classrooms,
         'academic_years': academic_years,
         'students_data': students_data,
         'current_classroom_id': current_classroom_id,
-        'current_classroom': Classroom.objects.get(pk=current_classroom_id) if current_classroom_id else None,
+        'current_classroom': current_classroom_obj,
         'academic_year_id': academic_year_id,
         'passing_percentage': passing_percentage,
         'next_classrooms': next_classrooms,

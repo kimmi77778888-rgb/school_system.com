@@ -229,14 +229,14 @@
             <strong>ព័ត៌មានបច្ចុប្បន្ន:</strong>
             <ul class="mb-2">
               <li>ថ្នាក់បច្ចុប្បន្ន: <strong>{{ current_classroom }}</strong></li>
-              <li>កម្រិត: <strong>ថ្នាក់ទី{{ current_classroom.grade.grade_number }}</strong></li>
+              <li>កម្រិត: <strong>ថ្នាក់ទី{{ current_classroom.grade.grade_number|default:"?" }}</strong></li>
               <li>ឆ្នាំសិក្សា: <strong>{{ current_classroom.academic_year|default:"មិនបានកំណត់" }}</strong></li>
             </ul>
           </div>
           <div class="col-md-6">
             <strong>តម្រូវការ:</strong>
             <ul class="mb-2">
-              <li>ថ្នាក់ត្រូវការ: <strong>ថ្នាក់ទី{{ next_grade_number }}</strong></li>
+              <li>ថ្នាក់ត្រូវការ: <strong>ថ្នាក់ទី{{ next_grade_number|default:current_classroom.grade.grade_number|add:1 }}</strong></li>
               <li>ឆ្នាំសិក្សា: <strong>{{ target_academic_year|default:"ឆ្នាំបន្ទាប់" }}</strong></li>
             </ul>
           </div>
@@ -256,7 +256,7 @@
             <li>
               <strong>ប្រើ Command (រហ័ស):</strong>
               <div class="bg-dark text-light p-2 rounded mt-1 font-monospace small">
-                python manage.py create_missing_classrooms --year "{{ target_academic_year|default:"2026-2027" }}"
+                python manage.py create_missing_classrooms --year "{{ current_classroom.academic_year.year|default:"2026-2027" }}"
               </div>
               <small class="text-muted d-block mt-1">* នឹងបង្កើតថ្នាក់ទាំងអស់ដែលខ្វះ</small>
             </li>
