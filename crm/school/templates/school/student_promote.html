@@ -76,7 +76,8 @@
   <div>
     <strong>លក្ខខណ្ឌឡើងថ្នាក់តាមប្រព័ន្ធអប់រំកម្ពុជា:</strong>
     <ol class="mb-0 mt-2">
-      <li><strong>ពិន្ទុមធ្យម:</strong> ≥ {{ passing_percentage|default:50 }}% លើគ្រប់មុខវិជ្ជា</li>
+      <li><strong>✅ ជាប់គ្រប់មុខវិជ្ជា:</strong> ពិន្ទុ ≥ {{ passing_percentage|default:50 }}% គ្រប់មុខវិជ្ជា</li>
+      <li><strong>❌ ធ្លាក់មួយមុខវិជ្ជា:</strong> មិនអាចឡើងថ្នាក់ (នៅថ្នាក់ដដែល)</li>
       <li><strong>វត្តមាន:</strong> ≥ 80% (ត្រូវមកសាលារៀងរាល់ថ្ងៃ)</li>
       <li><strong>ការផ្ទេរកម្រិត:</strong>
         <ul class="mb-0">
@@ -177,7 +178,8 @@
   <div class="mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
     <small><strong>លក្ខខណ្ឌឡើងថ្នាក់:</strong></small>
     <ul class="mb-0 mt-1 small">
-      <li>ពិន្ទុមធ្យម ≥ {{ passing_percentage }}%</li>
+      <li>✅ ជាប់គ្រប់មុខវិជ្ជា ≥ {{ passing_percentage }}%</li>
+      <li>❌ ធ្លាក់មួយមុខ = មិនអាចឡើង</li>
       <li>វត្តមាន ≥ 80%</li>
     </ul>
   </div>
@@ -369,10 +371,12 @@
               <span class="badge bg-success status-badge"><i class="bi bi-check-circle-fill"></i> អាចឡើង</span>
             {% elif data.total_subjects == 0 %}
               <span class="badge bg-secondary status-badge"><i class="bi bi-x-circle"></i> គ្មានពិន្ទុ</span>
+            {% elif data.failed_subjects > 0 %}
+              <span class="badge bg-danger status-badge"><i class="bi bi-x-circle-fill"></i> ធ្លាក់ {{ data.failed_subjects }} មុខ</span>
             {% elif data.attendance_rate < 80 %}
               <span class="badge bg-warning text-dark status-badge"><i class="bi bi-exclamation-triangle-fill"></i> វត្តមានខ្សោយ</span>
             {% else %}
-              <span class="badge bg-danger status-badge"><i class="bi bi-x-circle-fill"></i> ប្រឡងធ្លាក់</span>
+              <span class="badge bg-danger status-badge"><i class="bi bi-x-circle-fill"></i> មិនបំពេញលក្ខខណ្ឌ</span>
             {% endif %}
           </td>
         </tr>
@@ -392,7 +396,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <div class="text-muted">
           <i class="bi bi-info-circle me-1"></i>
-          <small><strong>លក្ខខណ្ឌឡើងថ្នាក់:</strong> ពិន្ទុមធ្យម ≥ {{ passing_percentage }}% និងវត្តមាន ≥ 80%</small>
+          <small><strong>លក្ខខណ្ឌឡើងថ្នាក់:</strong> ✅ ជាប់គ្រប់មុខវិជ្ជា (≥ {{ passing_percentage }}%) និង វត្តមាន ≥ 80%</small>
         </div>
         <div>
           <button type="submit" class="btn btn-success" {% if not next_classrooms_with_info %}disabled{% endif %} onclick="return confirm('តើអ្នកប្រាកដជាចង់ដាក់សិស្សទាំងនេះឡើងថ្នាក់មែនទេ?\n\n⚠️ ប្រព័ន្ធនឹងពិនិត្យ:\n• ពិន្ទុមធ្យម\n• វត្តមាន\n• ការផ្ទេរកម្រិតត្រឹមត្រូវ (Grade 6→7, 9→10)\n• មិនអនុញ្ញាតរំលងថ្នាក់')">

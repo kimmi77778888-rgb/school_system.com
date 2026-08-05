@@ -659,11 +659,15 @@ def student_promote(request):
     - Lower Secondary (បឋមភូមិ): Grade 7-9
     - Upper Secondary (មធ្យមភូមិ): Grade 10-12
     
-    Promotion Criteria (លក្ខខណ្ឌឡើងថ្នាក់):
-    1. Average score ≥ 50% across all subjects (ពិន្ទុមធ្យម ≥ 50%)
-    2. Must have at least 1 subject with scores (ត្រូវមានពិន្ទុយ៉ាងហោចណាស់ 1 មុខវិជ្ជា)
-    3. Attendance rate ≥ 80% is recommended (វត្តមាន ≥ 80% ត្រូវបានផ្តល់អនុសាសន៍)
+    Promotion Criteria (លក្ខខណ្ឌឡើងថ្នាក់) - STRICT:
+    1. ✅ Pass ALL subjects (ជាប់គ្រប់មុខវិជ្ជា): Score ≥ 50% in EVERY subject
+    2. ❌ Fail even ONE subject (ធ្លាក់មួយមុខវិជ្ជា): Cannot promote, must repeat grade
+    3. Attendance rate ≥ 80% (វត្តមាន ≥ 80%)
     4. Can only promote to immediate next grade (ឡើងបានតែថ្នាក់បន្ទាប់ប៉ុណ្ណោះ)
+    
+    Example:
+    Student A: Math 80%, Khmer 75%, Science 85%, English 70% → ✅ Can promote (all ≥ 50%)
+    Student B: Math 90%, Khmer 45%, Science 85%, English 78% → ❌ Cannot promote (Khmer < 50%)
     
     Special Level Transitions (ការផ្ទេរកម្រិតពិសេស):
     - Grade 6 → Grade 7: Primary to Lower Secondary (បឋមសិក្សា → បឋមភូមិ)
@@ -748,21 +752,22 @@ def student_promote(request):
                 present_days = year_attendance.filter(status='P').count()
                 attendance_rate = (present_days / total_days * 100) if total_days > 0 else 0
                 
-                # Cambodia Education System Promotion Criteria:
-                # លក្ខខណ្ឌឡើងថ្នាក់តាមប្រព័ន្ធអប់រំកម្ពុជា:
-                # 1. ពិន្ទុមធ្យម >= passing_percentage (default 50%)
-                # 2. ត្រូវមានយ៉ាងហោចណាស់ 1 មុខវិជ្ជា
-                # 3. វត្តមាន >= 80% (អនុសាសន៍)
-                
-                can_promote = (
-                    avg_percentage >= passing_percentage and 
-                    total_subjects > 0 and
-                    attendance_rate >= 80.0  # Attendance requirement
-                )
-                
-                # Also calculate individual subject pass/fail for display
+                # Calculate individual subject pass/fail
                 passed_subjects = sum(1 for score in scores if score.is_passing(passing_percentage))
                 failed_subjects = total_subjects - passed_subjects
+                
+                # Cambodia Education System Promotion Criteria (STRICT):
+                # លក្ខខណ្ឌឡើងថ្នាក់តាមប្រព័ន្ធអប់រំកម្ពុជា (តឹងរឹង):
+                # 1. ✅ ជាប់គ្រប់មុខវិជ្ជា = ពិន្ទុ >= passing_percentage (default 50%) គ្រប់មុខ
+                # 2. ❌ ធ្លាក់មួយមុខវិជ្ជា = មិនអាចឡើងថ្នាក់
+                # 3. វត្តមាន >= 80%
+                
+                # IMPORTANT: Must pass ALL subjects to promote
+                can_promote = (
+                    failed_subjects == 0 and          # Must pass ALL subjects (no failures)
+                    total_subjects > 0 and            # Must have at least 1 subject
+                    attendance_rate >= 80.0           # Attendance requirement
+                )
                 
                 students_data.append({
                     'student': student,
