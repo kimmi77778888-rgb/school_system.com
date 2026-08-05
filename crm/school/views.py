@@ -973,6 +973,9 @@ def student_promote(request):
     # Get available next grade classrooms with timetable info
     next_classrooms = []
     next_classrooms_with_timetable_info = []
+    target_academic_year = None
+    next_grade_number = None
+    
     if current_classroom_id:
         current_classroom = Classroom.objects.get(pk=current_classroom_id)
         current_grade = current_classroom.grade
@@ -984,28 +987,46 @@ def student_promote(request):
         
         if current_grade and current_grade.grade_number:
             current_grade_num = current_grade.grade_number
-            logger.info(f"DEBUG: Looking for Grade {current_grade_num + 1} classrooms")
+            next_grade_number = current_grade_num + 1
+            logger.info(f"DEBUG: Looking for Grade {next_grade_number} classrooms")
+            
+            # Determine target academic year for next grade
+            # Logic: If current classroom has year "2026-2027", next should be "2027-2028"
+            if current_classroom.academic_year:
+                target_academic_year = current_classroom.academic_year
+                # Try to find next year if transitioning levels
+                if current_grade_num in [6, 9, 12]:  # Level transitions
+                    try:
+                        current_year_str = current_classroom.academic_year.year
+                        if '-' in current_year_str:
+                            start_year = int(current_year_str.split('-')[0])
+                            next_year_str = f"{start_year + 1}-{start_year + 2}"
+                            next_year_obj = AcademicYear.objects.filter(year=next_year_str).first()
+                            if next_year_obj:
+                                target_academic_year = next_year_obj
+                                logger.info(f"DEBUG: Level transition detected, looking for year {next_year_str}")
+                    except Exception as e:
+                        logger.warning(f"DEBUG: Could not determine next year: {e}")
             
             # Get classrooms with next grade number
-            all_classrooms = Classroom.objects.all().select_related('grade', 'academic_year')
-            logger.info(f"DEBUG: Total classrooms in DB: {all_classrooms.count()}")
+            # Prioritize: same or next academic year
+            all_classrooms = Classroom.objects.filter(
+                grade__grade_number=next_grade_number
+            ).select_related('grade', 'academic_year')
+            
+            logger.info(f"DEBUG: Found {all_classrooms.count()} classrooms with grade {next_grade_number}")
             
             for classroom in all_classrooms:
-                if classroom.grade and classroom.grade.grade_number:
-                    logger.info(f"DEBUG: Checking {classroom} - Grade {classroom.grade.grade_number}")
-                    # Allow promotion to next grade only (strict progression)
-                    if classroom.grade.grade_number == current_grade_num + 1:
-                        next_classrooms.append(classroom)
-                        logger.info(f"DEBUG: ✅ ADDED {classroom} to next classrooms")
-                        
-                        # Check if classroom has timetable
-                        has_timetable = classroom.timetables.exists()
-                        timetable_count = classroom.timetables.count()
-                        next_classrooms_with_timetable_info.append({
-                            'classroom': classroom,
-                            'has_timetable': has_timetable,
-                            'timetable_count': timetable_count
-                        })
+                logger.info(f"DEBUG: Checking {classroom} - Grade {classroom.grade.grade_number}, Year: {classroom.academic_year}")
+                
+                # Check if classroom has timetable
+                has_timetable = classroom.timetables.exists()
+                timetable_count = classroom.timetables.count()
+                next_classrooms_with_timetable_info.append({
+                    'classroom': classroom,
+                    'has_timetable': has_timetable,
+                    'timetable_count': timetable_count
+                })
             
             logger.info(f"DEBUG: Final next_classrooms count: {len(next_classrooms_with_timetable_info)}")
         else:
@@ -1021,6 +1042,8 @@ def student_promote(request):
         'passing_percentage': passing_percentage,
         'next_classrooms': next_classrooms,
         'next_classrooms_with_info': next_classrooms_with_timetable_info,
+        'target_academic_year': target_academic_year,
+        'next_grade_number': next_grade_number,
     })
 
 

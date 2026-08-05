@@ -11,13 +11,49 @@
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 }
 .status-badge {
   font-size: 0.85rem;
   padding: 4px 12px;
+  font-weight: 600;
+}
+.student-row {
+  transition: all 0.2s ease;
 }
 .student-row:hover {
   background: #f8fafc;
+  transform: translateX(2px);
+}
+.student-row.can-promote {
+  background: #f0fdf4;
+}
+.student-row.cannot-promote {
+  background: #fef2f2;
+  opacity: 0.7;
+}
+.action-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px 12px 0 0;
+  margin: -1px -1px 0 -1px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.stat-item {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+.stat-item strong {
+  display: block;
+  font-size: 1.5rem;
+  margin-top: 4px;
 }
 </style>
 
@@ -105,40 +141,51 @@
 {% else %}
 <!-- Step 2: Review and Promote -->
 <div class="promote-card shadow">
-  <div class="row">
-    <div class="col-md-6">
-      <h5><i class="bi bi-info-circle me-2"></i>សង្ខេប</h5>
-      <div class="mt-2">
-        <div><strong>សិស្សសរុប:</strong> {{ students_data|length }} នាក់</div>
-        <div>
-          <strong>អាចឡើងថ្នាក់:</strong> 
-          {% with eligible_count=0 %}
-            {% for data in students_data %}
-              {% if data.can_promote %}
-                {% with eligible_count=eligible_count|add:1 %}{% endwith %}
-              {% endif %}
-            {% endfor %}
-          {% endwith %}
-          <span id="eligible-count">0</span> នាក់
-          <script>
-            // Count eligible students
-            let eligibleCount = 0;
-            {% for data in students_data %}
-              {% if data.can_promote %}
-                eligibleCount++;
-              {% endif %}
-            {% endfor %}
-            document.getElementById('eligible-count').textContent = eligibleCount;
-          </script>
-        </div>
-        <div><strong>លក្ខខណ្ឌ:</strong> ពិន្ទុ ≥ {{ passing_percentage }}% និង វត្តមាន ≥ 80%</div>
-      </div>
+  <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>សង្ខេបលទ្ធផលសិស្ស</h5>
+  <div class="stats-grid">
+    <div class="stat-item">
+      <small>សិស្សសរុប</small>
+      <strong>{{ students_data|length }}</strong>
+      <small>នាក់</small>
     </div>
-    <div class="col-md-6 text-end">
-      <a href="{% url 'school:student_promote' %}" class="btn btn-light">
-        <i class="bi bi-arrow-left me-1"></i>ជ្រើសរើសថ្នាក់ផ្សេង
-      </a>
+    <div class="stat-item">
+      <small>អាចឡើងថ្នាក់</small>
+      <strong id="eligible-count">0</strong>
+      <small>នាក់</small>
+      <script>
+        let eligibleCount = 0;
+        {% for data in students_data %}
+          {% if data.can_promote %}
+            eligibleCount++;
+          {% endif %}
+        {% endfor %}
+        document.getElementById('eligible-count').textContent = eligibleCount;
+      </script>
     </div>
+    <div class="stat-item">
+      <small>មិនអាចឡើង</small>
+      <strong>{{ students_data|length|add:"-0" }}</strong>
+      <small>នាក់</small>
+      <script>
+        const totalStudents = {{ students_data|length }};
+        const cannotPromote = totalStudents - eligibleCount;
+        document.querySelectorAll('.stat-item strong')[2].textContent = cannotPromote;
+      </script>
+    </div>
+  </div>
+  
+  <div class="mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
+    <small><strong>លក្ខខណ្ឌឡើងថ្នាក់:</strong></small>
+    <ul class="mb-0 mt-1 small">
+      <li>ពិន្ទុមធ្យម ≥ {{ passing_percentage }}%</li>
+      <li>វត្តមាន ≥ 80%</li>
+    </ul>
+  </div>
+  
+  <div class="text-end mt-3">
+    <a href="{% url 'school:student_promote' %}" class="btn btn-light btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>ជ្រើសរើសថ្នាក់ផ្សេង
+    </a>
   </div>
 </div>
 
@@ -147,56 +194,112 @@
   <input type="hidden" name="current_classroom" value="{{ current_classroom_id }}">
   
   <div class="card shadow-sm mb-3">
-    <div class="card-header bg-white">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-people me-2 text-primary"></i>បញ្ជីសិស្ស</h5>
+    <div class="action-header">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-          <label class="form-label fw-semibold me-2 mb-0">ថ្នាក់ថ្មី:</label>
-          <select name="next_classroom" id="next_classroom_select" class="form-select d-inline-block" style="width: auto;" required {% if not next_classrooms_with_info %}disabled{% endif %}>
-            <option value="">-- ជ្រើសរើសថ្នាក់ថ្មី --</option>
+          <h5 class="mb-1"><i class="bi bi-people-fill me-2"></i>បញ្ជីសិស្សសម្រាប់ឡើងថ្នាក់</h5>
+          <small class="opacity-75">ជ្រើសរើសសិស្សដែលអាចឡើងថ្នាក់</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="mb-0 text-white fw-semibold">ថ្នាក់ថ្មី:</label>
+          <select name="next_classroom" id="next_classroom_select" class="form-select form-select-sm" style="min-width: 200px;" required {% if not next_classrooms_with_info %}disabled{% endif %}>
+            <option value="">-- ជ្រើសរើសថ្នាក់ --</option>
             {% for info in next_classrooms_with_info %}
             <option value="{{ info.classroom.pk }}" 
                     data-has-timetable="{{ info.has_timetable }}"
                     data-timetable-count="{{ info.timetable_count }}">
               {{ info.classroom }}
-              {% if not info.has_timetable %} ⚠️ គ្មានកាលវិភាគ{% endif %}
+              {% if info.classroom.academic_year %} ({{ info.classroom.academic_year }}){% endif %}
+              {% if not info.has_timetable %} ⚠️{% endif %}
             </option>
             {% empty %}
-            <option value="" disabled>គ្មានថ្នាក់ដែលត្រូវបានរកឃើញ</option>
+            <option value="" disabled>គ្មានថ្នាក់</option>
             {% endfor %}
           </select>
         </div>
       </div>
+    </div>
       <!-- No Next Classroom Warning -->
       {% if not next_classrooms_with_info %}
       <div class="alert alert-danger mt-3 mb-0">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <strong>បញ្ហា:</strong> រកមិនឃើញថ្នាក់សម្រាប់ឡើង!
-        <ul class="mb-0 mt-2">
-          <li>ថ្នាក់បច្ចុប្បន្ន: <strong>{{ current_classroom }}</strong> (ថ្នាក់ទី{{ current_classroom.grade.grade_number }})</li>
-          <li>ត្រូវការថ្នាក់ថ្មី: <strong>ថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }}</strong></li>
-          <li><strong>ដំណោះស្រាយ:</strong> សូមបង្កើតថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }} មុន!</li>
-        </ul>
-        <div class="mt-2">
-          <strong>របៀបបង្កើត:</strong>
-          <ol class="mb-0">
-            <li>ទៅកាន់ <a href="{% url 'school:classroom_list' %}" class="alert-link"><strong>ថ្នាក់រៀន (Classrooms)</strong></a></li>
-            <li>ចុច "បន្ថែមថ្នាក់រៀន" (Add Classroom)</li>
-            <li>ជ្រើសរើសថ្នាក់ទី{{ current_classroom.grade.grade_number|add:1 }} និងឆ្នាំសិក្សា</li>
+        <h6 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>បញ្ហា: រកមិនឃើញថ្នាក់សម្រាប់ឡើង!</h6>
+        
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <strong>ព័ត៌មានបច្ចុប្បន្ន:</strong>
+            <ul class="mb-2">
+              <li>ថ្នាក់បច្ចុប្បន្ន: <strong>{{ current_classroom }}</strong></li>
+              <li>កម្រិត: <strong>ថ្នាក់ទី{{ current_classroom.grade.grade_number }}</strong></li>
+              <li>ឆ្នាំសិក្សា: <strong>{{ current_classroom.academic_year|default:"មិនបានកំណត់" }}</strong></li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <strong>តម្រូវការ:</strong>
+            <ul class="mb-2">
+              <li>ថ្នាក់ត្រូវការ: <strong>ថ្នាក់ទី{{ next_grade_number }}</strong></li>
+              <li>ឆ្នាំសិក្សា: <strong>{{ target_academic_year|default:"ឆ្នាំបន្ទាប់" }}</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-warning mt-2 mb-0">
+          <strong><i class="bi bi-lightbulb-fill me-1"></i>ដំណោះស្រាយ:</strong>
+          <ol class="mb-2 mt-2">
+            <li>
+              <strong>បង្កើតថ្នាក់ដោយដៃ:</strong>
+              <ul>
+                <li>ទៅកាន់ <a href="{% url 'school:classroom_list' %}" class="alert-link fw-bold"><i class="bi bi-building-fill"></i> ថ្នាក់រៀន (Classrooms)</a></li>
+                <li>ចុច <span class="badge bg-primary">+ បន្ថែមថ្នាក់រៀន</span></li>
+                <li>ជ្រើសរើស: <strong>ថ្នាក់ទី{{ next_grade_number }}</strong> និង <strong>{{ target_academic_year|default:"ឆ្នាំបន្ទាប់" }}</strong></li>
+              </ul>
+            </li>
+            <li>
+              <strong>ប្រើ Command (រហ័ស):</strong>
+              <div class="bg-dark text-light p-2 rounded mt-1 font-monospace small">
+                python manage.py create_missing_classrooms --year "{{ target_academic_year|default:"2026-2027" }}"
+              </div>
+              <small class="text-muted d-block mt-1">* នឹងបង្កើតថ្នាក់ទាំងអស់ដែលខ្វះ</small>
+            </li>
           </ol>
-          <strong>ឬប្រើ Command:</strong>
-          <code class="d-block mt-1">python manage.py create_missing_classrooms --year "{{ current_classroom.academic_year.year }}"</code>
+        </div>
+
+        <div class="mt-2">
+          <a href="{% url 'school:classroom_list' %}" class="btn btn-primary btn-sm me-2">
+            <i class="bi bi-building-fill me-1"></i>បង្កើតថ្នាក់រៀន
+          </a>
+          <a href="{% url 'school:academic_year_list' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-calendar2-range-fill me-1"></i>មើលឆ្នាំសិក្សា
+          </a>
         </div>
       </div>
       {% else %}
       <div class="alert alert-success mt-3 mb-0">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        <strong>រកឃើញថ្នាក់សម្រាប់ឡើង:</strong> {{ next_classrooms_with_info|length }} ថ្នាក់
-        <ul class="mb-0">
-        {% for info in next_classrooms_with_info %}
-          <li>{{ info.classroom }} {% if info.has_timetable %}✅ មានកាលវិភាគ{% else %}⚠️ គ្មានកាលវិភាគ{% endif %}</li>
-        {% endfor %}
-        </ul>
+        <h6 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>រកឃើញថ្នាក់សម្រាប់ឡើង!</h6>
+        <div class="row">
+          <div class="col-md-8">
+            <strong>ថ្នាក់ដែលអាចប្រើបាន: {{ next_classrooms_with_info|length }} ថ្នាក់</strong>
+            <ul class="mb-0 mt-1">
+            {% for info in next_classrooms_with_info %}
+              <li>
+                <strong>{{ info.classroom }}</strong>
+                {% if info.classroom.academic_year %}
+                  <span class="badge bg-info">{{ info.classroom.academic_year }}</span>
+                {% endif %}
+                {% if info.has_timetable %}
+                  <span class="badge bg-success"><i class="bi bi-check"></i> មានកាលវិភាគ ({{ info.timetable_count }})</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> គ្មានកាលវិភាគ</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+            </ul>
+          </div>
+          <div class="col-md-4 text-end">
+            {% if next_classrooms_with_info|length == 1 %}
+              <small class="text-muted d-block">ប្រព័ន្ធនឹងជ្រើសរើសថ្នាក់នេះដោយស្វ័យប្រវត្តិ</small>
+            {% endif %}
+          </div>
+        </div>
       </div>
       {% endif %}
       <!-- Timetable Warning Alert -->
@@ -212,38 +315,44 @@
       <table class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
-            <th style="width: 50px;">
-              <input type="checkbox" id="selectAll" class="form-check-input">
+            <th style="width: 50px;" class="text-center">
+              <input type="checkbox" id="selectAll" class="form-check-input" title="ជ្រើសរើសទាំងអស់">
             </th>
-            <th>#</th>
+            <th class="text-center" style="width: 50px;">#</th>
             <th>លេខសិស្ស</th>
             <th>ឈ្មោះសិស្ស</th>
-            <th>មុខវិជ្ជា</th>
-            <th>ជាប់</th>
-            <th>ធ្លាក់</th>
-            <th>មធ្យមភាគ</th>
-            <th>វត្តមាន</th>
-            <th>ស្ថានភាព</th>
+            <th class="text-center">មុខវិជ្ជា</th>
+            <th class="text-center">ជាប់</th>
+            <th class="text-center">ធ្លាក់</th>
+            <th class="text-center">មធ្យមភាគ</th>
+            <th class="text-center">វត្តមាន</th>
+            <th class="text-center">ស្ថានភាព</th>
           </tr>
         </thead>
         <tbody>
         {% for data in students_data %}
-        <tr class="student-row">
-          <td>
+        <tr class="student-row {% if data.can_promote %}can-promote{% else %}cannot-promote{% endif %}">
+          <td class="text-center">
             {% if data.can_promote %}
             <input type="checkbox" name="student_ids" value="{{ data.student.pk }}" class="form-check-input student-checkbox" checked>
             {% else %}
-            <input type="checkbox" class="form-check-input" disabled>
+            <input type="checkbox" class="form-check-input" disabled title="មិនបំពេញលក្ខខណ្ឌ">
             {% endif %}
           </td>
-          <td>{{ forloop.counter }}</td>
+          <td class="text-center">{{ forloop.counter }}</td>
           <td><span class="badge bg-light text-dark border">{{ data.student.student_id }}</span></td>
-          <td><strong>{{ data.student.last_name }} {{ data.student.first_name }}</strong></td>
-          <td><span class="badge bg-secondary">{{ data.total_subjects }}</span></td>
-          <td><span class="badge bg-success">{{ data.passed_subjects }}</span></td>
-          <td><span class="badge bg-danger">{{ data.failed_subjects }}</span></td>
-          <td><strong>{{ data.avg_percentage }}%</strong></td>
-          <td>
+          <td class="fw-bold">{{ data.student.last_name }} {{ data.student.first_name }}</td>
+          <td class="text-center"><span class="badge bg-secondary">{{ data.total_subjects }}</span></td>
+          <td class="text-center"><span class="badge bg-success">{{ data.passed_subjects }}</span></td>
+          <td class="text-center"><span class="badge bg-danger">{{ data.failed_subjects }}</span></td>
+          <td class="text-center fw-bold">
+            {% if data.avg_percentage >= passing_percentage %}
+              <span class="text-success">{{ data.avg_percentage }}%</span>
+            {% else %}
+              <span class="text-danger">{{ data.avg_percentage }}%</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
             {% if data.attendance_rate >= 80 %}
               <span class="badge bg-success">{{ data.attendance_rate }}%</span>
               <small class="text-muted d-block">({{ data.present_days }}/{{ data.total_days }})</small>
@@ -255,15 +364,15 @@
               <small class="text-muted d-block">({{ data.present_days }}/{{ data.total_days }})</small>
             {% endif %}
           </td>
-          <td>
+          <td class="text-center">
             {% if data.can_promote %}
-              <span class="badge bg-success status-badge">✓ អាចឡើងថ្នាក់</span>
+              <span class="badge bg-success status-badge"><i class="bi bi-check-circle-fill"></i> អាចឡើង</span>
             {% elif data.total_subjects == 0 %}
-              <span class="badge bg-secondary status-badge">មិនមានពិន្ទុ</span>
+              <span class="badge bg-secondary status-badge"><i class="bi bi-x-circle"></i> គ្មានពិន្ទុ</span>
             {% elif data.attendance_rate < 80 %}
-              <span class="badge bg-warning text-dark status-badge">⚠ វត្តមានខ្សោយ</span>
+              <span class="badge bg-warning text-dark status-badge"><i class="bi bi-exclamation-triangle-fill"></i> វត្តមានខ្សោយ</span>
             {% else %}
-              <span class="badge bg-danger status-badge">✗ ប្រឡងធ្លាក់</span>
+              <span class="badge bg-danger status-badge"><i class="bi bi-x-circle-fill"></i> ប្រឡងធ្លាក់</span>
             {% endif %}
           </td>
         </tr>
