@@ -1,140 +1,510 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="km">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Report Card – {{ student }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    body { font-family: 'Georgia', serif; background: #f8fafc; }
-    .report-wrap { max-width: 800px; margin: 30px auto; background: #fff; border: 2px solid #1e293b; border-radius: 4px; padding: 40px; }
-    .school-header { text-align: center; border-bottom: 3px double #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
-    .school-header h1 { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
-    .school-header h2 { font-size: 1.1rem; color: #334155; }
-    .student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin-bottom: 24px; font-size: .9rem; }
-    .student-info span { color: #64748b; }
-    .student-info strong { color: #0f172a; }
-    .section-title { background: #0f172a; color: #fff; padding: 6px 12px; font-weight: 700; font-size: .85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    th, td { border: 1px solid #cbd5e1; padding: 8px 12px; font-size: .85rem; }
-    th { background: #f1f5f9; font-weight: 700; }
-    .grade-A { color: #16a34a; font-weight: 700; }
-    .grade-B { color: #2563eb; font-weight: 700; }
-    .grade-C { color: #7c3aed; font-weight: 700; }
-    .grade-D { color: #d97706; font-weight: 700; }
-    .grade-F { color: #dc2626; font-weight: 700; }
-    .remarks-box { border: 1px solid #cbd5e1; padding: 14px; border-radius: 4px; min-height: 60px; font-size: .88rem; margin-bottom: 16px; }
-    .signature-row { display: flex; justify-content: space-between; margin-top: 40px; }
-    .sig-box { text-align: center; width: 180px; }
-    .sig-line { border-top: 1px solid #475569; padding-top: 6px; font-size: .8rem; color: #475569; }
-    .attendance-box { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .att-stat { text-align: center; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; }
-    .att-stat .num { font-size: 1.6rem; font-weight: 800; }
-    .att-stat .lbl { font-size: .72rem; color: #64748b; text-transform: uppercase; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Inter', 'Noto Sans Khmer', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    
+    .report-wrap { 
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    /* Header - Elegant and Clean */
+    .school-header { 
+      text-align: center;
+      padding: 40px 40px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      position: relative;
+    }
+    
+    .school-header h1 { 
+      font-family: 'Playfair Display', 'Noto Sans Khmer', serif;
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .school-header h2 { 
+      font-size: 18px;
+      font-weight: 400;
+      opacity: 0.95;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    
+    .school-contact {
+      font-size: 13px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+    
+    /* Report Title Section */
+    .report-title-section {
+      padding: 30px 40px 25px;
+      background: #f8f9fa;
+      border-bottom: 3px solid #667eea;
+    }
+    
+    .report-title {
+      font-family: 'Noto Sans Khmer', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+    
+    .report-meta {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    .report-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .report-meta-item strong {
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    /* Student Info Box - Clean Blue */
+    .student-info-box {
+      background: #4299e1;
+      padding: 20px 40px;
+      color: white;
+    }
+    
+    .student-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      font-size: 15px;
+    }
+    
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      opacity: 0.95;
+    }
+    
+    .info-value {
+      font-weight: 500;
+    }
+    
+    /* Content Area */
+    .report-content {
+      padding: 35px 40px;
+    }
+    
+    /* Grade Legend - Cleaner */
+    .grade-legend {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+      padding: 16px;
+      background: #f7fafc;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .legend-label {
+      font-weight: 600;
+      color: #4a5568;
+      font-family: 'Noto Sans Khmer', sans-serif;
+    }
+    
+    .grade-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .badge-a { background: #48bb78; }
+    .badge-b { background: #4299e1; }
+    .badge-c { background: #9f7aea; }
+    .badge-d { background: #ed8936; }
+    .badge-f { background: #f56565; }
+    
+    /* Table - Professional Style */
+    .scores-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 35px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    thead tr {
+      background: #667eea;
+      color: white;
+    }
+    
+    thead th {
+      padding: 14px 16px;
+      font-weight: 600;
+      text-align: left;
+      border-right: 1px solid rgba(255,255,255,0.2);
+      font-family: 'Noto Sans Khmer', sans-serif;
+    }
+    
+    thead th:last-child {
+      border-right: none;
+      background: #fbbf24;
+      color: #78350f;
+    }
+    
+    tbody td {
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+    
+    tbody td:last-child {
+      border-right: none;
+      background: #fef3c7;
+      font-weight: 700;
+      color: #78350f;
+    }
+    
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tbody tr:hover {
+      background: #f7fafc;
+    }
+    
+    .student-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 15px;
+    }
+    
+    .student-id {
+      font-size: 12px;
+      color: #718096;
+      display: block;
+      margin-top: 4px;
+    }
+    
+    .score-cell {
+      text-align: center;
+      font-weight: 600;
+      color: #2d3748;
+    }
+    
+    .percentage {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 400;
+      display: block;
+      margin-top: 2px;
+    }
+    
+    /* Signatures - Clean Layout */
+    .signature-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+    
+    .signature-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+    
+    .signature-box {
+      text-align: center;
+    }
+    
+    .signature-space {
+      height: 60px;
+      margin-bottom: 12px;
+    }
+    
+    .signature-line {
+      border-top: 2px solid #2d3748;
+      padding-top: 10px;
+      font-size: 13px;
+      color: #4a5568;
+      font-weight: 500;
+      font-family: 'Noto Sans Khmer', sans-serif;
+    }
+    
+    /* Footer */
+    .report-footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #718096;
+    }
+    
+    /* Buttons */
+    .button-section {
+      text-align: center;
+      padding: 25px;
+      background: #f7fafc;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn-print {
+      background: #2d3748;
+      color: white;
+      margin-right: 12px;
+    }
+    
+    .btn-print:hover {
+      background: #1a202c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
+    }
+    
+    .btn-back {
+      background: white;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .btn-back:hover {
+      border-color: #cbd5e0;
+      background: #f7fafc;
+    }
+    
+    /* Print Styles */
     @media print {
-      body { background: #fff; }
-      .report-wrap { margin: 0; border: none; padding: 20px; box-shadow: none; page-break-after: always; }
-      .no-print { display: none !important; }
-      @page { size: A4; margin: 15mm; }
+      body { 
+        background: white;
+        padding: 0;
+      }
+      
+      .report-wrap { 
+        box-shadow: none;
+        border-radius: 0;
+      }
+      
+      .button-section {
+        display: none !important;
+      }
+      
+      .report-footer {
+        page-break-inside: avoid;
+      }
+      
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+    }
+    
+    /* Khmer Font Fix */
+    .khmer-text {
+      font-family: 'Noto Sans Khmer', sans-serif;
+      letter-spacing: 0 !important;
     }
   </style>
 </head>
 <body>
 <div class="report-wrap">
 
+  <!-- School Header -->
   <div class="school-header">
-    <h1>Beltei</h1>
-    <h2 style="font-size: 0.9rem; font-weight: normal;">Primary School</h2>
-    <p style="font-size:.75rem;color:#64748b;margin:4px 0 0 0;">
-      PhnomPhenh &nbsp;|&nbsp; <i class="bi bi-telephone"></i> 062726538 &nbsp;|&nbsp; Leesophara@gmail.com
-    </p>
+    <h1>{{ school.school_name|default:"Beltei" }}</h1>
+    <h2>Primary School</h2>
+    <div class="school-contact">
+      PhnomPhenh &nbsp;|&nbsp; ☎ 062726538 &nbsp;|&nbsp; Leesophara@gmail.com
+    </div>
   </div>
 
-  <div style="text-align: center; margin: 20px 0; padding: 12px; background: #f1f5f9; border: 1px solid #cbd5e1;">
-    <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0;">របាយការណ៍លទ្ធផលប្រឡង / EXAM RESULTS REPORT</h3>
-    <p style="font-size: 0.85rem; margin: 8px 0 0 0; color: #475569;">
-      ថ្នាក់: <strong>{{ student.classroom|default:"—" }}</strong> &nbsp;·&nbsp;
-      ឆ្នាំ: <strong>{{ card.academic_year }}</strong> &nbsp;·&nbsp;
-      ចេញ: <strong>{{ today|date:"M d, Y" }}</strong>
-    </p>
+  <!-- Report Title -->
+  <div class="report-title-section">
+    <div class="report-title khmer-text">
+      របាយការណ៍លទ្ធផលប្រឡង / EXAM RESULTS REPORT
+    </div>
+    <div class="report-meta">
+      <div class="report-meta-item khmer-text">
+        <span>ថ្នាក់:</span>
+        <strong>{{ student.classroom|default:"—" }}</strong>
+      </div>
+      <div class="report-meta-item khmer-text">
+        <span>ឆ្នាំ:</span>
+        <strong>{{ card.academic_year }}</strong>
+      </div>
+      <div class="report-meta-item khmer-text">
+        <span>ចេញ:</span>
+        <strong>{{ today|date:"M d, Y" }}</strong>
+      </div>
+    </div>
   </div>
 
-  <!-- Student Info Box - Show Once -->
-  <div style="background: #3b82f6; color: white; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.9rem;">
-      <div><strong>ថ្នាក់ / CLASS:</strong> {{ student.classroom|default:"—" }}</div>
-      <div><strong>ឆ្នាំ / YEAR:</strong> {{ card.academic_year }}</div>
-      <div><strong>កំណត់ត្រា / Records:</strong> {{ scores|length }} ក</div>
+  <!-- Student Info -->
+  <div class="student-info-box">
+    <div class="student-info-grid">
+      <div class="info-item khmer-text">
+        <span class="info-label">ថ្នាក់ / CLASS:</span>
+        <span class="info-value">{{ student.classroom|default:"—" }}</span>
+      </div>
+      <div class="info-item khmer-text">
+        <span class="info-label">ឆ្នាំ / YEAR:</span>
+        <span class="info-value">{{ card.academic_year }}</span>
+      </div>
+      <div class="info-item khmer-text">
+        <span class="info-label">កំណត់ត្រា / Records:</span>
+        <span class="info-value">{{ scores|length }} ក</span>
+      </div>
     </div>
   </div>
   
-  <!-- Grade Legend -->
-  <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 16px; font-size: 0.75rem;">
-    <span>ស្ទង់ថ្នាក់:</span>
-    <span style="background: #16a34a; color: white; padding: 2px 10px; border-radius: 4px;"><strong>A</strong></span> 80-100%
-    <span style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 4px;"><strong>B</strong></span> 70-79%
-    <span style="background: #9333ea; color: white; padding: 2px 10px; border-radius: 4px;"><strong>C</strong></span> 60-69%
-    <span style="background: #d97706; color: white; padding: 2px 10px; border-radius: 4px;"><strong>D</strong></span> 50-59%
-    <span style="background: #dc2626; color: white; padding: 2px 10px; border-radius: 4px;"><strong>F</strong></span> &lt;50%
-  </div>
-  
-  <!-- Horizontal Score Table (Excel-like) -->
-  <table style="margin-top:0;">
-    <thead>
-      <tr style="background: #e879f9;">
-        <th style="background: #e879f9;">Student</th>
-        {% for s in scores %}
-        <th style="background: #e879f9;">{{ s.subject.name }}</th>
-        {% endfor %}
-        <th style="background: #fde047;">Total<br>Average</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>{{ student.last_name }} {{ student.first_name }}</strong><br>
-            <small style="color: #64748b;">{{ student.student_id }}</small>
-        </td>
-        {% for s in scores %}
-        <td style="text-align:center;font-weight:700;">
-          {{ s.score }}<br>
-          <small style="color: #64748b;">{{ s.percentage }}%</small>
-        </td>
-        {% endfor %}
-        <td style="text-align:center;font-weight:700;background: #fef08a;">
-          {{ avg_score|default:"0.0" }}%
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Content -->
+  <div class="report-content">
+    
+    <!-- Grade Legend -->
+    <div class="grade-legend">
+      <span class="legend-label khmer-text">ស្ទង់ថ្នាក់:</span>
+      <span class="grade-badge badge-a">A</span> 80-100%
+      <span class="grade-badge badge-b">B</span> 70-79%
+      <span class="grade-badge badge-c">C</span> 60-69%
+      <span class="grade-badge badge-d">D</span> 50-59%
+      <span class="grade-badge badge-f">F</span> &lt;50%
+    </div>
+    
+    <!-- Scores Table -->
+    <div class="scores-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="khmer-text">Student</th>
+            {% for s in scores %}
+            <th class="khmer-text">{{ s.subject.name }}</th>
+            {% endfor %}
+            <th class="khmer-text">Total<br>Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="student-name">{{ student.last_name }} {{ student.first_name }}</div>
+              <span class="student-id">{{ student.student_id }}</span>
+            </td>
+            {% for s in scores %}
+            <td class="score-cell">
+              {{ s.score }}
+              <span class="percentage">{{ s.percentage }}%</span>
+            </td>
+            {% endfor %}
+            <td class="score-cell">
+              {{ avg_score|default:"0.0" }}%
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  
-  <div class="signature-row">
-    <div class="sig-box">
-      <div style="height:50px;"></div>
-      <div class="sig-line">គ្រូប្រចាំមុខវិជ្ជា / Subject Teacher</div>
+    <!-- Signatures -->
+    <div class="signature-section">
+      <div class="signature-row">
+        <div class="signature-box">
+          <div class="signature-space"></div>
+          <div class="signature-line khmer-text">
+            គ្រូប្រចាំមុខវិជ្ជា<br>Subject Teacher
+          </div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-space"></div>
+          <div class="signature-line khmer-text">
+            ត្រួតពិនិត្យ<br>Supervisor
+          </div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-space"></div>
+          <div class="signature-line khmer-text">
+            នាយក/នាយិកា<br>Principal
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="sig-box">
-      <div style="height:50px;"></div>
-      <div class="sig-line">ត្រួតពិនិត្យ / Supervisor</div>
+
+    <!-- Footer -->
+    <div class="report-footer">
+      <div>{{ school.school_name|default:"Beltei" }}</div>
+      <div class="khmer-text">បោះពុម្ពថ្ងៃទី: {{ today|date:"M d, Y" }}</div>
     </div>
-    <div class="sig-box">
-      <div style="height:50px;"></div>
-      <div class="sig-line">នាយក/នាយិកា / Principal</div>
-    </div>
+
+  </div>
+
+  <!-- Buttons -->
+  <div class="button-section">
+    <button onclick="window.print()" class="btn btn-print">
+      <span>🖨</span> Print
+    </button>
+    <a href="{% url 'school:report_card_list' %}" class="btn btn-back">
+      ← Back
+    </a>
   </div>
 
 </div>
 
-<div style="text-align: right; font-size: 0.75rem; color: #94a3b8; margin-top: 12px; padding: 0 40px;">
-  Beltei &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; បោះពុម្ពថ្ងៃទី: {{ today|date:"M d, Y" }}
-</div>
-
-<div class="text-center mt-3 no-print">
-  <button onclick="window.print()" class="btn btn-dark me-2">
-    <i class="bi bi-printer me-1"></i>Print
-  </button>
-  <a href="{% url 'school:report_card_list' %}" class="btn btn-outline-secondary">Back</a>
-</div>
 </body>
 </html>
