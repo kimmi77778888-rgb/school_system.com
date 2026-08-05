@@ -1,0 +1,263 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    EXAM & PROMOTION RESET PROCESS FLOW                         ║
+║                    លំហូរដំណើរការកំណត់ប្រព័ន្ធឡើងវិញ                           ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+                         ┌─────────────────────────────┐
+                         │   BEFORE STARTING           │
+                         │   ត្រៀមលក្ខណៈ               │
+                         └──────────┬──────────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │  1. BACKUP DATABASE         │
+                         │  python manage.py dumpdata  │
+                         └──────────┬──────────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │  2. VERIFY CURRENT DATA     │
+                         │  Check exams, results, etc. │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+                         
+                         ┌──────────▼──────────────────┐
+                         │   STEP 1: RESET SYSTEM      │
+                         │   🗑️  DELETE OLD DATA        │
+                         └──────────┬──────────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │ reset_exam_promotion_system.py│
+                    │                               │
+                    │ Deletes:                      │
+                    │  • All Exams                  │
+                    │  • All ExamResults            │
+                    │  • All Scores                 │
+                    │  • All StudentHistory         │
+                    │  • Student promotion fields   │
+                    │                               │
+                    │ Keeps:                        │
+                    │  ✓ Students                   │
+                    │  ✓ Classrooms                 │
+                    │  ✓ Subjects                   │
+                    │  ✓ Academic Years             │
+                    │  ✓ ExamTypes                  │
+                    └───────────────┬───────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   RESULT: CLEAN SLATE       │
+                         │   Zero exams, Zero results  │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+
+                         ┌──────────▼──────────────────┐
+                         │   STEP 2: CREATE EXAMS      │
+                         │   ⚡ BUILD NEW STRUCTURE     │
+                         └──────────┬──────────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │    quick_setup_exams.py       │
+                    │                               │
+                    │  Interactive Wizard:          │
+                    │  1. Select exam type          │
+                    │  2. Select classrooms         │
+                    │  3. Set exam date             │
+                    │  4. Set max/passing scores    │
+                    │                               │
+                    │  Creates:                     │
+                    │  → Exam for each subject      │
+                    │  → In each selected classroom │
+                    │  → Automatically              │
+                    └───────────────┬───────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   RESULT: EXAMS READY       │
+                         │   All subjects, all classes │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+
+                         ┌──────────▼──────────────────┐
+                         │   STEP 3: ADD RESULTS       │
+                         │   📥 IMPORT SCORES          │
+                         └──────────┬──────────────────┘
+                                    │
+              ┌─────────────────────┴─────────────────────┐
+              │                                           │
+    ┌─────────▼─────────┐                   ┌────────────▼──────────┐
+    │  Manual Entry     │                   │  Bulk Import (CSV)    │
+    │  Via Web UI       │                   │  bulk_import_exam_    │
+    │  /exams/          │                   │  results.py           │
+    └─────────┬─────────┘                   └────────────┬──────────┘
+              │                                           │
+              └─────────────────────┬─────────────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   RESULT: RESULTS RECORDED  │
+                         │   Students have scores      │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+
+                         ┌──────────▼──────────────────┐
+                         │   STEP 4: CHECK ELIGIBILITY │
+                         │   ✅ WHO CAN PROMOTE?       │
+                         └──────────┬──────────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │  API: check_promotion_        │
+                    │       eligibility              │
+                    │                               │
+                    │  Checks:                      │
+                    │  • Average score ≥ 50%        │
+                    │  • Attendance ≥ 80%           │
+                    │  • Has at least 1 score       │
+                    │                               │
+                    │  Returns:                     │
+                    │  → List of eligible students  │
+                    │  → Reasons for ineligible     │
+                    └───────────────┬───────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   RESULT: ELIGIBILITY LIST  │
+                         │   Know who can be promoted  │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+
+                         ┌──────────▼──────────────────┐
+                         │   STEP 5: PROMOTE STUDENTS  │
+                         │   🎓 MOVE TO NEXT GRADE     │
+                         └──────────┬──────────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │  API: bulk_promote            │
+                    │                               │
+                    │  For each student:            │
+                    │  1. Validate eligibility      │
+                    │  2. Create StudentHistory     │
+                    │  3. Update Student.classroom  │
+                    │  4. Set promotion_date        │
+                    │                               │
+                    │  Validates:                   │
+                    │  • Next grade only (+1)       │
+                    │  • Level transitions correct  │
+                    │  • Grade 6→7, 9→10, 12→grad   │
+                    └───────────────┬───────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   RESULT: STUDENTS PROMOTED │
+                         │   History recorded          │
+                         └──────────┬──────────────────┘
+                                    │
+═══════════════════════════════════════════════════════════════════════════════════
+
+                         ┌──────────▼──────────────────┐
+                         │   STEP 6: VERIFY & REPORT   │
+                         │   📊 CHECK RESULTS          │
+                         └──────────┬──────────────────┘
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │  Verify in Web Interface:     │
+                    │  • /students/ (see new class) │
+                    │  • /exams/ (see results)      │
+                    │  • Student history pages      │
+                    │                               │
+                    │  Generate Reports:            │
+                    │  • Promotion reports          │
+                    │  • Statistics                 │
+                    │  • Export to Excel/PDF        │
+                    └───────────────┬───────────────┘
+                                    │
+                         ┌──────────▼──────────────────┐
+                         │   ✅ COMPLETE!              │
+                         │   New system ready          │
+                         └─────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+
+PROMOTION RULES DIAGRAM:
+────────────────────────
+
+                    ┌──────────────────────────────────┐
+                    │      STUDENT ELIGIBILITY         │
+                    │      ការពិនិត្យលក្ខណៈគ្រប់គ្រាន់   │
+                    └────────────┬─────────────────────┘
+                                 │
+                    ┌────────────▼─────────────────────┐
+                    │  Has Scores?                     │
+                    │  មានពិន្ទុទេ?                     │
+                    └────────┬────────────┬────────────┘
+                            NO           YES
+                             │            │
+                    ┌────────▼──────┐    │
+                    │  ❌ FAIL      │    │
+                    │  មិនអាចឡើងថ្នាក់│    │
+                    └───────────────┘    │
+                                         │
+                             ┌───────────▼────────────┐
+                             │  Average Score ≥ 50%?  │
+                             │  ពិន្ទុមធ្យម ≥ ៥០%?   │
+                             └───────┬──────────┬─────┘
+                                    NO         YES
+                                     │          │
+                            ┌────────▼──────┐  │
+                            │  ❌ FAIL      │  │
+                            └───────────────┘  │
+                                               │
+                                   ┌───────────▼────────────┐
+                                   │  Attendance ≥ 80%?     │
+                                   │  វត្តមាន ≥ ៨០%?        │
+                                   └───────┬─────────┬──────┘
+                                          NO        YES
+                                           │         │
+                                  ┌────────▼──────┐ │
+                                  │  ❌ FAIL      │ │
+                                  └───────────────┘ │
+                                                    │
+                                        ┌───────────▼────────────┐
+                                        │  Grade Validation?     │
+                                        │  • Next grade only (+1)│
+                                        │  • Level transitions OK│
+                                        └───────┬──────────┬─────┘
+                                               NO         YES
+                                                │          │
+                                       ┌────────▼──────┐  │
+                                       │  ❌ FAIL      │  │
+                                       └───────────────┘  │
+                                                          │
+                                              ┌───────────▼────────────┐
+                                              │  ✅ PASS               │
+                                              │  អាចឡើងថ្នាក់បាន         │
+                                              │  → PROMOTE!            │
+                                              └────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+
+CAMBODIA EDUCATION LEVELS:
+──────────────────────────
+
+Primary School (បឋមសិក្សា)          │  Grade 1 → Grade 2 → ... → Grade 6
+                                     │               ↓
+Lower Secondary (បឋមភូមិ)           │  Grade 7 → Grade 8 → Grade 9
+                                     │               ↓
+Upper Secondary (មធ្យមភូមិ)         │  Grade 10 → Grade 11 → Grade 12
+                                     │               ↓
+                                     │          🎓 GRADUATION
+
+
+KEY TRANSITIONS (must be validated):
+─────────────────────────────────────
+Grade 6  →  Grade 7     (Primary to Lower Secondary)
+Grade 9  →  Grade 10    (Lower Secondary to Upper Secondary)
+Grade 12 →  Graduation  (No further promotion)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+END OF PROCESS FLOW
