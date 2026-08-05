@@ -1,0 +1,594 @@
+{% extends 'school/base.html' %}
+{% load school_tags %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Responsive Form Container */
+.timetable-form-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.form-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.form-card-header i {
+  font-size: 1.8rem;
+  color: #2563eb;
+}
+
+.form-card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Form Section */
+.form-section {
+  margin-bottom: 28px;
+}
+
+.form-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 16px;
+  padding-left: 8px;
+  border-left: 4px solid #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Form Group - Enhanced */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.form-group label i {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.form-group label .required {
+  color: #dc2626;
+  font-size: 1rem;
+}
+
+/* Enhanced Form Controls */
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #fff;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  border-width: 2px;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.15), 0 2px 8px rgba(37,99,235,0.1);
+}
+
+/* Select with icon */
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23475569' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* Help Text */
+.form-text {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-text i {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* Error Messages */
+.text-danger {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: #fee2e2;
+  border-radius: 6px;
+  border-left: 3px solid #dc2626;
+}
+
+.text-danger i {
+  font-size: 0.9rem;
+}
+
+/* Alert */
+.alert {
+  border-radius: 10px;
+  border: 2px solid;
+  font-size: 0.85rem;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert i {
+  font-size: 1.2rem;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.btn {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #2563eb;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  border-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+}
+
+.btn-outline-secondary {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.btn-outline-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-card {
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .form-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .form-card-header i {
+    font-size: 1.5rem;
+  }
+  
+  .form-card-header h3 {
+    font-size: 1.05rem;
+  }
+  
+  .form-section-title {
+    font-size: 0.85rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .form-control,
+  .form-select {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 12px 14px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 14px 24px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .page-header .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .timetable-form-container {
+    margin: 0 -10px;
+  }
+  
+  .form-card {
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .form-card-header i {
+    font-size: 1.3rem;
+  }
+  
+  .form-card-header h3 {
+    font-size: 0.95rem;
+  }
+  
+  .form-section-title {
+    font-size: 0.8rem;
+  }
+}
+
+/* Loading State */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Custom Checkbox/Radio */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.form-check-input {
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 2px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+
+.form-check-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h2><i class="bi bi-calendar-plus me-2"></i>{{ title }}</h2>
+    {% if subtitle %}<p class="text-muted mt-1" style="font-size:0.82rem;">{{ subtitle }}</p>{% endif %}
+  </div>
+  <a href="{{ back_url }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+    <span class="d-none d-md-inline">ត្រឡប់ក្រោយ</span>
+  </a>
+</div>
+
+<div class="timetable-form-container">
+  <div class="form-card">
+    <div class="form-card-header">
+      <i class="bi bi-calendar-week-fill"></i>
+      <div>
+        <h3>{{ title }}</h3>
+        <p style="margin: 4px 0 0; font-size: 0.8rem; color: #64748b;">
+          បំពេញព័ត៌មានខាងក្រោមដើម្បីបន្ថែមតារាងម៉ោងថ្មី
+        </p>
+      </div>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div>
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate id="timetableForm">
+      {% csrf_token %}
+      
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="bi bi-info-circle me-1"></i>ព័ត៌មានមូលដ្ឋាន
+        </div>
+        
+        <div class="row">
+          <!-- Classroom -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.classroom.id_for_label }}">
+                <i class="bi bi-building"></i>
+                {{ form.classroom.label }}
+                {% if form.classroom.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.classroom }}
+              {% if form.classroom.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.classroom.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.classroom.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.classroom.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Academic Year -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.academic_year.id_for_label }}">
+                <i class="bi bi-calendar-range"></i>
+                {{ form.academic_year.label }}
+                {% if form.academic_year.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.academic_year }}
+              {% if form.academic_year.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.academic_year.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.academic_year.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.academic_year.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Details Section -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="bi bi-clock me-1"></i>ព័ត៌មានពេលវេលា
+        </div>
+        
+        <div class="row">
+          <!-- Subject -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.subject.id_for_label }}">
+                <i class="bi bi-journal-bookmark"></i>
+                {{ form.subject.label }}
+                {% if form.subject.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.subject }}
+              {% if form.subject.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.subject.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.subject.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.subject.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Time Slot -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.time_slot.id_for_label }}">
+                <i class="bi bi-alarm"></i>
+                {{ form.time_slot.label }}
+                {% if form.time_slot.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.time_slot }}
+              {% if form.time_slot.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.time_slot.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.time_slot.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.time_slot.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teacher & Room Section -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="bi bi-person-workspace me-1"></i>គ្រូ និង បន្ទប់
+        </div>
+        
+        <div class="row">
+          <!-- Teacher -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.teacher.id_for_label }}">
+                <i class="bi bi-mortarboard"></i>
+                {{ form.teacher.label }}
+                {% if form.teacher.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.teacher }}
+              {% if form.teacher.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.teacher.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.teacher.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.teacher.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Room -->
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label for="{{ form.room.id_for_label }}">
+                <i class="bi bi-door-open"></i>
+                {{ form.room.label }}
+                {% if form.room.field.required %}<span class="required">*</span>{% endif %}
+              </label>
+              {{ form.room }}
+              {% if form.room.errors %}
+              <div class="text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                {% for error in form.room.errors %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+              {% if form.room.help_text %}
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                {{ form.room.help_text }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="bi bi-check-circle-fill"></i>
+          រក្សាទុក
+        </button>
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">
+          <i class="bi bi-x-lg"></i>
+          បោះបង់
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Form validation and UX enhancements
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('timetableForm');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  // Add loading state on submit
+  form.addEventListener('submit', function(e) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> កំពុងរក្សាទុក...';
+  });
+  
+  // Add change listeners for real-time validation
+  const requiredFields = form.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    field.addEventListener('change', function() {
+      if (this.value) {
+        this.style.borderColor = '#10b981';
+      } else {
+        this.style.borderColor = '#cbd5e1';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

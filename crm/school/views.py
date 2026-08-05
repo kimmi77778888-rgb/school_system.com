@@ -997,28 +997,30 @@ def student_promote(request):
             logger.info(f"DEBUG: Looking for Grade {next_grade_number} classrooms")
             
             # Determine target academic year for next grade
-            # Logic: If current classroom has year "2026-2027", next should be "2027-2028"
-            if current_classroom.academic_year:
-                target_academic_year = current_classroom.academic_year
-                # Try to find next year if transitioning levels
-                if current_grade_num in [6, 9, 12]:  # Level transitions
-                    try:
-                        current_year_str = current_classroom.academic_year.year
-                        if '-' in current_year_str:
-                            start_year = int(current_year_str.split('-')[0])
-                            next_year_str = f"{start_year + 1}-{start_year + 2}"
-                            next_year_obj = AcademicYear.objects.filter(year=next_year_str).first()
-                            if next_year_obj:
-                                target_academic_year = next_year_obj
-                                logger.info(f"DEBUG: Level transition detected, looking for year {next_year_str}")
-                    except Exception as e:
-                        logger.warning(f"DEBUG: Could not determine next year: {e}")
+            # Logic: Use the SAME academic year as current classroom
+            # This allows promotion within the same year OR to next year
+            target_academic_year = current_classroom.academic_year
             
             # Get classrooms with next grade number
-            # Prioritize: same or next academic year
-            all_classrooms = Classroom.objects.filter(
+            # Search in: 1) Same academic year, 2) All years if no match
+            classrooms_query = Classroom.objects.filter(
                 grade__grade_number=next_grade_number
             ).select_related('grade', 'academic_year')
+            
+            # First, try to find classrooms with same academic year
+            if target_academic_year:
+                same_year_classrooms = classrooms_query.filter(academic_year=target_academic_year)
+                logger.info(f"DEBUG: Found {same_year_classrooms.count()} classrooms with same year {target_academic_year}")
+                
+                if same_year_classrooms.exists():
+                    all_classrooms = same_year_classrooms
+                else:
+                    # If no classrooms in same year, look for any year
+                    logger.info(f"DEBUG: No classrooms in same year, searching all years")
+                    all_classrooms = classrooms_query
+            else:
+                # No academic year on current classroom, get all
+                all_classrooms = classrooms_query
             
             logger.info(f"DEBUG: Found {all_classrooms.count()} classrooms with grade {next_grade_number}")
             
@@ -2309,7 +2311,12 @@ def timetable_add(request):
     if form.is_valid():
         form.save(); messages.success(request, 'តារាងម៉ោងបានបន្ថែម។')
         return redirect('school:timetable_list')
-    return render(request, 'school/form.html', {'form': form, 'title': 'បន្ថែមតារាងម៉ោង', 'back_url': reverse('school:timetable_list')})
+    return render(request, 'school/timetable_form.html', {
+        'form': form, 
+        'title': 'បន្ថែមតារាងម៉ោង - Add Timetable', 
+        'subtitle': 'បង្កើតតារាងម៉ោងថ្មីសម្រាប់ថ្នាក់រៀន',
+        'back_url': reverse('school:timetable_list')
+    })
 
 @admin_required
 def timetable_copy(request):
@@ -2406,7 +2413,12 @@ def timetable_edit(request, pk):
     if form.is_valid():
         form.save(); messages.success(request, 'តារាងម៉ោងបានកែប្រែ។')
         return redirect('school:timetable_list')
-    return render(request, 'school/form.html', {'form': form, 'title': 'កែប្រែតារាងម៉ោង', 'back_url': reverse('school:timetable_list')})
+    return render(request, 'school/timetable_form.html', {
+        'form': form, 
+        'title': 'កែប្រែតារាងម៉ោង - Edit Timetable', 
+        'subtitle': f'កែសម្រួលតារាងម៉ោងសម្រាប់ {tt.classroom}',
+        'back_url': reverse('school:timetable_list')
+    })
 
 @admin_required
 def timetable_delete(request, pk):
