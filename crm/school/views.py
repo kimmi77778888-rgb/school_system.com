@@ -1032,7 +1032,7 @@ def teacher_list(request):
     from django.core.paginator import Paginator
     
     q = request.GET.get('q', '')
-    teachers = Teacher.objects.filter(is_active=True).select_related('user')
+    teachers = Teacher.objects.filter(is_active=True)
     if q:
         teachers = teachers.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(subject_specialty__icontains=q))
     
