@@ -704,14 +704,14 @@ body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
         </a>
       </div>
       {% endwith %}{% endwith %}
-      <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name or 'teacher_attendance' in request.resolver_match.url_name or 'promote' in request.resolver_match.url_name %}open{% endif %}"
+      <button class="sb-grp {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name or 'teacher_attendance' in request.resolver_match.url_name or 'promote' in request.resolver_match.url_name or 'result' in request.resolver_match.url_name %}open show{% endif %}"
               onclick="togGrp(this)" data-tip="ការបង្រៀន">
         <span class="sb-grp-left">
           <i class="bi bi-pencil-square"></i><span class="t">ការបង្រៀន</span>
         </span>
         <i class="bi bi-chevron-down sb-grp-arrow"></i>
       </button>
-      <div class="sb-grp-body">
+      <div class="sb-grp-body {% if 'attendance' in request.resolver_match.url_name or 'exam' in request.resolver_match.url_name or 'score' in request.resolver_match.url_name or 'teacher_attendance' in request.resolver_match.url_name or 'promote' in request.resolver_match.url_name or 'result' in request.resolver_match.url_name %}show{% endif %}">
         <a class="sb-a sb-sub {% if 'attendance_list' in request.resolver_match.url_name or 'attendance_add' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:attendance_list' %}">
           <i class="bi bi-calendar-check-fill"></i><span class="t">វត្តមានសិស្ស</span>
         </a>
@@ -721,10 +721,10 @@ body, .khmer-text, td, th, span, div, p, h1, h2, h3, h4, h5, h6 {
         <a class="sb-a sb-sub {% if 'teacher_attendance' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:teacher_attendance_list' %}">
           <i class="bi bi-person-check-fill"></i><span class="t">វត្តមានគ្រូ</span>
         </a>
-        <a class="sb-a sb-sub {% if 'exam' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:exam_list' %}">
+        <a class="sb-a sb-sub {% if 'exam' in request.resolver_match.url_name and 'result' not in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:exam_list' %}">
           <i class="bi bi-file-earmark-text-fill"></i><span class="t">ការប្រឡង</span>
         </a>
-        <a class="sb-a sb-sub {% if 'score' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}">
+        <a class="sb-a sb-sub {% if 'score' in request.resolver_match.url_name or 'result' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:score_list' %}">
           <i class="bi bi-bar-chart-fill"></i><span class="t">លទ្ធផលប្រឡង</span>
         </a>
         <a class="sb-a sb-sub {% if 'promote' in request.resolver_match.url_name %}on{% endif %}" href="{% url 'school:student_promote' %}">
