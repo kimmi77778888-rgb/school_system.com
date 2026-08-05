@@ -625,6 +625,7 @@ class StudentViewSet(viewsets.ModelViewSet):
                 student.previous_classroom = old_classroom_str
                 student.promotion_date = timezone.now().date()
                 student.status = 'ACTIVE'
+                student.is_active = True  # Ensure student is active and visible
                 student.classroom = next_classroom
                 
                 # Add note with level transition info

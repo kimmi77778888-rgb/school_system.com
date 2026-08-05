@@ -934,6 +934,7 @@ def student_promote(request):
                     
                     # Keep status as ACTIVE (they're active in new grade)
                     student.status = 'ACTIVE'
+                    student.is_active = True  # Ensure student is active and visible
                     
                     # Move to new classroom
                     student.classroom = next_classroom
