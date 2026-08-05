@@ -4,7 +4,7 @@ from .api_views import (
     CustomAuthToken, UserViewSet, UserProfileViewSet, LoginHistoryViewSet,
     AcademicYearViewSet, GradeViewSet, TeacherViewSet, TeacherDocumentViewSet,
     TeacherEmploymentHistoryViewSet, TeacherAttendanceViewSet, ClassroomViewSet,
-    StudentViewSet, SubjectViewSet, TimeSlotViewSet, TimetableViewSet,
+    StudentViewSet, StudentHistoryViewSet, SubjectViewSet, TimeSlotViewSet, TimetableViewSet,
     AttendanceViewSet, ExamTypeViewSet, ExamViewSet, ScoreViewSet,
     NotificationViewSet, ReportCardViewSet, SchoolEventViewSet,
     SchoolSettingsViewSet, DashboardViewSet
@@ -30,6 +30,7 @@ router.register(r'teacher-attendance', TeacherAttendanceViewSet, basename='teach
 
 # Students & Classrooms
 router.register(r'students', StudentViewSet, basename='student')
+router.register(r'student-history', StudentHistoryViewSet, basename='studenthistory')
 router.register(r'classrooms', ClassroomViewSet, basename='classroom')
 
 # Subjects & Timetable

@@ -4,7 +4,7 @@ from .models import (
     UserProfile, LoginHistory, AcademicYear, Grade, Teacher, TeacherDocument,
     TeacherEmploymentHistory, Classroom, Student, Subject, TimeSlot, Timetable,
     Attendance, TeacherAttendance, ExamType, Exam, Score, Notification,
-    NotificationRead, ReportCard, SchoolEvent, SchoolSettings
+    NotificationRead, ReportCard, SchoolEvent, SchoolSettings, StudentHistory
 )
 
 
@@ -203,6 +203,91 @@ class StudentListSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}"
+
+
+# ══════════════════════════════════════════════════════
+#  STUDENT HISTORY
+# ══════════════════════════════════════════════════════
+class StudentHistorySerializer(serializers.ModelSerializer):
+    """Student academic history serializer"""
+    student_name = serializers.CharField(source='student.__str__', read_only=True)
+    academic_year_name = serializers.CharField(source='academic_year.year', read_only=True)
+    classroom_name = serializers.CharField(source='classroom.__str__', read_only=True, allow_null=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    grade_level_display = serializers.SerializerMethodField()
+    attendance_percentage = serializers.FloatField(read_only=True)
+    pass_percentage = serializers.FloatField(read_only=True)
+
+    class Meta:
+        model = StudentHistory
+        fields = [
+            'id', 'student', 'student_name', 'academic_year', 'academic_year_name',
+            'classroom', 'classroom_name', 'grade_name', 'grade_number', 'grade_level',
+            'grade_level_display', 'status', 'status_display', 'average_score',
+            'total_subjects', 'passed_subjects', 'failed_subjects', 'total_days',
+            'present_days', 'absent_days', 'attendance_percentage', 'pass_percentage',
+            'start_date', 'end_date', 'promoted_to', 'promotion_note', 'notes',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+    def get_grade_level_display(self, obj):
+        level_map = {
+            'primary': 'បឋមសិក្សា (Primary)',
+            'lower_secondary': 'បឋមភូមិ (Lower Secondary)',
+            'upper_secondary': 'មធ្យមភូមិ (Upper Secondary)'
+        }
+        return level_map.get(obj.grade_level, obj.grade_level)
+
+
+class PromotionEligibilitySerializer(serializers.Serializer):
+    """Serializer for student promotion eligibility data"""
+    student_id = serializers.IntegerField()
+    student_name = serializers.CharField()
+    student_code = serializers.CharField()
+    current_classroom = serializers.CharField()
+    current_grade_number = serializers.IntegerField()
+    total_subjects = serializers.IntegerField()
+    passed_subjects = serializers.IntegerField()
+    failed_subjects = serializers.IntegerField()
+    avg_percentage = serializers.FloatField()
+    attendance_rate = serializers.FloatField()
+    total_days = serializers.IntegerField()
+    present_days = serializers.IntegerField()
+    can_promote = serializers.BooleanField()
+    promotion_status = serializers.CharField()
+    reasons = serializers.ListField(child=serializers.CharField())
+
+
+class BulkPromotionRequestSerializer(serializers.Serializer):
+    """Serializer for bulk promotion request"""
+    student_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        min_length=1,
+        help_text="List of student IDs to promote"
+    )
+    next_classroom_id = serializers.IntegerField(help_text="Target classroom ID")
+    academic_year_id = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        help_text="Academic year to base promotion on (optional)"
+    )
+    passing_percentage = serializers.FloatField(
+        default=50.0,
+        min_value=0,
+        max_value=100,
+        help_text="Minimum passing percentage (default: 50)"
+    )
+
+
+class PromotionResultSerializer(serializers.Serializer):
+    """Serializer for promotion operation results"""
+    success = serializers.BooleanField()
+    message = serializers.CharField()
+    promoted_count = serializers.IntegerField()
+    failed_count = serializers.IntegerField()
+    promoted_students = serializers.ListField(child=serializers.DictField())
+    failed_promotions = serializers.ListField(child=serializers.DictField())
 
 
 # ══════════════════════════════════════════════════════
